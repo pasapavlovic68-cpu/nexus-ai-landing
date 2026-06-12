@@ -76,10 +76,14 @@
   .nav-cta{
     background:linear-gradient(135deg,var(--accent),var(--accent-deep));
     color:#fff; padding:9px 20px; border-radius:12px; font-size:14px; font-weight:600;
-    text-decoration:none; transition:transform .2s, box-shadow .2s;
+    text-decoration:none; border:1px solid transparent;
+    transition:transform .2s, box-shadow .35s, background .35s, color .35s, border-color .35s;
     box-shadow:0 4px 20px rgba(79,140,255,0.25);
   }
-  .nav-cta:hover{transform:translateY(-2px); box-shadow:0 6px 26px rgba(79,140,255,0.4)}
+  .nav-cta:hover{
+    transform:translateY(-2px); background:#0c0e16; color:var(--accent2);
+    border-color:rgba(121,168,255,0.5); box-shadow:0 6px 26px rgba(79,140,255,0.25);
+  }
   @media(max-width:720px){ .nav-links{display:none} }
 
   /* ---------- HERO ---------- */
@@ -124,15 +128,24 @@
   .btn-primary{
     background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff;
     padding:15px 32px; border-radius:14px; font-weight:600; font-size:16px; text-decoration:none;
-    box-shadow:0 6px 28px rgba(79,140,255,0.3); transition:transform .2s, box-shadow .2s;
+    border:1px solid transparent; box-shadow:0 6px 28px rgba(79,140,255,0.3);
+    transition:transform .2s, box-shadow .35s, background .35s, color .35s, border-color .35s;
   }
-  .btn-primary:hover{transform:translateY(-3px); box-shadow:0 10px 36px rgba(79,140,255,0.45)}
+  .btn-primary:hover{
+    transform:translateY(-3px); background:#0c0e16; color:var(--accent2);
+    border-color:rgba(121,168,255,0.5); box-shadow:0 8px 30px rgba(79,140,255,0.25);
+  }
   .btn-ghost{
     background:var(--glass); border:1px solid var(--border); color:var(--txt);
     padding:15px 32px; border-radius:14px; font-weight:500; font-size:16px; text-decoration:none;
-    backdrop-filter:blur(10px); transition:border-color .2s, transform .2s;
+    backdrop-filter:blur(10px);
+    transition:border-color .35s, transform .2s, background .35s, color .35s, box-shadow .35s;
   }
-  .btn-ghost:hover{border-color:var(--border-hover); transform:translateY(-3px)}
+  .btn-ghost:hover{
+    border-color:transparent; transform:translateY(-3px);
+    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;
+    box-shadow:0 6px 28px rgba(79,140,255,0.3);
+  }
 
   /* анимация знака */
   .ring{transform-origin:50px 50px; animation:rot 20s linear infinite; animation-fill-mode:both}
@@ -252,55 +265,46 @@
   .funnel-step p{color:var(--muted); font-size:13.5px; font-weight:300;}
   .funnel-incl{
     background:var(--glass-2); border:1px solid var(--border); border-radius:20px; padding:26px 28px;
-    backdrop-filter:blur(14px); margin-bottom:30px;
+    backdrop-filter:blur(14px); margin-bottom:30px; text-align:center;
   }
   .funnel-incl h3{font-size:15px; font-weight:600; margin-bottom:14px;}
-  .funnel-incl ul{list-style:none; display:grid; grid-template-columns:repeat(2,1fr); gap:8px 24px;}
-  @media(max-width:720px){ .funnel-incl ul{grid-template-columns:1fr} }
+  .funnel-incl ul{list-style:none; display:inline-grid; grid-template-columns:repeat(2,auto); gap:8px 36px; text-align:left;}
+  @media(max-width:720px){ .funnel-incl ul{grid-template-columns:auto} }
   .funnel-incl li{color:var(--muted); font-size:13.5px; font-weight:300; display:flex; gap:10px; align-items:flex-start;}
   .funnel-incl li::before{content:'✓'; color:var(--accent); font-weight:600;}
   .funnel-cta{text-align:center;}
-  .funnel-cta .note{margin-top:14px; font-size:13px; color:var(--muted-2); font-weight:300;}
 
-  /* третья кнопка hero — текстовая ссылка со стрелкой */
-  .btn-link{
-    display:inline-flex; align-items:center; padding:15px 10px; font-size:15px; font-weight:500;
-    color:var(--accent-bright); text-decoration:none; transition:color .2s, transform .2s;
+  /* кнопка «Автоворонки Chatterfy» — прозрачная карточка с эквалайзером-волной внутри */
+  .ch-btn{
+    position:relative; overflow:hidden; background:rgba(79,140,255,0.04);
+    border:1px solid rgba(121,168,255,0.25); color:var(--txt);
+    padding:16px 32px; min-width:250px; height:56px; border-radius:14px;
+    font-weight:500; font-size:16px; cursor:pointer; backdrop-filter:blur(10px);
+    display:flex; align-items:center; justify-content:center; text-decoration:none;
+    transition:border-color .35s, box-shadow .35s, background .35s;
   }
-  .btn-link:hover{color:#fff; transform:translateY(-3px)}
-
-  /* hover-график «эквалайзер» у кнопки автоворонок (только устройства с мышью) */
-  .funnel-hover-wrap{position:relative; display:inline-block;}
-  .funnel-hover-wrap .btn-link{position:relative; z-index:1;}
-  .funnel-hover-graph{display:none;}
+  .ch-text{
+    display:inline-flex; align-items:center; gap:9px; position:relative; z-index:2;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .35s, color .35s, font-size .35s;
+  }
+  .ch-graph{
+    position:absolute; left:0; right:0; top:0; height:32px; padding:9px 22px 0;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    opacity:0; transform:translateY(-10px);
+    transition:opacity .4s ease, transform .45s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none; z-index:1;
+  }
+  .ch-graph .b{
+    flex:1; max-width:6px; margin:0 1.5px; border-radius:2px 2px 1px 1px;
+    background:linear-gradient(180deg,var(--accent2),var(--accent));
+    box-shadow:0 0 8px rgba(79,140,255,0.5); height:25%;
+  }
   @media (hover:hover){
-    .funnel-hover-graph{
-      position:absolute; left:0; right:0; bottom:calc(100% - 14px);
-      height:46px; padding:0 16px;
-      display:flex; align-items:flex-end; justify-content:space-between; gap:0;
-      opacity:0; transform:translateY(14px);
-      transition:opacity .4s ease, transform .45s cubic-bezier(.2,.8,.2,1);
-      pointer-events:none; z-index:0;
-    }
-    .funnel-hover-graph .b{
-      flex:1; max-width:7px; margin:0 2px; border-radius:3px;
-      background:linear-gradient(180deg, var(--accent2), var(--accent));
-      box-shadow:0 0 10px rgba(79,140,255,0.5); height:30%;
-    }
-    .funnel-hover-wrap:hover .funnel-hover-graph{opacity:1; transform:translateY(0);}
-    .funnel-hover-wrap:hover .b{animation:funnelPulse 1.1s ease-in-out infinite;}
-    .funnel-hover-graph .b:nth-child(2){animation-delay:.1s}
-    .funnel-hover-graph .b:nth-child(3){animation-delay:.2s}
-    .funnel-hover-graph .b:nth-child(4){animation-delay:.3s}
-    .funnel-hover-graph .b:nth-child(5){animation-delay:.4s}
-    .funnel-hover-graph .b:nth-child(6){animation-delay:.5s}
-    .funnel-hover-graph .b:nth-child(7){animation-delay:.6s}
-    .funnel-hover-graph .b:nth-child(8){animation-delay:.7s}
-    .funnel-hover-graph .b:nth-child(9){animation-delay:.8s}
-    .funnel-hover-graph .b:nth-child(10){animation-delay:.9s}
-    .funnel-hover-graph .b:nth-child(11){animation-delay:1s}
-    .funnel-hover-graph .b:nth-child(12){animation-delay:1.1s}
-    @keyframes funnelPulse{0%,100%{height:25%} 50%{height:95%}}
+    .ch-btn:hover{border-color:rgba(121,168,255,0.6); box-shadow:0 8px 34px rgba(79,140,255,0.28); background:rgba(79,140,255,0.07);}
+    .ch-btn:hover .ch-text{transform:translateY(13px); opacity:.85; color:var(--accent2); font-size:13px;}
+    .ch-btn:hover .ch-graph{opacity:1; transform:translateY(0);}
+    .ch-btn:hover .ch-graph .b{animation:chPulse 1s ease-in-out infinite;}
+    @keyframes chPulse{0%,100%{height:18%}50%{height:100%}}
   }
 
   /* ---------- ПРОЦЕСС ---------- */
@@ -341,7 +345,25 @@
   .price-card ul{list-style:none; margin-bottom:24px; flex:1;}
   .price-card li{color:var(--muted); font-size:13.5px; font-weight:300; padding:6px 0; display:flex; gap:10px; align-items:flex-start;}
   .price-card li::before{content:'✓'; color:var(--accent); font-weight:600;}
-  .price-card .btn-ghost, .price-card .btn-primary{display:block; text-align:center; padding:12px 0; font-size:15px;}
+  /* кнопки «Обсудить» — постоянный бегущий луч по контуру */
+  .price-glow{position:relative; border-radius:12px; padding:1.5px; background:var(--border); overflow:hidden; display:block; cursor:pointer; border:none; width:100%; text-decoration:none;}
+  .price-glow::before{
+    content:''; position:absolute;
+    width:26px; height:3px; border-radius:2px;
+    background:linear-gradient(90deg, transparent, var(--accent2) 45%, var(--accent) 75%, transparent);
+    box-shadow:0 0 8px rgba(79,140,255,0.55);
+    offset-path:inset(1px round 12px);
+    animation:priceGlowMove 3s linear infinite;
+  }
+  /* если браузер не умеет offset-path — луч просто не показываем */
+  @supports not (offset-path:inset(1px round 12px)){ .price-glow::before{display:none} }
+  .price-glow .pg-inner{
+    position:relative; z-index:1; display:block; background:#0c0e16; color:var(--txt);
+    padding:13px 24px; border-radius:11px; text-align:center; font-weight:600; font-size:15px;
+    transition:background .3s;
+  }
+  .price-glow:hover .pg-inner{background:#11141d;}
+  @keyframes priceGlowMove{from{offset-distance:0%} to{offset-distance:100%}}
   /* выделенный средний тариф */
   .price-card.featured{
     position:relative; border-color:var(--accent2);
@@ -441,12 +463,10 @@
     <div class="hero-btns">
       <a href="#projects" class="btn-primary">Смотреть работы</a>
       <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost">Обсудить проект</a>
-      <span class="funnel-hover-wrap">
-        <div class="funnel-hover-graph" aria-hidden="true">
-          <span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span>
-        </div>
-        <a href="#funnels" class="btn-link">Автоворонки Chatterfy →</a>
-      </span>
+      <a href="#funnels" class="ch-btn">
+        <span class="ch-graph" aria-hidden="true"><span class="b"></span><span class="b" style="animation-delay:-0.07s"></span><span class="b" style="animation-delay:-0.14s"></span><span class="b" style="animation-delay:-0.21s"></span><span class="b" style="animation-delay:-0.28s"></span><span class="b" style="animation-delay:-0.35s"></span><span class="b" style="animation-delay:-0.42s"></span><span class="b" style="animation-delay:-0.49s"></span><span class="b" style="animation-delay:-0.56s"></span><span class="b" style="animation-delay:-0.63s"></span><span class="b" style="animation-delay:-0.7s"></span><span class="b" style="animation-delay:-0.77s"></span><span class="b" style="animation-delay:-0.84s"></span><span class="b" style="animation-delay:-0.91s"></span><span class="b" style="animation-delay:-0.98s"></span><span class="b" style="animation-delay:-1.05s"></span><span class="b" style="animation-delay:-1.12s"></span><span class="b" style="animation-delay:-1.19s"></span><span class="b" style="animation-delay:-1.26s"></span><span class="b" style="animation-delay:-1.33s"></span><span class="b" style="animation-delay:-1.4s"></span><span class="b" style="animation-delay:-1.47s"></span><span class="b" style="animation-delay:-1.54s"></span><span class="b" style="animation-delay:-1.61s"></span></span>
+        <span class="ch-text">Автоворонки Chatterfy <span class="arrow">→</span></span>
+      </a>
     </div>
   </div>
 </header>
@@ -540,7 +560,6 @@
 
     <div class="funnel-cta reveal">
       <a href="https://t.me/Jokwq" target="_blank" rel="noopener" class="btn-primary">Заказать воронку</a>
-      <p class="note">Аудит текущей воронки или ТЗ — в Telegram @Jokwq</p>
     </div>
   </div>
 </section>
@@ -590,7 +609,7 @@
           <li>интеграция с вашим CRM</li>
           <li>поддержка после запуска</li>
         </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost">Обсудить</a>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
       <div class="price-card featured reveal">
         <span class="pop">Популярное</span>
@@ -602,7 +621,7 @@
           <li>адаптив под телефон</li>
           <li>деплой и домен под ключ</li>
         </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-primary">Обсудить</a>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
       <div class="price-card reveal">
         <div class="plan">Автоматизация</div>
@@ -613,7 +632,7 @@
           <li>дашборды и аналитика</li>
           <li>решение под ключ</li>
         </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost">Обсудить</a>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
     </div>
     <p class="price-note reveal">Цены указаны ориентировочно и обсуждаются индивидуально под каждый проект.</p>
