@@ -222,6 +222,53 @@
   .ph3{background:linear-gradient(140deg,#2a1530,#0c0e1a);}
   .ph4{background:linear-gradient(140deg,#2a2410,#0c0e1a);}
 
+  /* ---------- АВТОВОРОНКИ CHATTERFY ---------- */
+  .case-band{
+    background:linear-gradient(135deg,rgba(79,140,255,0.08),rgba(30,79,208,0.04));
+    border:1px solid var(--border); border-radius:24px; padding:40px 36px;
+    backdrop-filter:blur(14px); text-align:center; margin-bottom:24px;
+  }
+  .case-band .big{
+    font-size:clamp(40px,7vw,64px); font-weight:800; letter-spacing:-2px; line-height:1.1;
+    background:linear-gradient(135deg,var(--accent-bright),var(--accent));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .case-band .case-sub{color:var(--muted); font-size:14px; font-weight:300; max-width:520px; margin:10px auto 0;}
+  .case-metrics{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:22px;}
+  .case-metrics span{
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--accent-bright); background:rgba(79,140,255,0.1); border:1px solid rgba(79,140,255,0.2);
+    padding:6px 14px; border-radius:20px;
+  }
+  .funnel-steps{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:24px;}
+  @media(max-width:860px){ .funnel-steps{grid-template-columns:1fr} }
+  .funnel-step{
+    background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:28px 26px;
+    backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
+  }
+  .funnel-step:hover{transform:translateY(-6px); border-color:var(--border-hover)}
+  .funnel-step .num{font-family:'Space Mono',monospace; font-size:13px; color:var(--accent); margin-bottom:12px;}
+  .funnel-step h3{font-size:18px; font-weight:600; margin-bottom:10px;}
+  .funnel-step p{color:var(--muted); font-size:13.5px; font-weight:300;}
+  .funnel-incl{
+    background:var(--glass-2); border:1px solid var(--border); border-radius:20px; padding:26px 28px;
+    backdrop-filter:blur(14px); margin-bottom:30px;
+  }
+  .funnel-incl h3{font-size:15px; font-weight:600; margin-bottom:14px;}
+  .funnel-incl ul{list-style:none; display:grid; grid-template-columns:repeat(2,1fr); gap:8px 24px;}
+  @media(max-width:720px){ .funnel-incl ul{grid-template-columns:1fr} }
+  .funnel-incl li{color:var(--muted); font-size:13.5px; font-weight:300; display:flex; gap:10px; align-items:flex-start;}
+  .funnel-incl li::before{content:'✓'; color:var(--accent); font-weight:600;}
+  .funnel-cta{text-align:center;}
+  .funnel-cta .note{margin-top:14px; font-size:13px; color:var(--muted-2); font-weight:300;}
+
+  /* третья кнопка hero — текстовая ссылка со стрелкой */
+  .btn-link{
+    display:inline-flex; align-items:center; padding:15px 10px; font-size:15px; font-weight:500;
+    color:var(--accent-bright); text-decoration:none; transition:color .2s, transform .2s;
+  }
+  .btn-link:hover{color:#fff; transform:translateY(-3px)}
+
   /* ---------- ПРОЦЕСС ---------- */
   .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
   @media(max-width:860px){ .steps{grid-template-columns:repeat(2,1fr)} }
@@ -326,6 +373,7 @@
     <div class="nav-links">
       <a href="#services">Услуги</a>
       <a href="#projects">Работы</a>
+      <a href="#funnels">Автоворонки</a>
       <a href="#process">Как работаем</a>
       <a href="#pricing">Цены</a>
       <a href="#contact">Контакты</a>
@@ -359,6 +407,7 @@
     <div class="hero-btns">
       <a href="#projects" class="btn-primary">Смотреть работы</a>
       <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost">Обсудить проект</a>
+      <a href="#funnels" class="btn-link">Автоворонки Chatterfy →</a>
     </div>
   </div>
 </header>
@@ -400,6 +449,60 @@
       <p>Кликни по миниатюре — фото перелетит в главный квадрат.</p>
     </div>
     <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- АВТОВОРОНКИ CHATTERFY -->
+<section class="section" id="funnels">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tag">Автоворонки</span>
+      <h2>Автоматизация продаж в Chatterfy</h2>
+      <p>Превращаем ручную обработку лидов в автоматическую систему. Путь клиента Reg → FD → RD работает 24/7 без человеческого фактора.</p>
+    </div>
+
+    <div class="case-band reveal">
+      <div class="big">10% → 40%</div>
+      <p class="case-sub">Рост конверсии в регистрацию после автоматизации воронки. BO, ГЕО: LatAm (Колумбия/Мексика), источник Facebook.</p>
+      <div class="case-metrics">
+        <span>24/7 работа</span>
+        <span>0 человеческого фактора</span>
+        <span>A/B тест за май</span>
+      </div>
+    </div>
+
+    <div class="funnel-steps">
+      <div class="funnel-step reveal">
+        <div class="num">01</div>
+        <h3>Регистрация (Reg)</h3>
+        <p>Моментальный подхват пользователя, стартовый прогрев, сегментация по действиям в первые 15/30/60 минут.</p>
+      </div>
+      <div class="funnel-step reveal">
+        <div class="num">02</div>
+        <h3>Первый депозит (FD)</h3>
+        <p>Триггерные цепочки, имитация живого общения, прогревающие механики по таймингам.</p>
+      </div>
+      <div class="funnel-step reveal">
+        <div class="num">03</div>
+        <h3>Повторные депозиты (RD)</h3>
+        <p>Автоматическая работа с активной базой: сегментация неактивных клиентов, индивидуальные триггеры без спама.</p>
+      </div>
+    </div>
+
+    <div class="funnel-incl reveal">
+      <h3>Что входит</h3>
+      <ul>
+        <li>Интеграция с трекерами (Keitaro, Binom и др.)</li>
+        <li>Корректная передача постбэков</li>
+        <li>Рандомизация текстов и медиа (защита от спам-фильтров)</li>
+        <li>Логика удержания под любые ГЕО и офферы</li>
+      </ul>
+    </div>
+
+    <div class="funnel-cta reveal">
+      <a href="https://t.me/Jokwq" target="_blank" rel="noopener" class="btn-primary">Заказать воронку</a>
+      <p class="note">Аудит текущей воронки или ТЗ — в Telegram @Jokwq</p>
+    </div>
   </div>
 </section>
 
