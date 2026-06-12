@@ -359,9 +359,10 @@
   .price-card .price-sub{color:var(--muted); font-size:12.5px; font-weight:300; margin-bottom:4px;}
   .price-card .price-sub:last-of-type{margin-bottom:12px;}
   .price-card .desc{color:var(--muted); font-size:14px; font-weight:300; margin-bottom:18px;}
-  .price-card ul{list-style:none; margin-bottom:24px; flex:1;}
-  .price-card li{color:var(--muted); font-size:13.5px; font-weight:300; padding:6px 0; display:flex; gap:10px; align-items:flex-start;}
-  .price-card li::before{content:'✓'; color:var(--accent); font-weight:600;}
+  .price-card ul{list-style:none; margin-bottom:24px; flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px 22px;}
+  @media(max-width:420px){ .price-card ul{grid-template-columns:1fr} }
+  .price-card li{color:var(--muted); font-size:13px; font-weight:300; line-height:1.4; display:flex; gap:9px; align-items:flex-start;}
+  .price-card li::before{content:'✓'; color:var(--accent); font-weight:600; flex-shrink:0;}
   /* кнопки «Обсудить» — постоянный бегущий луч по контуру */
   .price-glow{position:relative; border-radius:12px; padding:1.5px; background:var(--border); overflow:hidden; display:block; cursor:pointer; border:none; width:100%; text-decoration:none;}
   .price-glow::before{
@@ -618,39 +619,42 @@
     </div>
     <div class="pricing">
       <div class="price-card reveal">
-        <div class="plan">Расширение</div>
+        <div class="plan">Расширения (Chrome)</div>
         <div class="amount">от $700</div>
         <div class="price-sub">Поддержка — $200 / мес</div>
-        <p class="desc">Chrome-расширение под вашу задачу</p>
+        <p class="desc">Браузерные расширения, которые автоматизируют рутину прямо внутри вашей CRM</p>
         <ul>
-          <li>автоматизация рутины</li>
-          <li>интеграция с вашим CRM</li>
-          <li>поддержка после запуска</li>
+          <li>Интеграция с CRM даже без публичного API</li>
+          <li>Перенос данных между системами (CRM ↔ ERP)</li>
+          <li>Очередь, дедупликация, массовые операции</li>
+          <li>Кастомная панель внутри интерфейса CRM</li>
         </ul>
         <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
       <div class="price-card featured reveal">
         <span class="pop">Популярное</span>
-        <div class="plan">Сайт / Лендинг</div>
+        <div class="plan">Сайты / Лендинги</div>
         <div class="amount">от $600</div>
         <div class="price-sub">Поддержка — $200 / мес</div>
-        <p class="desc">Современный сайт с анимациями</p>
+        <p class="desc">Premium-сайты с анимацией и адаптивом — от идеи до домена</p>
         <ul>
-          <li>premium-дизайн</li>
-          <li>адаптив под телефон</li>
-          <li>деплой и домен под ключ</li>
+          <li>Уникальный дизайн под бренд (premium / editorial)</li>
+          <li>Живые анимации и адаптив под телефон</li>
+          <li>Мультиязычность (RU / EN)</li>
+          <li>Деплой, домен и HTTPS под ключ</li>
         </ul>
         <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
       <div class="price-card reveal">
-        <div class="plan">Дашборд / Аналитика</div>
+        <div class="plan">Дашборды / Аналитика</div>
         <div class="amount">от $2500</div>
         <div class="price-sub">Поддержка — $200 / мес</div>
-        <p class="desc">Аналитические дашборды для команды</p>
+        <p class="desc">Аналитические панели: вся команда и воронка в реальном времени</p>
         <ul>
-          <li>метрики в реальном времени</li>
-          <li>воронка и эффективность команды</li>
-          <li>отчёты и выгрузки в один клик</li>
+          <li>Метрики и воронка в реальном времени</li>
+          <li>Контроль качества и эффективность операторов</li>
+          <li>Сквозная аналитика: реклама → результат</li>
+          <li>Backend на Supabase, отчёты и выгрузки</li>
         </ul>
         <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
@@ -659,11 +663,12 @@
         <div class="amount">индивидуально</div>
         <div class="price-sub">обычно $1500–5000</div>
         <div class="price-sub">Поддержка — $200 / мес</div>
-        <p class="desc">Сложные интеграции и системы</p>
+        <p class="desc">Интеграции и инструменты под конкретную задачу</p>
         <ul>
-          <li>API-интеграции</li>
-          <li>дашборды и аналитика</li>
-          <li>решение под ключ</li>
+          <li>Интеграции трекеров и передача постбэков</li>
+          <li>Синхронизация данных CRM ↔ ERP</li>
+          <li>Боты и внутренние инструменты</li>
+          <li>Решение под вашу задачу</li>
         </ul>
         <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
