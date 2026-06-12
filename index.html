@@ -245,6 +245,39 @@
     border:1px solid rgba(79,140,255,0.25); padding:8px 18px; border-radius:30px; margin-bottom:22px;
   }
 
+  /* ---------- ЦЕНЫ ---------- */
+  .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch;}
+  @media(max-width:860px){ .pricing{grid-template-columns:1fr} }
+  .price-card{
+    background:var(--glass); border:1px solid var(--border); border-radius:22px; padding:32px 28px 26px;
+    backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
+    display:flex; flex-direction:column;
+  }
+  .price-card:hover{transform:translateY(-6px); border-color:var(--border-hover)}
+  .price-card .plan{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent2); margin-bottom:14px;}
+  .price-card .amount{font-size:32px; font-weight:800; letter-spacing:-1px; margin-bottom:6px;}
+  .price-card .desc{color:var(--muted); font-size:14px; font-weight:300; margin-bottom:18px;}
+  .price-card ul{list-style:none; margin-bottom:24px; flex:1;}
+  .price-card li{color:var(--muted); font-size:13.5px; font-weight:300; padding:6px 0; display:flex; gap:10px; align-items:flex-start;}
+  .price-card li::before{content:'✓'; color:var(--accent); font-weight:600;}
+  .price-card .btn-ghost, .price-card .btn-primary{display:block; text-align:center; padding:12px 0; font-size:15px;}
+  /* выделенный средний тариф */
+  .price-card.featured{
+    position:relative; border-color:var(--accent2);
+    box-shadow:0 0 0 2px rgba(121,168,255,0.28), 0 0 28px rgba(79,140,255,0.22);
+  }
+  @media(min-width:861px){
+    .price-card.featured{transform:translateY(-8px)}
+    .price-card.featured:hover{transform:translateY(-14px)}
+  }
+  .price-card.featured .pop{
+    position:absolute; top:14px; right:14px;
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--accent-bright); background:rgba(79,140,255,0.12); border:1px solid rgba(79,140,255,0.3);
+    padding:5px 12px; border-radius:20px;
+  }
+  .price-note{text-align:center; color:var(--muted-2); font-size:12.5px; font-weight:300; margin-top:22px;}
+
   /* ---------- CONTACT ---------- */
   .contact{text-align:center; padding:64px 0;}
   @media(max-width:720px){ .contact{padding:52px 0;} }
@@ -290,6 +323,7 @@
       <a href="#services">Услуги</a>
       <a href="#projects">Работы</a>
       <a href="#process">Как работаем</a>
+      <a href="#pricing">Цены</a>
       <a href="#contact">Контакты</a>
     </div>
     <a href="#contact" class="nav-cta">Заказать</a>
@@ -389,6 +423,54 @@
       <h2>Да, мы используем ИИ — и гордимся этим</h2>
       <p>Искусственный интеллект — наш главный инструмент. Он позволяет делать качественно и в разы быстрее. Мы не скрываем это: вы получаете современный результат за адекватные сроки, а каждый проект проверяется и дорабатывается вручную.</p>
     </div>
+  </div>
+</section>
+
+<!-- ЦЕНЫ -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tag">Тарифы</span>
+      <h2>Цены</h2>
+      <p>Прозрачно и честно. Финальная стоимость — после обсуждения задачи.</p>
+    </div>
+    <div class="pricing">
+      <div class="price-card reveal">
+        <div class="plan">Расширение</div>
+        <div class="amount">от $300</div>
+        <p class="desc">Chrome-расширение под вашу задачу</p>
+        <ul>
+          <li>автоматизация рутины</li>
+          <li>интеграция с вашим CRM</li>
+          <li>поддержка после запуска</li>
+        </ul>
+        <a href="#contact" class="btn-ghost">Обсудить</a>
+      </div>
+      <div class="price-card featured reveal">
+        <span class="pop">Популярное</span>
+        <div class="plan">Сайт / Лендинг</div>
+        <div class="amount">от $500</div>
+        <p class="desc">Современный сайт с анимациями</p>
+        <ul>
+          <li>premium-дизайн</li>
+          <li>адаптив под телефон</li>
+          <li>деплой и домен под ключ</li>
+        </ul>
+        <a href="#contact" class="btn-primary">Обсудить</a>
+      </div>
+      <div class="price-card reveal">
+        <div class="plan">Автоматизация</div>
+        <div class="amount">индивидуально</div>
+        <p class="desc">Сложные интеграции и системы</p>
+        <ul>
+          <li>API-интеграции</li>
+          <li>дашборды и аналитика</li>
+          <li>решение под ключ</li>
+        </ul>
+        <a href="#contact" class="btn-ghost">Обсудить</a>
+      </div>
+    </div>
+    <p class="price-note reveal">Цены указаны ориентировочно и обсуждаются индивидуально под каждый проект.</p>
   </div>
 </section>
 
