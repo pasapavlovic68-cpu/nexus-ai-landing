@@ -346,8 +346,8 @@
   }
 
   /* ---------- ЦЕНЫ ---------- */
-  .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch;}
-  @media(max-width:860px){ .pricing{grid-template-columns:1fr} }
+  .pricing{display:grid; grid-template-columns:repeat(2,1fr); grid-auto-rows:1fr; gap:20px; align-items:stretch;}
+  @media(max-width:680px){ .pricing{grid-template-columns:1fr} }
   .price-card{
     background:var(--glass); border:1px solid var(--border); border-radius:22px; padding:32px 28px 26px;
     backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
@@ -355,7 +355,9 @@
   }
   .price-card:hover{transform:translateY(-6px); border-color:var(--border-hover)}
   .price-card .plan{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent2); margin-bottom:14px;}
-  .price-card .amount{font-size:32px; font-weight:800; letter-spacing:-1px; margin-bottom:6px;}
+  .price-card .amount{font-size:clamp(26px,3vw,32px); font-weight:800; letter-spacing:-1px; margin-bottom:6px;}
+  .price-card .price-sub{color:var(--muted); font-size:12.5px; font-weight:300; margin-bottom:4px;}
+  .price-card .price-sub:last-of-type{margin-bottom:12px;}
   .price-card .desc{color:var(--muted); font-size:14px; font-weight:300; margin-bottom:18px;}
   .price-card ul{list-style:none; margin-bottom:24px; flex:1;}
   .price-card li{color:var(--muted); font-size:13.5px; font-weight:300; padding:6px 0; display:flex; gap:10px; align-items:flex-start;}
@@ -617,7 +619,8 @@
     <div class="pricing">
       <div class="price-card reveal">
         <div class="plan">Расширение</div>
-        <div class="amount">от $300</div>
+        <div class="amount">от $700</div>
+        <div class="price-sub">Поддержка — $200 / мес</div>
         <p class="desc">Chrome-расширение под вашу задачу</p>
         <ul>
           <li>автоматизация рутины</li>
@@ -629,7 +632,8 @@
       <div class="price-card featured reveal">
         <span class="pop">Популярное</span>
         <div class="plan">Сайт / Лендинг</div>
-        <div class="amount">от $500</div>
+        <div class="amount">от $600</div>
+        <div class="price-sub">Поддержка — $200 / мес</div>
         <p class="desc">Современный сайт с анимациями</p>
         <ul>
           <li>premium-дизайн</li>
@@ -639,8 +643,22 @@
         <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
       </div>
       <div class="price-card reveal">
+        <div class="plan">Дашборд / Аналитика</div>
+        <div class="amount">от $2500</div>
+        <div class="price-sub">Поддержка — $200 / мес</div>
+        <p class="desc">Аналитические дашборды для команды</p>
+        <ul>
+          <li>метрики в реальном времени</li>
+          <li>воронка и эффективность команды</li>
+          <li>отчёты и выгрузки в один клик</li>
+        </ul>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner">Обсудить</span></a>
+      </div>
+      <div class="price-card reveal">
         <div class="plan">Автоматизация</div>
         <div class="amount">индивидуально</div>
+        <div class="price-sub">обычно $1500–5000</div>
+        <div class="price-sub">Поддержка — $200 / мес</div>
         <p class="desc">Сложные интеграции и системы</p>
         <ul>
           <li>API-интеграции</li>
