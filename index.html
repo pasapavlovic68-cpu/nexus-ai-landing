@@ -75,7 +75,7 @@
   .nav-links a:hover{color:var(--txt)}
   .nav-cta{
     position:relative; overflow:hidden; display:inline-block;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
     color:#fff; padding:9px 20px; border-radius:12px; font-size:14px; font-weight:600;
     text-decoration:none; border:1px solid transparent;
     transition:transform .2s, box-shadow .35s, border-color .35s;
@@ -128,11 +128,16 @@
     background:linear-gradient(135deg,var(--accent-bright),var(--accent));
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
   }
+  /* первая строка заголовка — свой белый градиент (раньше был голым текстом h1) */
+  .hero h1 .t1{
+    background:linear-gradient(180deg,#fff,#aeb6d4);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
   .hero p{font-size:clamp(16px,2.2vw,20px); color:var(--muted); max-width:620px; margin:0 auto 38px; font-weight:300;}
   .hero-btns{display:flex; gap:16px; justify-content:center; flex-wrap:wrap;}
   .btn-primary{
     position:relative; overflow:hidden; display:inline-block;
-    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff;
     padding:15px 32px; border-radius:14px; font-weight:600; font-size:16px; text-decoration:none;
     border:1px solid transparent; box-shadow:0 6px 28px rgba(79,140,255,0.3);
     transition:transform .2s, box-shadow .35s, border-color .35s;
@@ -154,7 +159,7 @@
   }
   .btn-ghost::before{
     content:''; position:absolute; inset:0; z-index:0;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
     transform:translateX(100%); transition:transform .45s cubic-bezier(.4,0,.2,1);
   }
   .btn-ghost .t{position:relative; z-index:1; transition:color .35s;}
@@ -423,6 +428,18 @@
   .foot-in .brand{font-size:18px}
   footer .muted{color:var(--muted-2); font-size:13px;}
 
+  /* ---------- i18n: кросс-фейд только текста (фон/логотип не трогаем) ---------- */
+  [data-i18n]{transition:opacity .25s ease;}
+  body.lang-switching [data-i18n]{opacity:0.15;}
+
+  /* переключатель языка RU/EN */
+  .nav-right{display:flex; align-items:center; gap:14px;}
+  .lang{position:relative; display:inline-flex; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:11px; padding:3px; cursor:pointer;}
+  .lang .pill{position:absolute; top:3px; bottom:3px; width:calc(50% - 3px); border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent-deep)); transition:transform .35s cubic-bezier(.4,0,.2,1); box-shadow:0 2px 12px rgba(79,140,255,0.4);}
+  .lang.en .pill{transform:translateX(100%);}
+  .lang button{position:relative; z-index:1; background:none; border:none; color:var(--muted); font-family:inherit; font-weight:600; font-size:13px; padding:7px 14px; cursor:pointer; transition:color .3s; width:50px;}
+  .lang button.on{color:#fff;}
+
   /* reveal on scroll */
   .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s, transform .7s;}
   .reveal.in{opacity:1; transform:none;}
@@ -448,14 +465,17 @@
       <span><span class="w">Ne</span><span class="x">x</span><span class="w">us&nbsp;AI</span></span>
     </div>
     <div class="nav-links">
-      <a href="#services">Услуги</a>
-      <a href="#projects">Работы</a>
-      <a href="#funnels">Автоворонки</a>
-      <a href="#process">Как работаем</a>
-      <a href="#pricing">Цены</a>
-      <a href="#contact">Контакты</a>
+      <a href="#services" data-i18n="nav.services">Услуги</a>
+      <a href="#projects" data-i18n="nav.works">Работы</a>
+      <a href="#funnels" data-i18n="nav.funnels">Автоворонки</a>
+      <a href="#process" data-i18n="nav.process">Как работаем</a>
+      <a href="#pricing" data-i18n="nav.pricing">Цены</a>
+      <a href="#contact" data-i18n="nav.contacts">Контакты</a>
     </div>
-    <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="nav-cta"><span class="t">Заказать</span></a>
+    <div class="nav-right">
+      <div class="lang" id="lang"><span class="pill"></span><button class="on" data-lang="ru">RU</button><button data-lang="en">EN</button></div>
+      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="nav-cta"><span class="t" data-i18n="nav.cta">Заказать</span></a>
+    </div>
   </div>
 </nav>
 
@@ -479,14 +499,14 @@
       <span class="hero-name"><span class="w">Ne</span><span class="x">x</span><span class="w">us&nbsp;AI</span></span>
     </div>
     <div class="kicker">Build · Connect · Automate</div>
-    <h1>Расширения и сайты,<br>созданные с <span class="accent">искусственным интеллектом</span></h1>
-    <p>Nexus AI разрабатывает Chrome-расширения, веб-сайты и инструменты автоматизации. Быстро, аккуратно и честно — с использованием ИИ на каждом этапе.</p>
+    <h1><span class="t1" data-i18n="hero.t1">Расширения и сайты,</span><br><span class="accent" data-i18n="hero.t2">созданные с искусственным интеллектом</span></h1>
+    <p data-i18n="hero.sub">Nexus AI разрабатывает Chrome-расширения, веб-сайты и инструменты автоматизации. Быстро, аккуратно и честно — с использованием ИИ на каждом этапе.</p>
     <div class="hero-btns">
-      <a href="#projects" class="btn-primary"><span class="t">Смотреть работы</span></a>
-      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost"><span class="t">Обсудить проект</span></a>
+      <a href="#projects" class="btn-primary"><span class="t" data-i18n="hero.b1">Смотреть работы</span></a>
+      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost"><span class="t" data-i18n="hero.b2">Обсудить проект</span></a>
       <a href="#funnels" class="ch-btn">
         <span class="ch-graph" aria-hidden="true"><span class="b"></span><span class="b" style="animation-delay:-0.07s"></span><span class="b" style="animation-delay:-0.14s"></span><span class="b" style="animation-delay:-0.21s"></span><span class="b" style="animation-delay:-0.28s"></span><span class="b" style="animation-delay:-0.35s"></span><span class="b" style="animation-delay:-0.42s"></span><span class="b" style="animation-delay:-0.49s"></span><span class="b" style="animation-delay:-0.56s"></span><span class="b" style="animation-delay:-0.63s"></span><span class="b" style="animation-delay:-0.7s"></span><span class="b" style="animation-delay:-0.77s"></span><span class="b" style="animation-delay:-0.84s"></span><span class="b" style="animation-delay:-0.91s"></span><span class="b" style="animation-delay:-0.98s"></span><span class="b" style="animation-delay:-1.05s"></span><span class="b" style="animation-delay:-1.12s"></span><span class="b" style="animation-delay:-1.19s"></span><span class="b" style="animation-delay:-1.26s"></span><span class="b" style="animation-delay:-1.33s"></span><span class="b" style="animation-delay:-1.4s"></span><span class="b" style="animation-delay:-1.47s"></span><span class="b" style="animation-delay:-1.54s"></span><span class="b" style="animation-delay:-1.61s"></span></span>
-        <span class="ch-text">Автоворонки Chatterfy <span class="arrow">→</span></span>
+        <span class="ch-text"><span data-i18n="hero.b3">Автоворонки Chatterfy</span> <span class="arrow">→</span></span>
       </a>
     </div>
   </div>
@@ -879,6 +899,64 @@
     el.style.transitionDelay = (i%4*60)+'ms';
     io.observe(el);
   });
+
+  // ---------- i18n: движок двуязычности (RU/EN), расширяется по секциям ----------
+  const i18n = {
+    ru: {
+      'nav.services':'Услуги', 'nav.works':'Работы', 'nav.funnels':'Автоворонки',
+      'nav.process':'Как работаем', 'nav.pricing':'Цены', 'nav.contacts':'Контакты', 'nav.cta':'Заказать',
+      'hero.t1':'Расширения и сайты,', 'hero.t2':'созданные с искусственным интеллектом',
+      'hero.sub':'Nexus AI разрабатывает Chrome-расширения, веб-сайты и инструменты автоматизации. Быстро, аккуратно и честно — с использованием ИИ на каждом этапе.',
+      'hero.b1':'Смотреть работы', 'hero.b2':'Обсудить проект', 'hero.b3':'Автоворонки Chatterfy'
+    },
+    en: {
+      'nav.services':'Services', 'nav.works':'Work', 'nav.funnels':'Funnels',
+      'nav.process':'Process', 'nav.pricing':'Pricing', 'nav.contacts':'Contacts', 'nav.cta':'Get started',
+      'hero.t1':'Extensions and websites,', 'hero.t2':'built with artificial intelligence',
+      'hero.sub':'Nexus AI builds Chrome extensions, websites and automation tools. Fast, precise and honest — with AI at every step.',
+      'hero.b1':'View work', 'hero.b2':'Discuss a project', 'hero.b3':'Chatterfy funnels'
+    }
+  };
+
+  function apply(lang){
+    const dict = i18n[lang] || i18n.ru;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      if(dict[key] != null) el.textContent = dict[key];
+    });
+    document.documentElement.lang = lang;
+  }
+
+  const langEl = document.getElementById('lang');
+
+  function setSwitcher(lang){
+    langEl.classList.toggle('en', lang === 'en');   // пилюля едет через .lang.en .pill (CSS)
+    langEl.querySelectorAll('button').forEach(b=> b.classList.toggle('on', b.dataset.lang === lang));
+  }
+
+  function setLang(lang){
+    try{ localStorage.setItem('nexus_lang', lang); }catch(e){}
+    setSwitcher(lang);
+    document.body.classList.add('lang-switching');      // текст плавно гаснет
+    setTimeout(()=>{
+      apply(lang);                                       // подменяем на полупрозрачном
+      document.body.classList.remove('lang-switching');  // и проявляем обратно
+    }, 250);
+  }
+
+  langEl.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=> setLang(b.dataset.lang));
+  });
+
+  // инициализация: память → язык браузера, применяем СРАЗУ без анимации
+  (function(){
+    let saved = null;
+    try{ saved = localStorage.getItem('nexus_lang'); }catch(e){}
+    const browser = (navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en';
+    const initial = saved || browser;
+    apply(initial);
+    setSwitcher(initial);
+  })();
 
   // ---------- ГАЛЕРЕЯ «РАБОТЫ»: FLIP-перелёт фото ----------
   const projects = [
