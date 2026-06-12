@@ -147,8 +147,12 @@
   @keyframes corePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 
   /* ---------- общие заголовки секций ---------- */
-  .section{padding:80px 0;}
-  .sec-head{text-align:center; margin-bottom:56px;}
+  .section{padding:56px 0;}
+  .sec-head{text-align:center; margin-bottom:40px;}
+  @media(max-width:720px){
+    .section{padding:44px 0;}
+    .sec-head{margin-bottom:32px;}
+  }
   .sec-head .tag{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:.8;}
   .sec-head h2{font-size:clamp(28px,4.5vw,44px); font-weight:700; letter-spacing:-1px; margin-top:12px;}
   .sec-head p{color:var(--muted); margin-top:14px; font-weight:300; max-width:560px; margin-left:auto; margin-right:auto;}
@@ -190,10 +194,16 @@
   .thumb .ph{width:100%; height:100%;}
   .thumb:hover{transform:translateY(-2px); border-color:rgba(121,168,255,0.4);}
 
-  .card-text{min-height:54px;}
-  .card-text h4{font-size:15px; font-weight:600; margin-bottom:8px; transition:opacity .35s, transform .35s;}
-  .card-text p{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55; transition:opacity .35s, transform .35s;}
-  .card-text.swapping h4, .card-text.swapping p{opacity:0; transform:translateY(8px);}
+  /* постоянный продающий текст (не меняется при кликах) */
+  .card-sell{margin-bottom:16px;}
+  .card-sell .tagline{font-size:20px; font-weight:700; letter-spacing:-.4px; line-height:1.3; margin-bottom:8px;}
+  .card-sell .pain{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55; min-height:42px;}
+
+  /* меняющаяся подпись под фото — ЖЁСТКО фиксированная высота, карточка не прыгает.
+     Текст прижат к верху; запас проверен по самой длинной подписи на мобильной ширине. */
+  .card-text{height:22px;}
+  .card-text .cap{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.5px; color:var(--muted); transition:opacity .35s, transform .35s;}
+  .card-text.swapping .cap{opacity:0; transform:translateY(8px);}
 
   /* летящий клон */
   .flier{position:fixed; z-index:300; border-radius:12px; overflow:hidden; border:1px solid var(--accent2); pointer-events:none;
@@ -231,7 +241,8 @@
   }
 
   /* ---------- CONTACT ---------- */
-  .contact{text-align:center; padding:90px 0;}
+  .contact{text-align:center; padding:64px 0;}
+  @media(max-width:720px){ .contact{padding:52px 0;} }
   .contact h2{font-size:clamp(30px,5vw,52px); font-weight:800; letter-spacing:-1.5px; margin-bottom:18px;
     background:linear-gradient(180deg,#fff,#aeb6d4); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .contact p{color:var(--muted); margin-bottom:36px; font-weight:300; font-size:18px;}
@@ -572,28 +583,36 @@
   // ---------- ГАЛЕРЕЯ «РАБОТЫ»: FLIP-перелёт фото ----------
   const projects = [
     { badge:'Chrome Extension', title:'Nexus Автоматизация',
+      tagline:'Рутина уходит. Данные вносят себя сами.',
+      pain:'Расширение видит события в CRM и само вносит их в ERP через API. Оператор только проверяет — внесение за секунды, без ручной работы и дубликатов.',
       shots:[
-        {ph:'ph1', cap:'Форма внесения', desc:'Оператор вносит данные игрока — расширение проверяет и отправляет в ERP через API.'},
-        {ph:'ph2', cap:'Очередь записей', desc:'Все внесённые записи с отметками времени и статусом подтверждения.'},
-        {ph:'ph3', cap:'Поиск дубликатов', desc:'Дубликаты ловятся до внесения — ничего не задвоится.'}
+        {ph:'ph1', cap:'Форма внесения'},
+        {ph:'ph2', cap:'Очередь записей'},
+        {ph:'ph3', cap:'Поиск дубликатов'}
       ]},
     { badge:'Web Dashboard', title:'Аналитика команды',
+      tagline:'Вся команда — на одном экране.',
+      pain:'Скорость ответов, воронка и нагрузка операторов в реальном времени. Видно, где теряются лиды, и отчёты собираются в один клик.',
       shots:[
-        {ph:'ph2', cap:'Главный экран', desc:'Скорость ответов, активные лиды и воронка в реальном времени.'},
-        {ph:'ph1', cap:'Воронка', desc:'Видно, на каком этапе теряются лиды.'},
-        {ph:'ph4', cap:'Отчёты', desc:'Выгрузка отчётов по команде в один клик.'}
+        {ph:'ph2', cap:'Главный экран'},
+        {ph:'ph1', cap:'Воронка'},
+        {ph:'ph4', cap:'Отчёты'}
       ]},
     { badge:'Landing Page', title:'JT Custom Stones',
+      tagline:'Сайт, который продаёт сам.',
+      pain:'Premium-лендинг с анимациями и адаптивом под телефон. От идеи до готового сайта на домене — клиент видит бренд и оставляет заявку.',
       shots:[
-        {ph:'ph4', cap:'Главная', desc:'Premium-лендинг для бизнеса по камню. Золотой акцент, editorial-стиль.'},
-        {ph:'ph1', cap:'Галерея работ', desc:'Портфолио столешниц с крупными фото.'},
-        {ph:'ph3', cap:'Форма заявки', desc:'Заявка на расчёт стоимости, EN/RU.'}
+        {ph:'ph4', cap:'Главная'},
+        {ph:'ph1', cap:'Галерея работ'},
+        {ph:'ph3', cap:'Форма заявки'}
       ]},
     { badge:'Coming soon', title:'Новый проект',
+      tagline:'Скоро здесь новая работа.',
+      pain:'Портфолио пополняется — добавим следующий проект совсем скоро.',
       shots:[
-        {ph:'ph3', cap:'Скоро', desc:'Новые работы добавляются по мере готовности.'},
-        {ph:'ph2', cap:'—', desc:'Здесь появится следующий проект.'},
-        {ph:'ph1', cap:'—', desc:'Можно добавлять сколько угодно карточек.'}
+        {ph:'ph3', cap:'Скоро'},
+        {ph:'ph2', cap:'—'},
+        {ph:'ph1', cap:'—'}
       ]}
   ];
 
@@ -603,13 +622,17 @@
     card.className = 'card';
     card.innerHTML = `
       <div class="card-top"><span class="badge">${p.badge}</span><h3>${p.title}</h3></div>
+      <div class="card-sell">
+        <h4 class="tagline">${p.tagline}</h4>
+        <p class="pain">${p.pain}</p>
+      </div>
       <div class="gallery">
         <div class="main-shot"><div class="ph ${p.shots[0].ph}" data-cap="${p.shots[0].cap}"></div></div>
         <div class="thumbs">
           ${p.shots.map((s,si)=>`<div class="thumb" data-pi="${pi}" data-si="${si}"><div class="ph ${s.ph}"></div></div>`).join('')}
         </div>
       </div>
-      <div class="card-text"><h4>${p.shots[0].cap}</h4><p>${p.shots[0].desc}</p></div>
+      <div class="card-text"><p class="cap">${p.shots[0].cap}</p></div>
     `;
     grid.appendChild(card);
   });
@@ -634,7 +657,6 @@
     const shot = projects[pi].shots[si];
     const newCap = shot.cap;
     const oldPhClass = mainPh.className.replace('ph ','').trim();    // что было главным
-    const oldText = { h: cardText.querySelector('h4').textContent, p: cardText.querySelector('p').textContent };
 
     // позиции (FLIP)
     const fromRect = thumb.getBoundingClientRect();
@@ -669,11 +691,10 @@
       flierOut.style.width=fromRect.width+'px'; flierOut.style.height=fromRect.height+'px'; flierOut.style.borderRadius='11px';
     });
 
-    // текст плавно меняется
+    // подпись под фото плавно меняется (tagline и pain не трогаем — они постоянные)
     cardText.classList.add('swapping');
     setTimeout(()=>{
-      cardText.querySelector('h4').textContent = newCap;
-      cardText.querySelector('p').textContent = shot.desc;
+      cardText.querySelector('.cap').textContent = newCap;
       cardText.classList.remove('swapping');
     }, 280);
 
