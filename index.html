@@ -287,6 +287,9 @@
   @media(max-width:720px){ .funnel-incl ul{grid-template-columns:auto} }
   .funnel-incl li{color:var(--muted); font-size:13.5px; font-weight:300; display:flex; gap:10px; align-items:flex-start;}
   .funnel-incl li::before{content:'✓'; color:var(--accent); font-weight:600;}
+  .funnel-price{text-align:center; margin:8px auto 22px;}
+  .funnel-price-amount{font-size:clamp(30px,4vw,42px); font-weight:800; letter-spacing:-1px; line-height:1; background:linear-gradient(120deg,var(--accent2),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; display:inline-block;}
+  .funnel-price-note{color:var(--muted); font-size:14px; font-weight:300; max-width:520px; margin:12px auto 0; line-height:1.6;}
   .funnel-cta{text-align:center;}
 
   /* кнопка «Автоворонки Chatterfy» — прозрачная карточка с эквалайзером-волной внутри */
@@ -574,6 +577,11 @@
         <li>Рандомизация текстов и медиа (защита от спам-фильтров)</li>
         <li>Логика удержания под любые ГЕО и офферы</li>
       </ul>
+    </div>
+
+    <div class="funnel-price reveal">
+      <div class="funnel-price-amount">от $300</div>
+      <div class="funnel-price-note">Создание воронки под ключ. Финальная стоимость обсуждается индивидуально — зависит от сложности воронки, источника и задач.</div>
     </div>
 
     <div class="funnel-cta reveal">
