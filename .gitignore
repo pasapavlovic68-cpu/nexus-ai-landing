@@ -3,3 +3,9 @@ node_modules
 .env
 .vercel
 *.log
+
+# локальный референс-прототип галереи (не для репозитория)
+nexus-flip-gallery.html
+
+# локальные настройки Claude Code (превью-сервер)
+.claude/

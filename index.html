@@ -28,7 +28,7 @@
     --glass-2:rgba(255,255,255,0.025);
     --border:rgba(255,255,255,0.09);
     --border-hover:rgba(121,168,255,0.35);
-    --accent:#4f8cff; --accent-bright:#79a8ff; --accent-deep:#1e4fd0;
+    --accent:#4f8cff; --accent-bright:#79a8ff; --accent-deep:#1e4fd0; --accent2:#79a8ff;
     --txt:#eef0f6; --muted:#8b90a6; --muted-2:#5f6478;
   }
 
@@ -169,48 +169,43 @@
   .service h3{font-size:19px; font-weight:600; margin-bottom:10px;}
   .service p{color:var(--muted); font-size:14px; font-weight:300;}
 
-  /* ---------- ПРОЕКТЫ ---------- */
-  .projects{display:grid; grid-template-columns:repeat(2,1fr); gap:24px;}
-  @media(max-width:780px){ .projects{grid-template-columns:1fr} }
-  .project{
-    background:var(--glass); border:1px solid var(--border); border-radius:22px; overflow:hidden;
-    backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
-  }
-  .project:hover{transform:translateY(-6px); border-color:var(--border-hover)}
-  /* место под будущее видео/превью */
-  .project .media{
-    aspect-ratio:16/10; position:relative; overflow:hidden;
-    background:
-      radial-gradient(400px circle at 30% 20%, rgba(79,140,255,0.18), transparent 60%),
-      linear-gradient(135deg,#0c1024,#070810);
-    display:flex; align-items:center; justify-content:center;
-    border-bottom:1px solid var(--border);
-  }
-  .project .media .play{
-    width:64px; height:64px; border-radius:50%;
-    background:rgba(255,255,255,0.08); border:1px solid var(--border);
-    backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center;
-    transition:transform .3s, background .3s;
-  }
-  .project:hover .media .play{transform:scale(1.08); background:rgba(79,140,255,0.25)}
-  .project .media .badge{
-    position:absolute; top:14px; left:14px;
-    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase;
-    background:rgba(5,6,10,0.65); border:1px solid var(--border); color:var(--accent-bright);
-    padding:6px 12px; border-radius:20px; backdrop-filter:blur(8px);
-  }
-  .project .media .soon{
-    position:absolute; bottom:14px; right:14px; font-size:11px; color:var(--muted-2);
-    font-family:'Space Mono',monospace;
-  }
-  .project .body{padding:26px 26px 28px;}
-  .project .body h3{font-size:21px; font-weight:600; margin-bottom:10px; letter-spacing:-.3px;}
-  .project .body p{color:var(--muted); font-size:14.5px; font-weight:300; margin-bottom:18px;}
-  .project .tags{display:flex; gap:8px; flex-wrap:wrap;}
-  .project .tags span{
-    font-size:12px; color:var(--accent-bright); background:rgba(79,140,255,0.1);
-    border:1px solid rgba(79,140,255,0.2); padding:5px 12px; border-radius:8px;
-  }
+  /* ---------- ПРОЕКТЫ (галерея с FLIP-перелётом) ---------- */
+  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:26px;}
+  @media(max-width:900px){ .grid{grid-template-columns:1fr} }
+
+  .card{background:var(--glass); border:1px solid var(--border); border-radius:24px; padding:22px; backdrop-filter:blur(14px); transition:border-color .3s;}
+  .card:hover{border-color:var(--border-hover);}
+  .card-top{display:flex; align-items:center; gap:12px; margin-bottom:18px;}
+  .card-top .badge{font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent2); background:rgba(79,140,255,0.1); border:1px solid rgba(79,140,255,0.25); padding:5px 11px; border-radius:20px;}
+  .card-top h3{font-size:18px; font-weight:700; letter-spacing:-.3px;}
+
+  .gallery{display:grid; grid-template-columns:1fr 84px; gap:12px; height:260px; margin-bottom:18px;}
+  /* обводка-свечение на главном квадрате — статичная, без анимации (не мигает) */
+  .main-shot{position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--accent2); background:#0c0e1a;
+    box-shadow:0 0 0 2px rgba(121,168,255,0.28), 0 0 22px rgba(79,140,255,0.25);}
+  .main-shot .ph{width:100%; height:100%;}
+
+  .thumbs{display:flex; flex-direction:column; gap:12px;}
+  .thumb{flex:1; border-radius:11px; overflow:hidden; border:1px solid var(--border); cursor:pointer; position:relative; transition:transform .2s; background:#0c0e1a;}
+  .thumb .ph{width:100%; height:100%;}
+  .thumb:hover{transform:translateY(-2px); border-color:rgba(121,168,255,0.4);}
+
+  .card-text{min-height:54px;}
+  .card-text h4{font-size:15px; font-weight:600; margin-bottom:8px; transition:opacity .35s, transform .35s;}
+  .card-text p{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55; transition:opacity .35s, transform .35s;}
+  .card-text.swapping h4, .card-text.swapping p{opacity:0; transform:translateY(8px);}
+
+  /* летящий клон */
+  .flier{position:fixed; z-index:300; border-radius:12px; overflow:hidden; border:1px solid var(--accent2); pointer-events:none;
+    box-shadow:0 20px 50px rgba(0,0,0,.5); transition:all .55s cubic-bezier(.2,.85,.25,1);}
+  .flier .ph{width:100%; height:100%;}
+
+  /* плейсхолдеры (временные, до реальных скриншотов) */
+  .ph{display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:12px; color:rgba(255,255,255,0.55);}
+  .ph1{background:linear-gradient(140deg,#1a1d3a,#0c0e1a);}
+  .ph2{background:linear-gradient(140deg,#0e2a2a,#0c0e1a);}
+  .ph3{background:linear-gradient(140deg,#2a1530,#0c0e1a);}
+  .ph4{background:linear-gradient(140deg,#2a2410,#0c0e1a);}
 
   /* ---------- ПРОЦЕСС ---------- */
   .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
@@ -348,67 +343,9 @@
     <div class="sec-head reveal">
       <span class="tag">Портфолио</span>
       <h2>Работы</h2>
-      <p>Примеры проектов. У каждого будет видео-демонстрация и полное описание.</p>
+      <p>Кликни по миниатюре — фото перелетит в главный квадрат.</p>
     </div>
-    <div class="projects">
-
-      <!-- ПРОЕКТ 1 -->
-      <div class="project reveal">
-        <div class="media">
-          <span class="badge">Chrome Extension</span>
-          <div class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-          <span class="soon">видео скоро</span>
-        </div>
-        <div class="body">
-          <h3>Пример проекта №1</h3>
-          <p>Здесь будет описание расширения: что оно делает, какую проблему решает, что встроено внутри. Пара предложений честно и по делу.</p>
-          <div class="tags"><span>Chrome</span><span>Автоматизация</span><span>ИИ</span></div>
-        </div>
-      </div>
-
-      <!-- ПРОЕКТ 2 -->
-      <div class="project reveal">
-        <div class="media">
-          <span class="badge">Web Site</span>
-          <div class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-          <span class="soon">видео скоро</span>
-        </div>
-        <div class="body">
-          <h3>Пример проекта №2</h3>
-          <p>Описание сайта или веб-приложения. Для кого сделан, какой функционал, что внутри. Можно добавить ссылку «посмотреть вживую».</p>
-          <div class="tags"><span>Сайт</span><span>Дизайн</span><span>Адаптив</span></div>
-        </div>
-      </div>
-
-      <!-- ПРОЕКТ 3 -->
-      <div class="project reveal">
-        <div class="media">
-          <span class="badge">Tool</span>
-          <div class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-          <span class="soon">видео скоро</span>
-        </div>
-        <div class="body">
-          <h3>Пример проекта №3</h3>
-          <p>Инструмент автоматизации. Что делает, сколько времени экономит, как работает. Описание простыми словами для заказчика.</p>
-          <div class="tags"><span>Автоматизация</span><span>Интеграции</span></div>
-        </div>
-      </div>
-
-      <!-- ПРОЕКТ 4 -->
-      <div class="project reveal">
-        <div class="media">
-          <span class="badge">Скоро</span>
-          <div class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-          <span class="soon">в разработке</span>
-        </div>
-        <div class="body">
-          <h3>Новый проект</h3>
-          <p>Сюда будут добавляться новые работы по мере готовности. Каждую карточку легко добавить — просто скопировать блок и заменить текст.</p>
-          <div class="tags"><span>Coming soon</span></div>
-        </div>
-      </div>
-
-    </div>
+    <div class="grid" id="grid"></div>
   </div>
 </section>
 
@@ -630,6 +567,135 @@
   document.querySelectorAll('.reveal').forEach((el,i)=>{
     el.style.transitionDelay = (i%4*60)+'ms';
     io.observe(el);
+  });
+
+  // ---------- ГАЛЕРЕЯ «РАБОТЫ»: FLIP-перелёт фото ----------
+  const projects = [
+    { badge:'Chrome Extension', title:'Nexus Автоматизация',
+      shots:[
+        {ph:'ph1', cap:'Форма внесения', desc:'Оператор вносит данные игрока — расширение проверяет и отправляет в ERP через API.'},
+        {ph:'ph2', cap:'Очередь записей', desc:'Все внесённые записи с отметками времени и статусом подтверждения.'},
+        {ph:'ph3', cap:'Поиск дубликатов', desc:'Дубликаты ловятся до внесения — ничего не задвоится.'}
+      ]},
+    { badge:'Web Dashboard', title:'Аналитика команды',
+      shots:[
+        {ph:'ph2', cap:'Главный экран', desc:'Скорость ответов, активные лиды и воронка в реальном времени.'},
+        {ph:'ph1', cap:'Воронка', desc:'Видно, на каком этапе теряются лиды.'},
+        {ph:'ph4', cap:'Отчёты', desc:'Выгрузка отчётов по команде в один клик.'}
+      ]},
+    { badge:'Landing Page', title:'JT Custom Stones',
+      shots:[
+        {ph:'ph4', cap:'Главная', desc:'Premium-лендинг для бизнеса по камню. Золотой акцент, editorial-стиль.'},
+        {ph:'ph1', cap:'Галерея работ', desc:'Портфолио столешниц с крупными фото.'},
+        {ph:'ph3', cap:'Форма заявки', desc:'Заявка на расчёт стоимости, EN/RU.'}
+      ]},
+    { badge:'Coming soon', title:'Новый проект',
+      shots:[
+        {ph:'ph3', cap:'Скоро', desc:'Новые работы добавляются по мере готовности.'},
+        {ph:'ph2', cap:'—', desc:'Здесь появится следующий проект.'},
+        {ph:'ph1', cap:'—', desc:'Можно добавлять сколько угодно карточек.'}
+      ]}
+  ];
+
+  const grid = document.getElementById('grid');
+  projects.forEach((p, pi)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top"><span class="badge">${p.badge}</span><h3>${p.title}</h3></div>
+      <div class="gallery">
+        <div class="main-shot"><div class="ph ${p.shots[0].ph}" data-cap="${p.shots[0].cap}"></div></div>
+        <div class="thumbs">
+          ${p.shots.map((s,si)=>`<div class="thumb" data-pi="${pi}" data-si="${si}"><div class="ph ${s.ph}"></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card-text"><h4>${p.shots[0].cap}</h4><p>${p.shots[0].desc}</p></div>
+    `;
+    grid.appendChild(card);
+  });
+
+  grid.addEventListener('click', e=>{
+    const thumb = e.target.closest('.thumb');
+    if(!thumb) return;
+
+    const pi=+thumb.dataset.pi, si=+thumb.dataset.si;
+    const card = thumb.closest('.card');
+    const mainShot = card.querySelector('.main-shot');
+    const mainPh = mainShot.querySelector('.ph');
+    const cardText = card.querySelector('.card-text');
+    const thumbPhEl = thumb.querySelector('.ph');
+
+    // запрет повторных кликов во время анимации
+    if(card.dataset.animating==='1') return;
+    card.dataset.animating='1';
+
+    // --- состояние ДО обмена ---
+    const newPhClass = thumbPhEl.className.replace('ph ','').trim(); // что станет главным (из миниатюры)
+    const shot = projects[pi].shots[si];
+    const newCap = shot.cap;
+    const oldPhClass = mainPh.className.replace('ph ','').trim();    // что было главным
+    const oldText = { h: cardText.querySelector('h4').textContent, p: cardText.querySelector('p').textContent };
+
+    // позиции (FLIP)
+    const fromRect = thumb.getBoundingClientRect();
+    const toRect = mainShot.getBoundingClientRect();
+
+    // СРАЗУ кладём финальные фото в реальные элементы и прячем их визуально через visibility.
+    // visibility:hidden НЕ моргает (в отличие от opacity-переходов) и держит layout.
+    mainPh.className = 'ph '+newPhClass;        // главный квадрат уже содержит новое фото
+    mainPh.style.visibility = 'hidden';
+    thumbPhEl.className = 'ph '+oldPhClass;      // миниатюра уже содержит прежнее главное
+    thumbPhEl.style.visibility = 'hidden';
+
+    // КЛОН 1: летит из позиции миниатюры в главный квадрат (показывает НОВОЕ фото)
+    const flierIn = document.createElement('div');
+    flierIn.className = 'flier';
+    flierIn.innerHTML = `<div class="ph ${newPhClass}" style="width:100%;height:100%"></div>`;
+    Object.assign(flierIn.style,{left:fromRect.left+'px', top:fromRect.top+'px', width:fromRect.width+'px', height:fromRect.height+'px', borderRadius:'11px'});
+    document.body.appendChild(flierIn);
+
+    // КЛОН 2: летит из главного квадрата в позицию миниатюры (показывает СТАРОЕ фото)
+    const flierOut = document.createElement('div');
+    flierOut.className = 'flier';
+    flierOut.innerHTML = `<div class="ph ${oldPhClass}" style="width:100%;height:100%"></div>`;
+    Object.assign(flierOut.style,{left:toRect.left+'px', top:toRect.top+'px', width:toRect.width+'px', height:toRect.height+'px', borderRadius:'16px'});
+    document.body.appendChild(flierOut);
+
+    // запускаем оба перелёта навстречу
+    requestAnimationFrame(()=>{
+      flierIn.style.left=toRect.left+'px'; flierIn.style.top=toRect.top+'px';
+      flierIn.style.width=toRect.width+'px'; flierIn.style.height=toRect.height+'px'; flierIn.style.borderRadius='16px';
+      flierOut.style.left=fromRect.left+'px'; flierOut.style.top=fromRect.top+'px';
+      flierOut.style.width=fromRect.width+'px'; flierOut.style.height=fromRect.height+'px'; flierOut.style.borderRadius='11px';
+    });
+
+    // текст плавно меняется
+    cardText.classList.add('swapping');
+    setTimeout(()=>{
+      cardText.querySelector('h4').textContent = newCap;
+      cardText.querySelector('p').textContent = shot.desc;
+      cardText.classList.remove('swapping');
+    }, 280);
+
+    // завершение по КЛОНУ 1 (обе анимации одинаковой длины — завершатся синхронно)
+    flierIn.addEventListener('transitionend', ()=>{
+      // показываем реальные фото (они уже на местах, под клонами) — без зазора
+      mainPh.style.visibility = 'visible';
+      thumbPhEl.style.visibility = 'visible';
+
+      // обмен данных в массиве для корректных повторных кликов
+      mainPh.dataset.cap = newCap;
+      const tmp = projects[pi].shots[si];
+      projects[pi].shots[si] = projects[pi].shots[0];
+      projects[pi].shots[0] = tmp;
+
+      // на следующем кадре убираем оба клона — под ними уже настоящие фото, удаление незаметно
+      requestAnimationFrame(()=>{
+        flierIn.remove();
+        flierOut.remove();
+        card.dataset.animating='0';
+      });
+    }, {once:true});
   });
 </script>
 </body>
