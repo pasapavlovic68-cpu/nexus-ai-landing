@@ -254,6 +254,12 @@
   .ph2{background:linear-gradient(140deg,#0e2a2a,#0c0e1a);}
   .ph3{background:linear-gradient(140deg,#2a1530,#0c0e1a);}
   .ph4{background:linear-gradient(140deg,#2a2410,#0c0e1a);}
+  /* реальные фото проекта КЦ (карточка 1) — webp с png-фолбэком, вписаны по cover */
+  .kc1,.kc2,.kc3,.kc4{background-position:center; background-size:cover; background-repeat:no-repeat;}
+  .kc1{background-image:url(assets/img/kc-1.png); background-image:-webkit-image-set(url(assets/img/kc-1.webp) type("image/webp"), url(assets/img/kc-1.png) type("image/png")); background-image:image-set(url(assets/img/kc-1.webp) type("image/webp"), url(assets/img/kc-1.png) type("image/png"));}
+  .kc2{background-image:url(assets/img/kc-2.png); background-image:-webkit-image-set(url(assets/img/kc-2.webp) type("image/webp"), url(assets/img/kc-2.png) type("image/png")); background-image:image-set(url(assets/img/kc-2.webp) type("image/webp"), url(assets/img/kc-2.png) type("image/png"));}
+  .kc3{background-image:url(assets/img/kc-3.png); background-image:-webkit-image-set(url(assets/img/kc-3.webp) type("image/webp"), url(assets/img/kc-3.png) type("image/png")); background-image:image-set(url(assets/img/kc-3.webp) type("image/webp"), url(assets/img/kc-3.png) type("image/png"));}
+  .kc4{background-image:url(assets/img/kc-4.png); background-image:-webkit-image-set(url(assets/img/kc-4.webp) type("image/webp"), url(assets/img/kc-4.png) type("image/png")); background-image:image-set(url(assets/img/kc-4.webp) type("image/webp"), url(assets/img/kc-4.png) type("image/png"));}
 
   /* ---------- АВТОВОРОНКИ CHATTERFY ---------- */
   .case-band{
@@ -979,12 +985,13 @@
   // ---------- ГАЛЕРЕЯ «РАБОТЫ»: FLIP-перелёт фото ----------
   const projects = [
     { badge:'Chrome Extension', title:'Nexus Автоматизация',
-      tagline:'Рутина уходит. Данные вносят себя сами.',
-      pain:'Расширение видит события в CRM и само вносит их в ERP через API. Оператор только проверяет — внесение за секунды, без ручной работы и дубликатов.',
+      tagline:'Форма заполняется сама. Звонок — в один клик.',
+      pain:'Расширение подставляет данные клиента из CRM и ставит звонок в очередь КЦ. Оператор только жмёт «Отправить» — без ручного заполнения, без повторных звонков и потерь.',
       shots:[
-        {ph:'ph1', cap:'Форма внесения'},
-        {ph:'ph2', cap:'Очередь записей'},
-        {ph:'ph3', cap:'Поиск дубликатов'}
+        {ph:'kc1', cap:'Данные из CRM'},
+        {ph:'kc2', cap:'Звонок в один клик'},
+        {ph:'kc3', cap:'История прозвонов'},
+        {ph:'kc4', cap:'Очередь и таблица'}
       ]},
     { badge:'Web Dashboard', title:'Аналитика команды',
       tagline:'Вся команда — на одном экране.',
