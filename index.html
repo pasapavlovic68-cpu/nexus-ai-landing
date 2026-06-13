@@ -267,6 +267,46 @@
   .av3{background-image:url(assets/img/AV-3.png); background-image:-webkit-image-set(url(assets/img/AV-3.webp) type("image/webp"), url(assets/img/AV-3.png) type("image/png")); background-image:image-set(url(assets/img/AV-3.webp) type("image/webp"), url(assets/img/AV-3.png) type("image/png"));}
   .av4{background-image:url(assets/img/AV-4.png); background-image:-webkit-image-set(url(assets/img/AV-4.webp) type("image/webp"), url(assets/img/AV-4.png) type("image/png")); background-image:image-set(url(assets/img/AV-4.webp) type("image/webp"), url(assets/img/AV-4.png) type("image/png"));}
 
+  /* кнопка «Открыть» по центру главного кадра */
+  .zoom-btn{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(.94); z-index:5;
+    padding:11px 24px; border-radius:12px; background:rgba(5,6,10,0.4); border:1px solid rgba(255,255,255,0.45);
+    color:#fff; font-family:inherit; font-weight:600; font-size:14px; letter-spacing:.3px; cursor:pointer;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    opacity:0; pointer-events:none; transition:opacity .3s, transform .3s, background .3s, border-color .3s;
+  }
+  .zoom-btn:hover{background:rgba(79,140,255,0.55); border-color:var(--accent2);}
+  @media (hover:hover){ .main-shot:hover .zoom-btn{opacity:1; transform:translate(-50%,-50%) scale(1); pointer-events:auto;} }
+  @media (hover:none){ .zoom-btn{opacity:1; pointer-events:auto; padding:8px 16px; font-size:12px; background:rgba(5,6,10,0.55);} }
+
+  /* лайтбокс */
+  .lb{position:fixed; inset:0; z-index:400; display:none; align-items:center; justify-content:center; padding:24px;}
+  .lb.open{display:flex;}
+  .lb-backdrop{position:absolute; inset:0; background:rgba(5,6,10,0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);}
+  .lb-dialog{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:16px; max-width:94vw;}
+  .lb-stage{
+    width:min(70vh,88vw); height:min(70vh,88vw); border-radius:18px; border:1px solid var(--accent2); background-color:#0c0e1a;
+    box-shadow:0 0 0 2px rgba(121,168,255,0.25), 0 0 40px rgba(79,140,255,0.25);
+    background-position:center; background-repeat:no-repeat;
+  }
+  .lb .lb-stage{background-size:contain;}
+  .lb-cap{font-family:'Space Mono',monospace; font-size:13px; letter-spacing:.5px; color:var(--muted);}
+  .lb-strip{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; max-width:min(70vh,88vw);}
+  .lb-thumb{
+    width:58px; height:58px; border-radius:10px; border:1px solid var(--border); cursor:pointer; padding:0;
+    background-position:center; background-repeat:no-repeat; background-color:#0c0e1a;
+    transition:border-color .2s, transform .2s;
+  }
+  .lb .lb-thumb{background-size:cover;}
+  .lb-thumb:hover{transform:translateY(-2px);}
+  .lb-thumb.on{border-color:var(--accent2); box-shadow:0 0 0 2px rgba(121,168,255,0.3);}
+  .lb-close{
+    position:absolute; top:18px; right:22px; z-index:2; width:42px; height:42px; border-radius:50%;
+    background:rgba(255,255,255,0.08); border:1px solid var(--border); color:#fff; font-size:24px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background .2s, border-color .2s;
+  }
+  .lb-close:hover{background:rgba(79,140,255,0.3); border-color:var(--accent2);}
+
   /* ---------- АВТОВОРОНКИ CHATTERFY ---------- */
   .case-band{
     background:linear-gradient(135deg,rgba(79,140,255,0.08),rgba(30,79,208,0.04));
@@ -1037,7 +1077,7 @@
         <p class="pain">${p.pain}</p>
       </div>
       <div class="gallery">
-        <div class="main-shot"><div class="ph ${p.shots[0].ph}" data-cap="${p.shots[0].cap}"></div></div>
+        <div class="main-shot"><div class="ph ${p.shots[0].ph}" data-cap="${p.shots[0].cap}"></div><button class="zoom-btn" type="button" data-pi="${pi}" aria-label="Открыть">Открыть</button></div>
         <div class="thumbs">
           ${p.shots.map((s,si)=>`<div class="thumb" data-pi="${pi}" data-si="${si}"><div class="ph ${s.ph}"></div></div>`).join('')}
         </div>
@@ -1047,7 +1087,42 @@
     grid.appendChild(card);
   });
 
+  // ---------- лайтбокс главного фото ----------
+  const lb = document.createElement('div');
+  lb.className = 'lb';
+  lb.innerHTML = '<div class="lb-backdrop"></div><button class="lb-close" type="button" aria-label="Закрыть">×</button><div class="lb-dialog"><div class="lb-stage ph"></div><div class="lb-cap"></div><div class="lb-strip"></div></div>';
+  document.body.appendChild(lb);
+  const lbStage = lb.querySelector('.lb-stage');
+  const lbCap = lb.querySelector('.lb-cap');
+  const lbStrip = lb.querySelector('.lb-strip');
+  let lbPi = 0;
+
+  function lbShow(i){
+    const shots = projects[lbPi].shots;
+    lbStage.className = 'lb-stage ph ' + shots[i].ph;
+    lbCap.textContent = shots[i].cap;
+    lbStrip.querySelectorAll('.lb-thumb').forEach((b,bi)=> b.classList.toggle('on', bi===i));
+  }
+  function openLightbox(pi){
+    lbPi = pi;
+    const shots = projects[pi].shots;
+    lbStrip.innerHTML = shots.map((s,i)=>`<button class="lb-thumb ph ${s.ph}" type="button" data-i="${i}" aria-label="${s.cap}"></button>`).join('');
+    lbShow(0);                              // главный кадр карточки = shots[0]
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  lbStrip.addEventListener('click', e=>{ const b=e.target.closest('.lb-thumb'); if(b) lbShow(+b.dataset.i); });
+  lb.querySelector('.lb-close').addEventListener('click', closeLightbox);
+  lb.querySelector('.lb-backdrop').addEventListener('click', closeLightbox);
+  addEventListener('keydown', e=>{ if(e.key==='Escape' && lb.classList.contains('open')) closeLightbox(); });
+
   grid.addEventListener('click', e=>{
+    const zoom = e.target.closest('.zoom-btn');
+    if(zoom){ openLightbox(+zoom.dataset.pi); return; }
     const thumb = e.target.closest('.thumb');
     if(!thumb) return;
 
