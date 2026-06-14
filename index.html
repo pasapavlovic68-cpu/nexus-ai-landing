@@ -272,6 +272,12 @@
   .db2{background-image:url(assets/img/DB-2.png); background-image:-webkit-image-set(url(assets/img/DB-2.webp) type("image/webp"), url(assets/img/DB-2.png) type("image/png")); background-image:image-set(url(assets/img/DB-2.webp) type("image/webp"), url(assets/img/DB-2.png) type("image/png"));}
   .db3{background-image:url(assets/img/DB-3.png); background-image:-webkit-image-set(url(assets/img/DB-3.webp) type("image/webp"), url(assets/img/DB-3.png) type("image/png")); background-image:image-set(url(assets/img/DB-3.webp) type("image/webp"), url(assets/img/DB-3.png) type("image/png"));}
   .db4{background-image:url(assets/img/DB-4.png); background-image:-webkit-image-set(url(assets/img/DB-4.webp) type("image/webp"), url(assets/img/DB-4.png) type("image/png")); background-image:image-set(url(assets/img/DB-4.webp) type("image/webp"), url(assets/img/DB-4.png) type("image/png"));}
+  /* реальные фото проекта ОКК (карточка 4) — webp с png-фолбэком, вписаны по cover */
+  .okk1,.okk2,.okk3,.okk4{background-position:center; background-size:cover; background-repeat:no-repeat;}
+  .okk1{background-image:url(assets/img/OKK-1.png); background-image:-webkit-image-set(url(assets/img/OKK-1.webp) type("image/webp"), url(assets/img/OKK-1.png) type("image/png")); background-image:image-set(url(assets/img/OKK-1.webp) type("image/webp"), url(assets/img/OKK-1.png) type("image/png"));}
+  .okk2{background-image:url(assets/img/OKK-2.png); background-image:-webkit-image-set(url(assets/img/OKK-2.webp) type("image/webp"), url(assets/img/OKK-2.png) type("image/png")); background-image:image-set(url(assets/img/OKK-2.webp) type("image/webp"), url(assets/img/OKK-2.png) type("image/png"));}
+  .okk3{background-image:url(assets/img/OKK-3.png); background-image:-webkit-image-set(url(assets/img/OKK-3.webp) type("image/webp"), url(assets/img/OKK-3.png) type("image/png")); background-image:image-set(url(assets/img/OKK-3.webp) type("image/webp"), url(assets/img/OKK-3.png) type("image/png"));}
+  .okk4{background-image:url(assets/img/OKK-4.png); background-image:-webkit-image-set(url(assets/img/OKK-4.webp) type("image/webp"), url(assets/img/OKK-4.png) type("image/png")); background-image:image-set(url(assets/img/OKK-4.webp) type("image/webp"), url(assets/img/OKK-4.png) type("image/png"));}
 
   /* кнопка «Открыть» по центру главного кадра */
   .zoom-btn{
@@ -1063,13 +1069,14 @@
         {ph:'db3', cap:'Команда'},
         {ph:'db4', cap:'Журнал диалогов'}
       ]},
-    { badge:'Coming soon', title:'Новый проект',
-      tagline:'Скоро здесь новая работа.',
-      pain:'Портфолио пополняется — добавим следующий проект совсем скоро.',
+    { badge:'Web Dashboard', title:'Nexus ОКК — контроль качества',
+      tagline:'Контроль качества — на ИИ.',
+      pain:'Дашборд ОКК: воронка, проверки диалогов через ИИ, баллы и рейтинг по командам, ботам и сотрудникам — всё из склада в одном месте.',
       shots:[
-        {ph:'ph3', cap:'Скоро'},
-        {ph:'ph2', cap:'—'},
-        {ph:'ph1', cap:'—'}
+        {ph:'okk1', cap:'Сводный дашборд'},
+        {ph:'okk2', cap:'Проверки ОКК'},
+        {ph:'okk3', cap:'Анализ команды'},
+        {ph:'okk4', cap:'Рейтинг'}
       ]}
   ];
 
