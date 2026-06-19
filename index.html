@@ -1267,8 +1267,33 @@
     try{ saved = localStorage.getItem('nexus_lang'); }catch(e){}
     const browser = (navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en';
     const initial = saved || browser;
-    apply(initial);        // переведёт статичные data-i18n + отрисует галерею на нужном языке
+    apply(initial);        // мгновенный дефолт без мигания (saved || язык браузера)
     setSwitcher(initial);
+
+    // ручной выбор главнее гео: если он есть — /api/geo не запрашиваем
+    if(saved) return;
+
+    // применяет язык как обычное переключение (галерея/тарифы перерисовываются, пилюля едет),
+    // но БЕЗ записи в localStorage — гео не должно маскироваться под ручной выбор
+    function applyGeo(lang){
+      if(lang !== 'ru' && lang !== 'en') return;
+      if(lang === document.documentElement.lang) return;   // уже на этом языке — ничего не делаем
+      setSwitcher(lang);
+      document.body.classList.add('lang-switching');
+      setTimeout(()=>{ apply(lang); document.body.classList.remove('lang-switching'); }, 250);
+    }
+
+    // кэш в рамках сессии — повторно /api/geo не дёргаем
+    let geoCached = null;
+    try{ geoCached = sessionStorage.getItem('nexus_geo'); }catch(e){}
+    if(geoCached){ applyGeo(geoCached); return; }
+
+    fetch('/api/geo').then(r=>r.json()).then(d=>{
+      const lang = d && d.lang;
+      if(lang !== 'ru' && lang !== 'en') return;
+      try{ sessionStorage.setItem('nexus_geo', lang); }catch(e){}
+      applyGeo(lang);
+    }).catch(()=>{});      // ошибка сети / localhost без заголовка — остаёмся на уже применённом
   })();
 </script>
 </body>
