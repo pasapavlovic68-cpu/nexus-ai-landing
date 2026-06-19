@@ -10,12 +10,13 @@
 <meta property="og:title" content="Nexus AI">
 <meta property="og:description" content="Nexus AI — разработка Chrome-расширений, сайтов и инструментов автоматизации с использованием искусственного интеллекта">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://nexusnova.dev/og-image.png">
-<meta property="og:url" content="https://nexusnova.dev">
+<meta property="og:image" content="https://nexusnova.app/og-image.png">
+<meta property="og:url" content="https://nexusnova.app">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Nexus AI">
 <meta name="twitter:description" content="Nexus AI — разработка Chrome-расширений, сайтов и инструментов автоматизации с использованием искусственного интеллекта">
-<meta name="twitter:image" content="https://nexusnova.dev/og-image.png">
+<meta name="twitter:image" content="https://nexusnova.app/og-image.png">
+<link rel="canonical" href="https://nexusnova.app/">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono&display=swap');
 
@@ -98,6 +99,9 @@
   .hero-logo{
     display:flex; align-items:center; justify-content:center; gap:22px;
     margin-bottom:30px;
+    /* центрируем САМО название: сдвигаем группу влево на половину (знак+gap),
+       знак уезжает левее, "Nexus AI" встаёт по центру страницы */
+    transform:translateX(-63px);
   }
   .hero-name{
     font-size:clamp(44px,8vw,76px); font-weight:700; letter-spacing:-2px; line-height:1;
@@ -112,7 +116,7 @@
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
   }
   @media(max-width:520px){
-    .hero-logo{gap:14px}
+    .hero-logo{gap:14px; transform:translateX(-59px)}
   }
   .kicker{
     font-family:'Space Mono',monospace; font-size:12px; letter-spacing:4px;
