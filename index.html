@@ -85,14 +85,14 @@
     color:#fff; padding:9px 20px; border-radius:12px; font-size:14px; font-weight:600;
     text-decoration:none; border:1px solid transparent;
     transition:transform .2s, box-shadow .35s, border-color .35s;
-    box-shadow:0 4px 20px rgba(79,140,255,0.25);
+    box-shadow:0 0 20px rgba(79,140,255,0.25);
   }
   .nav-cta::before{
     content:''; position:absolute; inset:0; z-index:0; background:#0c0e16;
     transform:translateX(100%); transition:transform .45s cubic-bezier(.4,0,.2,1);
   }
   .nav-cta .t{position:relative; z-index:1; transition:color .35s;}
-  .nav-cta:hover{transform:translateY(-2px); border-color:rgba(121,168,255,0.5); box-shadow:0 6px 26px rgba(79,140,255,0.25);}
+  .nav-cta:hover{transform:translateY(-2px); border-color:rgba(121,168,255,0.5); box-shadow:0 0 26px rgba(79,140,255,0.25);}
   .nav-cta:hover::before{transform:translateX(0);}
   .nav-cta:hover .t{color:var(--accent2);}
   @media(max-width:720px){ .nav-links{display:none} }
@@ -148,7 +148,7 @@
     position:relative; overflow:hidden; display:inline-block;
     background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff;
     padding:15px 32px; border-radius:14px; font-weight:600; font-size:16px; text-decoration:none;
-    border:1px solid transparent; box-shadow:0 6px 28px rgba(79,140,255,0.3);
+    border:1px solid transparent; box-shadow:0 0 28px rgba(79,140,255,0.3);
     transition:transform .2s, box-shadow .35s, border-color .35s;
   }
   .btn-primary::before{
@@ -156,7 +156,7 @@
     transform:translateX(100%); transition:transform .45s cubic-bezier(.4,0,.2,1);
   }
   .btn-primary .t{position:relative; z-index:1; transition:color .35s;}
-  .btn-primary:hover{transform:translateY(-3px); border-color:rgba(121,168,255,0.5); box-shadow:0 8px 30px rgba(79,140,255,0.25);}
+  .btn-primary:hover{transform:translateY(-3px); border-color:rgba(121,168,255,0.5); box-shadow:0 0 30px rgba(79,140,255,0.25);}
   .btn-primary:hover::before{transform:translateX(0);}
   .btn-primary:hover .t{color:var(--accent2);}
   .btn-ghost{
@@ -172,7 +172,7 @@
     transform:translateX(100%); transition:transform .45s cubic-bezier(.4,0,.2,1);
   }
   .btn-ghost .t{position:relative; z-index:1; transition:color .35s;}
-  .btn-ghost:hover{border-color:transparent; transform:translateY(-3px); box-shadow:0 6px 28px rgba(79,140,255,0.3);}
+  .btn-ghost:hover{border-color:transparent; transform:translateY(-3px); box-shadow:0 0 28px rgba(79,140,255,0.3);}
   .btn-ghost:hover::before{transform:translateX(0);}
   .btn-ghost:hover .t{color:#fff;}
 
