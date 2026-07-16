@@ -82,6 +82,7 @@
   .nav-cta{
     position:relative; overflow:hidden; display:inline-block;
     background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+    background-origin:border-box;   /* иначе градиент повторяется в зоне 1px-рамки и даёт светлую кромку справа/снизу */
     color:#fff; padding:9px 20px; border-radius:12px; font-size:14px; font-weight:600;
     text-decoration:none; border:1px solid transparent;
     transition:transform .2s, box-shadow .35s, border-color .35s;
@@ -147,6 +148,7 @@
   .btn-primary{
     position:relative; overflow:hidden; display:inline-block;
     background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff;
+    background-origin:border-box;   /* иначе градиент повторяется в зоне 1px-рамки и даёт светлую кромку справа/снизу */
     padding:15px 32px; border-radius:14px; font-weight:600; font-size:16px; text-decoration:none;
     border:1px solid transparent; box-shadow:0 6px 28px rgba(79,140,255,0.3);
     transition:transform .2s, box-shadow .35s, border-color .35s;
