@@ -472,6 +472,26 @@
 
   .nav-right{display:flex; align-items:center; gap:14px;}
 
+  /* ---------- скроллбар-эквалайзер: вместо системной полосы — колонка полосок ---------- */
+  html{scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+  .eq-scroll{
+    position:fixed; z-index:55; right:0; top:84px; bottom:84px; width:26px;
+    display:flex; flex-direction:column; justify-content:space-between; align-items:flex-end;
+    padding-right:8px; cursor:pointer; touch-action:none; -webkit-tap-highlight-color:transparent;
+  }
+  .eq-scroll i{
+    display:block; width:14px; height:2px; border-radius:2px; background:var(--accent2);
+    transform-origin:100% 50%; transform:scaleX(.3); opacity:.22; will-change:transform;
+    transition:opacity .25s;
+  }
+  .eq-scroll i.on{opacity:.7;}
+  .eq-scroll i.head{opacity:1; box-shadow:0 0 8px rgba(121,168,255,.8);}
+  @media (hover:hover){ .eq-scroll:hover i{opacity:.45} .eq-scroll:hover i.on{opacity:.9} .eq-scroll:hover i.head{opacity:1} }
+  @media(max-width:720px){ .eq-scroll{top:76px; bottom:76px; width:16px; padding-right:4px;} .eq-scroll i{width:10px; height:1.5px;} }
+  /* на тач-экранах колонка только показывает, а не перематывает: свайп у края не должен прыгать по странице */
+  @media (hover:none){ .eq-scroll{pointer-events:none;} }
+
   /* ---------- кнопка «Наверх»: стекло в цвет фона, появляется после первого экрана ---------- */
   .to-top{
     position:fixed; z-index:60; right:max(20px, env(safe-area-inset-right)); bottom:max(20px, env(safe-area-inset-bottom));
@@ -897,6 +917,7 @@
   </div>
 </footer>
 
+<div class="eq-scroll" id="eq-scroll" aria-hidden="true"></div>
 <button class="to-top" id="to-top" type="button" aria-label="Наверх" title="Наверх">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
 </button>
@@ -1060,6 +1081,67 @@
     el.style.transitionDelay = (i%4*60)+'ms';
     io.observe(el);
   });
+
+  // ---------- скроллбар-эквалайзер ----------
+  // полоски вокруг текущего места «играют» от скорости прокрутки и затихают, когда скролл стоит.
+  // цикл анимации крутится только пока есть «энергия» — в покое ничего не считается.
+  (function(){
+    const track = document.getElementById('eq-scroll');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let bars = [], N = 0, energy = 0, lastY = scrollY, running = false;
+
+    function build(){
+      const h = track.clientHeight;
+      N = Math.max(20, Math.min(56, Math.floor(h / 13)));
+      track.innerHTML = '<i></i>'.repeat(N);
+      bars = [...track.children].map(el=>({el, ph:Math.random()*6.28, f:.012 + Math.random()*.022, s:.3}));
+      paint(performance.now());
+    }
+    function progress(){
+      const max = document.documentElement.scrollHeight - innerHeight;
+      return max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    }
+    function paint(t){
+      const p = progress(), headI = Math.round(p * (N - 1));
+      for(let i=0;i<N;i++){
+        const b = bars[i], d = (i - headI);
+        // волна вокруг «головы»: чем ближе к текущему месту и чем быстрее скролл — тем выше полоска
+        const wave = Math.exp(-(d*d) / 40) * (.5 + .5 * Math.sin(t * b.f + b.ph));
+        const hum  = .5 + .5 * Math.sin(t * b.f * 1.7 + b.ph * 2);        // лёгкое «дрожание» всей колонки
+        const target = i === headI ? 1 : Math.min(1, .3 + energy * (wave * .8 + hum * .14));
+        b.s += (target - b.s) * (reduce ? 1 : .25);
+        b.el.style.transform = 'scaleX(' + b.s.toFixed(3) + ')';
+        b.el.classList.toggle('on', i < headI);
+        b.el.classList.toggle('head', i === headI);
+      }
+    }
+    function loop(t){
+      energy *= .93;
+      paint(t);
+      if(energy > .004 || bars.some(b => Math.abs(b.s - .3) > .01 && !b.el.classList.contains('head'))) requestAnimationFrame(loop);
+      else { energy = 0; running = false; paint(t); }
+    }
+    addEventListener('scroll', ()=>{
+      const dy = Math.abs(scrollY - lastY); lastY = scrollY;
+      if(reduce){ paint(0); return; }
+      energy = Math.min(1, energy + dy / 160);
+      if(!running){ running = true; requestAnimationFrame(loop); }
+    }, {passive:true});
+
+    // клик / перетаскивание по колонке — перемотка страницы
+    function seek(e){
+      const r = track.getBoundingClientRect();
+      const k = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      scrollTo({top: k * (document.documentElement.scrollHeight - innerHeight), behavior:'auto'});
+    }
+    track.addEventListener('pointerdown', e=>{ track.setPointerCapture(e.pointerId); document.documentElement.style.scrollBehavior='auto'; seek(e); });
+    track.addEventListener('pointermove', e=>{ if(track.hasPointerCapture(e.pointerId)) seek(e); });
+    track.addEventListener('pointerup', e=>{ track.releasePointerCapture(e.pointerId); document.documentElement.style.scrollBehavior=''; });
+
+    let rw = innerWidth;
+    addEventListener('resize', ()=>{ if(innerWidth !== rw){ rw = innerWidth; build(); } });
+    build();
+  })();
 
   // ---------- кнопка «Наверх»: видна, когда первый экран ушёл из вида ----------
   (function(){
