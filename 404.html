@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Nexus AI</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&display=swap">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --bg:#05060a;
+    --glass:rgba(255,255,255,0.04);
+    --border:rgba(255,255,255,0.09);
+    --accent:#4f8cff; --accent-bright:#79a8ff; --accent-deep:#1e4fd0;
+    --txt:#eef0f6; --muted:#8b90a6; --muted-2:#7a8098;
+  }
+
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:'Sora',sans-serif; line-height:1.6;
+    min-height:100vh; min-height:100dvh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 16px; position:relative; overflow-x:hidden;
+  }
+
+  /* фоновое свечение + сетка, как на главной */
+  .bg-fx{position:fixed; inset:0; z-index:0; pointer-events:none;}
+  .bg-fx::before{
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(700px circle at 15% 8%, rgba(79,140,255,0.10), transparent 50%),
+      radial-gradient(800px circle at 90% 60%, rgba(79,140,255,0.06), transparent 55%);
+  }
+  .bg-fx::after{
+    content:''; position:absolute; inset:0; opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(circle at 50% 30%,#000,transparent 80%);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 80%);
+  }
+
+  .card{
+    position:relative; z-index:1;
+    width:100%; max-width:520px; text-align:center;
+    background:var(--glass); border:1px solid var(--border); border-radius:24px;
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    padding:48px 40px 44px;
+  }
+
+  .brand{
+    display:inline-flex; align-items:center; gap:10px;
+    font-weight:700; font-size:18px; letter-spacing:-.5px;
+    color:#fff; text-decoration:none; margin-bottom:28px;
+  }
+  .brand .x{color:var(--accent)}
+  .brand svg{filter:drop-shadow(0 0 14px rgba(79,140,255,0.45));}
+
+  .code{
+    font-size:clamp(84px,22vw,128px); font-weight:800; letter-spacing:-4px; line-height:1;
+    background:linear-gradient(135deg,var(--accent-bright),var(--accent));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:22px;
+  }
+
+  .msg{font-size:17px; font-weight:400; color:var(--txt);}
+  .msg.en{font-size:15px; font-weight:300; color:var(--muted); margin-top:4px;}
+
+  /* кнопка — как на главной (вариант A «Подсветка», без шторки) */
+  .btn-primary{
+    position:relative; display:inline-block; margin-top:34px; cursor:pointer;
+    color:#fff; padding:15px 32px; border-radius:14px; font-size:16px; font-weight:600; text-decoration:none;
+    border:1px solid transparent;
+    background-image:linear-gradient(135deg,#8fb6ff 0%,var(--accent) 50%,var(--accent-deep) 100%);
+    background-size:200% 200%; background-position:100% 100%; background-origin:border-box;
+    box-shadow:0 6px 28px rgba(79,140,255,.3); -webkit-tap-highlight-color:transparent;
+    transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), background-position .22s cubic-bezier(.2,.8,.2,1);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .btn-primary:hover{transform:translateY(-2px); background-position:50% 50%; box-shadow:0 12px 36px rgba(79,140,255,.5), 0 0 0 1px rgba(121,168,255,.35);}
+  }
+  .btn-primary:active{transform:scale(.97); box-shadow:0 3px 14px rgba(79,140,255,.35);}
+  .btn-primary:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px;}
+
+  @media(max-width:520px){
+    .card{padding:36px 22px 32px; border-radius:20px;}
+    .msg{font-size:16px}
+    .msg.en{font-size:14px}
+    .btn-primary{width:100%; padding:14px 20px;}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    .btn-primary{transition:none; transform:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+
+<main class="card">
+  <a class="brand" href="/" aria-label="Nexus AI">
+    <svg width="28" height="28" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+      <line x1="50" y1="50" x2="26.40" y2="28.08" stroke="#4f8cff" stroke-width="3" opacity=".6"/>
+      <line x1="50" y1="50" x2="75.01" y2="33.33" stroke="#4f8cff" stroke-width="3" opacity=".6"/>
+      <line x1="50" y1="50" x2="29.90" y2="73.44" stroke="#4f8cff" stroke-width="3" opacity=".6"/>
+      <line x1="50" y1="50" x2="73.44" y2="70.10" stroke="#4f8cff" stroke-width="3" opacity=".6"/>
+      <circle cx="22" cy="24" r="6" fill="#4f8cff"/><circle cx="80" cy="30" r="6" fill="#4f8cff"/>
+      <circle cx="26" cy="78" r="6" fill="#4f8cff"/><circle cx="78" cy="74" r="6" fill="#4f8cff"/>
+      <circle cx="50" cy="50" r="10" fill="#79a8ff"/>
+    </svg>
+    <span>Ne<span class="x">x</span>us&nbsp;AI</span>
+  </a>
+
+  <h1 class="code">404</h1>
+  <p class="msg">Такой страницы нет — возможно, ссылка устарела.</p>
+  <p class="msg en" lang="en">This page doesn’t exist — the link may be outdated.</p>
+
+  <a href="/" class="btn-primary"><span class="t">На главную / Home</span></a>
+</main>
+</body>
+</html>

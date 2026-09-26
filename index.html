@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexus AI — разработка расширений и сайтов с ИИ</title>
-<meta name="description" content="Nexus AI — разработка Chrome-расширений, сайтов и инструментов автоматизации с использованием искусственного интеллекта">
+<title>Nexus AI — расширения для CRM, Telegram-боты и сайты</title>
+<meta name="description" content="Chrome-расширения для CRM, Telegram-боты и Mini Apps, сайты, дашборды с ИИ-контролем качества, интеграции Keitaro/Binom. Меньше ручной работы.">
 <meta name="theme-color" content="#05060a">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:title" content="Nexus AI">
-<meta property="og:description" content="Nexus AI — разработка Chrome-расширений, сайтов и инструментов автоматизации с использованием искусственного интеллекта">
+<meta property="og:description" content="Chrome-расширения для CRM, Telegram-боты и Mini Apps, сайты, дашборды с ИИ-контролем качества, интеграции Keitaro/Binom. Меньше ручной работы.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://nexusnova.app/og-image.png">
 <meta property="og:image:secure_url" content="https://nexusnova.app/og-image.png">
@@ -19,12 +19,13 @@
 <meta property="og:url" content="https://nexusnova.app">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Nexus AI">
-<meta name="twitter:description" content="Nexus AI — разработка Chrome-расширений, сайтов и инструментов автоматизации с использованием искусственного интеллекта">
+<meta name="twitter:description" content="Chrome-расширения для CRM, Telegram-боты и Mini Apps, сайты, дашборды с ИИ-контролем качества, интеграции Keitaro/Binom. Меньше ручной работы.">
 <meta name="twitter:image" content="https://nexusnova.app/og-image.png">
 <link rel="canonical" href="https://nexusnova.app/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono&display=swap');
-
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
 
@@ -35,7 +36,7 @@
     --border:rgba(255,255,255,0.09);
     --border-hover:rgba(121,168,255,0.35);
     --accent:#4f8cff; --accent-bright:#79a8ff; --accent-deep:#1e4fd0; --accent2:#79a8ff;
-    --txt:#eef0f6; --muted:#8b90a6; --muted-2:#5f6478;
+    --txt:#eef0f6; --muted:#8b90a6; --muted-2:#7a8098;
   }
 
   body{
@@ -79,28 +80,81 @@
   .nav-links{display:flex; gap:32px; align-items:center;}
   .nav-links a{color:var(--muted); text-decoration:none; font-size:14px; transition:color .2s;}
   .nav-links a:hover{color:var(--txt)}
+  /* ---------- кнопки: вариант A «Подсветка» ---------- */
+  .nav-cta,.btn-primary,.btn-ghost{
+    position:relative; display:inline-block; text-decoration:none; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+  }
   .nav-cta{
-    position:relative; overflow:hidden; display:inline-block;
-    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
-    background-origin:border-box;   /* иначе градиент повторяется в зоне 1px-рамки и даёт светлую кромку справа/снизу */
     color:#fff; padding:9px 20px; border-radius:12px; font-size:14px; font-weight:600;
-    text-decoration:none; border:1px solid transparent;
-    transition:transform .2s, box-shadow .35s, border-color .35s;
-    box-shadow:0 4px 20px rgba(79,140,255,0.25);
+    border:1px solid transparent;
+    background-image:linear-gradient(135deg,#8fb6ff 0%,var(--accent) 50%,var(--accent-deep) 100%);
+    background-size:200% 200%; background-position:100% 100%;
+    background-origin:border-box;   /* градиент под прозрачной рамкой — без кромки */
+    box-shadow:0 4px 20px rgba(79,140,255,.25);
+    transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), background-position .22s cubic-bezier(.2,.8,.2,1);
   }
-  .nav-cta::before{
-    content:''; position:absolute; inset:0; z-index:0; background:#0c0e16;
-    /* +2px — парковка с запасом: вровень (100%) на дробных ширинах даёт тёмный шов у правого края */
-    transform:translateX(calc(100% + 2px)); transition:transform .45s cubic-bezier(.4,0,.2,1);
+  .btn-primary{
+    color:#fff; padding:15px 32px; border-radius:14px; font-size:16px; font-weight:600;
+    border:1px solid transparent;
+    background-image:linear-gradient(135deg,#8fb6ff 0%,var(--accent) 50%,var(--accent-deep) 100%);
+    background-size:200% 200%; background-position:100% 100%;
+    background-origin:border-box;
+    box-shadow:0 6px 28px rgba(79,140,255,.3);
+    transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), background-position .22s cubic-bezier(.2,.8,.2,1);
   }
-  .nav-cta .t{position:relative; z-index:1; transition:color .35s;}
-  .nav-cta:hover{transform:translateY(-2px); border-color:rgba(121,168,255,0.5); box-shadow:0 6px 26px rgba(79,140,255,0.25);}
-  .nav-cta:hover::before{transform:translateX(0);}
-  .nav-cta:hover .t{color:var(--accent2);}
+  .btn-ghost{
+    color:var(--txt); padding:15px 32px; border-radius:14px; font-size:16px; font-weight:500;
+    background-color:var(--glass); border:1px solid var(--border); background-origin:border-box;
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    transition:transform .18s cubic-bezier(.2,.8,.2,1), background-color .2s cubic-bezier(.2,.8,.2,1), border-color .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), color .2s cubic-bezier(.2,.8,.2,1);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .nav-cta:hover{
+      transform:translateY(-1px); background-position:50% 50%;
+      box-shadow:0 6px 26px rgba(79,140,255,.45), 0 0 0 1px rgba(121,168,255,.35);
+    }
+    .btn-primary:hover{
+      transform:translateY(-2px); background-position:50% 50%;
+      box-shadow:0 12px 36px rgba(79,140,255,.5), 0 0 0 1px rgba(121,168,255,.35);
+    }
+    .btn-ghost:hover{
+      transform:translateY(-2px); color:#fff;
+      background-color:rgba(79,140,255,.12); border-color:rgba(121,168,255,.5);
+      box-shadow:0 8px 28px rgba(79,140,255,.22);
+    }
+  }
+  .nav-cta:active,.btn-primary:active{transform:scale(.97); box-shadow:0 3px 14px rgba(79,140,255,.35);}
+  .btn-ghost:active{transform:scale(.97); background-color:rgba(79,140,255,.16); border-color:rgba(121,168,255,.5);}
+  .nav-cta:focus-visible,.btn-primary:focus-visible,.btn-ghost:focus-visible{
+    outline:2px solid var(--accent-bright); outline-offset:3px;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .nav-cta,.btn-primary,.btn-ghost{transform:none !important;}
+  }
   @media(max-width:720px){ .nav-links{display:none} }
+  .nav-cta{white-space:nowrap;}
+  @media(max-width:520px){
+    .nav-in{height:60px}
+    .brand{font-size:17px; gap:8px}
+    nav .brand svg{width:24px; height:24px}
+    .nav-right{gap:8px}
+    .lang button{width:38px; padding:6px 0; font-size:12px}
+    .nav-cta{padding:8px 13px; font-size:13px}
+  }
 
   /* ---------- HERO ---------- */
   .hero{padding:110px 0 90px; text-align:center;}
+  /* телефон: главная кнопка должна быть видна без прокрутки */
+  @media(max-width:520px){
+    .hero{padding:40px 0 56px;}
+    .hero .kicker{margin-bottom:16px; letter-spacing:3px; font-size:11px}
+    .hero h1{margin-bottom:16px; font-size:34px; letter-spacing:-1.2px}
+    .hero p{margin-bottom:26px; font-size:15.5px}
+    .hero-btns{gap:12px}
+    .hero-btns > a{width:100%; max-width:340px; text-align:center}
+    .hero-btns .ch-btn{min-width:0}
+  }
   .hero .mark{filter:drop-shadow(0 0 28px rgba(79,140,255,0.45));}
   /* знак + название в одну строку */
   .hero-logo{
@@ -123,7 +177,9 @@
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
   }
   @media(max-width:520px){
-    .hero-logo{gap:14px; transform:translateX(-59px)}
+    /* знак 64px + gap 12px -> сдвиг на половину = 38px, знак больше не уезжает за край экрана */
+    .hero-logo{gap:12px; transform:translateX(-38px); margin-bottom:22px}
+    .hero .mark{width:64px; height:64px}
   }
   .kicker{
     font-family:'Space Mono',monospace; font-size:12px; letter-spacing:4px;
@@ -146,40 +202,9 @@
   }
   .hero p{font-size:clamp(16px,2.2vw,20px); color:var(--muted); max-width:620px; margin:0 auto 38px; font-weight:300;}
   .hero-btns{display:flex; gap:16px; justify-content:center; flex-wrap:wrap;}
-  .btn-primary{
-    position:relative; overflow:hidden; display:inline-block;
-    background:linear-gradient(135deg,var(--accent),var(--accent-deep)); color:#fff;
-    background-origin:border-box;   /* иначе градиент повторяется в зоне 1px-рамки и даёт светлую кромку справа/снизу */
-    padding:15px 32px; border-radius:14px; font-weight:600; font-size:16px; text-decoration:none;
-    border:1px solid transparent; box-shadow:0 6px 28px rgba(79,140,255,0.3);
-    transition:transform .2s, box-shadow .35s, border-color .35s;
-  }
-  .btn-primary::before{
-    content:''; position:absolute; inset:0; z-index:0; background:#0c0e16;
-    /* +2px — парковка с запасом: вровень (100%) на дробных ширинах даёт тёмный шов у правого края */
-    transform:translateX(calc(100% + 2px)); transition:transform .45s cubic-bezier(.4,0,.2,1);
-  }
-  .btn-primary .t{position:relative; z-index:1; transition:color .35s;}
-  .btn-primary:hover{transform:translateY(-3px); border-color:rgba(121,168,255,0.5); box-shadow:0 8px 30px rgba(79,140,255,0.25);}
-  .btn-primary:hover::before{transform:translateX(0);}
-  .btn-primary:hover .t{color:var(--accent2);}
-  .btn-ghost{
-    position:relative; overflow:hidden; display:inline-block;
-    background:var(--glass); border:1px solid var(--border); color:var(--txt);
-    padding:15px 32px; border-radius:14px; font-weight:500; font-size:16px; text-decoration:none;
-    backdrop-filter:blur(10px);
-    transition:border-color .35s, transform .2s, box-shadow .35s;
-  }
-  .btn-ghost::before{
-    content:''; position:absolute; inset:0; z-index:0;
-    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
-    /* +2px — парковка с запасом: вровень (100%) на дробных ширинах даёт шов у правого края */
-    transform:translateX(calc(100% + 2px)); transition:transform .45s cubic-bezier(.4,0,.2,1);
-  }
-  .btn-ghost .t{position:relative; z-index:1; transition:color .35s;}
-  .btn-ghost:hover{border-color:transparent; transform:translateY(-3px); box-shadow:0 6px 28px rgba(79,140,255,0.3);}
-  .btn-ghost:hover::before{transform:translateX(0);}
-  .btn-ghost:hover .t{color:#fff;}
+  .hero-chips{list-style:none; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:30px;}
+  .hero-chips li{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--accent-bright);
+    background:rgba(79,140,255,0.08); border:1px solid rgba(79,140,255,0.2); padding:6px 14px; border-radius:20px;}
 
   /* анимация знака */
   .ring{transform-origin:50px 50px; animation:rot 20s linear infinite; animation-fill-mode:both}
@@ -196,14 +221,9 @@
   /* ---------- общие заголовки секций ---------- */
   .section{padding:48px 0;}
   .sec-head{text-align:center; margin-bottom:30px;}
-  /* прицельно поджат зазор между «Работы» и «Как мы работаем» */
-  #projects{padding-bottom:36px;}
-  #process{padding-top:36px;}
   @media(max-width:720px){
     .section{padding:36px 0;}
     .sec-head{margin-bottom:26px;}
-    #projects{padding-bottom:28px;}
-    #process{padding-top:28px;}
   }
   .sec-head .tag{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:.8;}
   .sec-head h2{font-size:clamp(28px,4.5vw,44px); font-weight:700; letter-spacing:-1px; margin-top:12px;}
@@ -211,7 +231,9 @@
 
   /* ---------- УСЛУГИ ---------- */
   .services{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
-  @media(max-width:860px){ .services{grid-template-columns:1fr} }
+  @media(max-width:980px){ .services{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:600px){ .services{grid-template-columns:1fr} }
+  @media(max-width:600px){ .service{padding:24px 22px} .service .ic{margin-bottom:14px} }
   .service{
     background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:32px 28px;
     backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
@@ -225,113 +247,26 @@
   .service h3{font-size:19px; font-weight:600; margin-bottom:10px;}
   .service p{color:var(--muted); font-size:14px; font-weight:300;}
 
-  /* ---------- ПРОЕКТЫ (галерея с FLIP-перелётом) ---------- */
-  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:26px;}
-  @media(max-width:900px){ .grid{grid-template-columns:1fr} }
+  /* ---------- РЕЗУЛЬТАТ ---------- */
+  .results{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+  @media(max-width:1100px){ .results{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:520px){ .results{grid-template-columns:1fr} }
+  .result{background:var(--glass-2); border:1px solid var(--border); border-radius:20px; padding:26px 22px; backdrop-filter:blur(14px);}
+  .result .ic{width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:16px;
+    background:linear-gradient(135deg,rgba(79,140,255,.18),rgba(30,79,208,.1)); border:1px solid rgba(121,168,255,.25);}
+  .result h3{font-size:17px; font-weight:600; margin-bottom:8px; letter-spacing:-.2px;}
+  .result p{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55;}
 
-  .card{background:var(--glass); border:1px solid var(--border); border-radius:24px; padding:22px 22px 16px; backdrop-filter:blur(14px); transition:border-color .3s;}
-  .card:hover{border-color:var(--border-hover);}
-  .card-top{display:flex; align-items:center; gap:12px; margin-bottom:18px;}
-  .card-top .badge{font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--accent2); background:rgba(79,140,255,0.1); border:1px solid rgba(79,140,255,0.25); padding:5px 11px; border-radius:20px;}
-  .card-top h3{font-size:18px; font-weight:700; letter-spacing:-.3px;}
-
-  .gallery{display:grid; grid-template-columns:1fr 84px; gap:12px; margin-bottom:18px;}
-  /* обводка-свечение на главном квадрате — статичная, без анимации (не мигает) */
-  .main-shot{position:relative; aspect-ratio:1; border-radius:16px; overflow:hidden; border:1px solid var(--accent2); background:#0c0e1a;
-    box-shadow:0 0 0 2px rgba(121,168,255,0.28), 0 0 22px rgba(79,140,255,0.25);}
-  .main-shot .ph{width:100%; height:100%;}
-
-  .thumbs{display:flex; flex-direction:column; gap:12px;}
-  .thumb{flex:1; border-radius:11px; overflow:hidden; border:1px solid var(--border); cursor:pointer; position:relative; transition:transform .2s; background:#0c0e1a;}
-  .thumb .ph{width:100%; height:100%;}
-  .thumb:hover{transform:translateY(-2px); border-color:rgba(121,168,255,0.4);}
-
-  /* постоянный продающий текст (не меняется при кликах) */
-  .card-sell{margin-bottom:16px;}
-  .card-sell .tagline{font-size:20px; font-weight:700; letter-spacing:-.4px; line-height:1.3; margin-bottom:8px;}
-  .card-sell .pain{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55; min-height:42px;}
-
-  /* меняющаяся подпись под фото — ЖЁСТКО фиксированная высота, карточка не прыгает.
-     Текст прижат к верху; запас проверен по самой длинной подписи на мобильной ширине. */
-  .card-text{height:22px;}
-  .card-text .cap{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.5px; color:var(--muted); transition:opacity .35s, transform .35s;}
-  .card-text.swapping .cap{opacity:0; transform:translateY(8px);}
-
-  /* летящий клон */
-  .flier{position:fixed; z-index:300; border-radius:12px; overflow:hidden; border:1px solid var(--accent2); pointer-events:none;
-    box-shadow:0 20px 50px rgba(0,0,0,.5); transition:all .55s cubic-bezier(.2,.85,.25,1);}
-  .flier .ph{width:100%; height:100%;}
-
-  /* плейсхолдеры (временные, до реальных скриншотов) */
-  .ph{display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:12px; color:rgba(255,255,255,0.55);}
-  .ph1{background:linear-gradient(140deg,#1a1d3a,#0c0e1a);}
-  .ph2{background:linear-gradient(140deg,#0e2a2a,#0c0e1a);}
-  .ph3{background:linear-gradient(140deg,#2a1530,#0c0e1a);}
-  .ph4{background:linear-gradient(140deg,#2a2410,#0c0e1a);}
-  /* реальные фото проекта КЦ (карточка 1) — webp с png-фолбэком, вписаны по cover */
-  .kc1,.kc2,.kc3,.kc4{background-position:center; background-size:cover; background-repeat:no-repeat;}
-  .kc1{background-image:url(assets/img/kc-1.png); background-image:-webkit-image-set(url(assets/img/kc-1.webp) type("image/webp"), url(assets/img/kc-1.png) type("image/png")); background-image:image-set(url(assets/img/kc-1.webp) type("image/webp"), url(assets/img/kc-1.png) type("image/png"));}
-  .kc2{background-image:url(assets/img/kc-2.png); background-image:-webkit-image-set(url(assets/img/kc-2.webp) type("image/webp"), url(assets/img/kc-2.png) type("image/png")); background-image:image-set(url(assets/img/kc-2.webp) type("image/webp"), url(assets/img/kc-2.png) type("image/png"));}
-  .kc3{background-image:url(assets/img/kc-3.png); background-image:-webkit-image-set(url(assets/img/kc-3.webp) type("image/webp"), url(assets/img/kc-3.png) type("image/png")); background-image:image-set(url(assets/img/kc-3.webp) type("image/webp"), url(assets/img/kc-3.png) type("image/png"));}
-  .kc4{background-image:url(assets/img/kc-4.png); background-image:-webkit-image-set(url(assets/img/kc-4.webp) type("image/webp"), url(assets/img/kc-4.png) type("image/png")); background-image:image-set(url(assets/img/kc-4.webp) type("image/webp"), url(assets/img/kc-4.png) type("image/png"));}
-  /* реальные фото проекта «Автоматизация» (карточка 2) — webp с png-фолбэком, вписаны по cover */
-  .av1,.av2,.av3,.av4{background-position:center; background-size:cover; background-repeat:no-repeat;}
-  .av1{background-image:url(assets/img/AV-1.png); background-image:-webkit-image-set(url(assets/img/AV-1.webp) type("image/webp"), url(assets/img/AV-1.png) type("image/png")); background-image:image-set(url(assets/img/AV-1.webp) type("image/webp"), url(assets/img/AV-1.png) type("image/png"));}
-  .av2{background-image:url(assets/img/AV-2.png); background-image:-webkit-image-set(url(assets/img/AV-2.webp) type("image/webp"), url(assets/img/AV-2.png) type("image/png")); background-image:image-set(url(assets/img/AV-2.webp) type("image/webp"), url(assets/img/AV-2.png) type("image/png"));}
-  .av3{background-image:url(assets/img/AV-3.png); background-image:-webkit-image-set(url(assets/img/AV-3.webp) type("image/webp"), url(assets/img/AV-3.png) type("image/png")); background-image:image-set(url(assets/img/AV-3.webp) type("image/webp"), url(assets/img/AV-3.png) type("image/png"));}
-  .av4{background-image:url(assets/img/AV-4.png); background-image:-webkit-image-set(url(assets/img/AV-4.webp) type("image/webp"), url(assets/img/AV-4.png) type("image/png")); background-image:image-set(url(assets/img/AV-4.webp) type("image/webp"), url(assets/img/AV-4.png) type("image/png"));}
-  /* реальные фото проекта «Дашборд» (карточка 3) — webp с png-фолбэком, вписаны по cover */
-  .db1,.db2,.db3,.db4{background-position:center; background-size:cover; background-repeat:no-repeat;}
-  .db1{background-image:url(assets/img/DB-1.png); background-image:-webkit-image-set(url(assets/img/DB-1.webp) type("image/webp"), url(assets/img/DB-1.png) type("image/png")); background-image:image-set(url(assets/img/DB-1.webp) type("image/webp"), url(assets/img/DB-1.png) type("image/png"));}
-  .db2{background-image:url(assets/img/DB-2.png); background-image:-webkit-image-set(url(assets/img/DB-2.webp) type("image/webp"), url(assets/img/DB-2.png) type("image/png")); background-image:image-set(url(assets/img/DB-2.webp) type("image/webp"), url(assets/img/DB-2.png) type("image/png"));}
-  .db3{background-image:url(assets/img/DB-3.png); background-image:-webkit-image-set(url(assets/img/DB-3.webp) type("image/webp"), url(assets/img/DB-3.png) type("image/png")); background-image:image-set(url(assets/img/DB-3.webp) type("image/webp"), url(assets/img/DB-3.png) type("image/png"));}
-  .db4{background-image:url(assets/img/DB-4.png); background-image:-webkit-image-set(url(assets/img/DB-4.webp) type("image/webp"), url(assets/img/DB-4.png) type("image/png")); background-image:image-set(url(assets/img/DB-4.webp) type("image/webp"), url(assets/img/DB-4.png) type("image/png"));}
-  /* реальные фото проекта ОКК (карточка 4) — webp с png-фолбэком, вписаны по cover */
-  .okk1,.okk2,.okk3,.okk4{background-position:center; background-size:cover; background-repeat:no-repeat;}
-  .okk1{background-image:url(assets/img/OKK-1.png); background-image:-webkit-image-set(url(assets/img/OKK-1.webp) type("image/webp"), url(assets/img/OKK-1.png) type("image/png")); background-image:image-set(url(assets/img/OKK-1.webp) type("image/webp"), url(assets/img/OKK-1.png) type("image/png"));}
-  .okk2{background-image:url(assets/img/OKK-2.png); background-image:-webkit-image-set(url(assets/img/OKK-2.webp) type("image/webp"), url(assets/img/OKK-2.png) type("image/png")); background-image:image-set(url(assets/img/OKK-2.webp) type("image/webp"), url(assets/img/OKK-2.png) type("image/png"));}
-  .okk3{background-image:url(assets/img/OKK-3.png); background-image:-webkit-image-set(url(assets/img/OKK-3.webp) type("image/webp"), url(assets/img/OKK-3.png) type("image/png")); background-image:image-set(url(assets/img/OKK-3.webp) type("image/webp"), url(assets/img/OKK-3.png) type("image/png"));}
-  .okk4{background-image:url(assets/img/OKK-4.png); background-image:-webkit-image-set(url(assets/img/OKK-4.webp) type("image/webp"), url(assets/img/OKK-4.png) type("image/png")); background-image:image-set(url(assets/img/OKK-4.webp) type("image/webp"), url(assets/img/OKK-4.png) type("image/png"));}
-
-  /* кнопка «Открыть» по центру главного кадра */
-  .zoom-btn{
-    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(.94); z-index:5;
-    padding:11px 24px; border-radius:12px; background:rgba(5,6,10,0.4); border:1px solid rgba(255,255,255,0.45);
-    color:#fff; font-family:inherit; font-weight:600; font-size:14px; letter-spacing:.3px; cursor:pointer;
-    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-    opacity:0; pointer-events:none; transition:opacity .3s, transform .3s, background .3s, border-color .3s;
-  }
-  .zoom-btn:hover{background:rgba(79,140,255,0.55); border-color:var(--accent2);}
-  @media (hover:hover){ .main-shot:hover .zoom-btn{opacity:1; transform:translate(-50%,-50%) scale(1); pointer-events:auto;} }
-  @media (hover:none){ .zoom-btn{opacity:1; pointer-events:auto; padding:8px 16px; font-size:12px; background:rgba(5,6,10,0.55);} }
-
-  /* лайтбокс */
-  .lb{position:fixed; inset:0; z-index:400; display:none; align-items:center; justify-content:center; padding:24px;}
-  .lb.open{display:flex;}
-  .lb-backdrop{position:absolute; inset:0; background:rgba(5,6,10,0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);}
-  .lb-dialog{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:16px; max-width:94vw;}
-  .lb-stage{
-    width:min(70vh,88vw); height:min(70vh,88vw); border-radius:18px; border:1px solid var(--accent2); background-color:#0c0e1a;
-    box-shadow:0 0 0 2px rgba(121,168,255,0.25), 0 0 40px rgba(79,140,255,0.25);
-    background-position:center; background-repeat:no-repeat;
-  }
-  .lb .lb-stage{background-size:contain;}
-  .lb-cap{font-family:'Space Mono',monospace; font-size:13px; letter-spacing:.5px; color:var(--muted);}
-  .lb-strip{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; max-width:min(70vh,88vw);}
-  .lb-thumb{
-    width:58px; height:58px; border-radius:10px; border:1px solid var(--border); cursor:pointer; padding:0;
-    background-position:center; background-repeat:no-repeat; background-color:#0c0e1a;
-    transition:border-color .2s, transform .2s;
-  }
-  .lb .lb-thumb{background-size:cover;}
-  .lb-thumb:hover{transform:translateY(-2px);}
-  .lb-thumb.on{border-color:var(--accent2); box-shadow:0 0 0 2px rgba(121,168,255,0.3);}
-  .lb-close{
-    position:absolute; top:18px; right:22px; z-index:2; width:42px; height:42px; border-radius:50%;
-    background:rgba(255,255,255,0.08); border:1px solid var(--border); color:#fff; font-size:24px; line-height:1; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background .2s, border-color .2s;
-  }
-  .lb-close:hover{background:rgba(79,140,255,0.3); border-color:var(--accent2);}
+  /* ---------- ПОРТФОЛИО: строка-кнопка ---------- */
+  .pf-wrap{padding:8px 0 40px;}
+  .pf-strip{display:flex; align-items:center; justify-content:space-between; gap:20px;
+    background:linear-gradient(135deg,rgba(79,140,255,0.10),rgba(30,79,208,0.04)); border:1px solid rgba(121,168,255,0.28);
+    border-radius:20px; padding:22px 26px; backdrop-filter:blur(14px);}
+  .pf-txt{display:flex; flex-direction:column; gap:4px;}
+  .pf-title{font-size:20px; font-weight:700; letter-spacing:-.4px;}
+  .pf-text{color:var(--muted); font-size:14px; font-weight:300;}
+  .pf-btn{flex-shrink:0; white-space:nowrap;}
+  @media(max-width:640px){ .pf-strip{flex-direction:column; align-items:stretch; text-align:center; padding:22px 20px;} .pf-btn{text-align:center;} }
 
   /* ---------- АВТОВОРОНКИ CHATTERFY ---------- */
   .case-band{
@@ -432,8 +367,10 @@
   }
 
   /* ---------- ЦЕНЫ ---------- */
-  .pricing{display:grid; grid-template-columns:repeat(2,1fr); grid-auto-rows:1fr; gap:20px; align-items:stretch;}
-  @media(max-width:680px){ .pricing{grid-template-columns:1fr} }
+  .pricing{display:flex; flex-wrap:wrap; justify-content:center; gap:20px; align-items:stretch;}
+  .pricing .price-card{flex:0 1 calc((100% - 40px)/3);}
+  @media(max-width:980px){ .pricing .price-card{flex-basis:calc((100% - 20px)/2)} }
+  @media(max-width:680px){ .pricing .price-card{flex-basis:100%} }
   .price-card{
     background:var(--glass); border:1px solid var(--border); border-radius:22px; padding:32px 28px 26px;
     backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
@@ -445,8 +382,7 @@
   .price-card .price-sub{color:var(--muted); font-size:12.5px; font-weight:300; margin-bottom:4px;}
   .price-card .price-sub:last-of-type{margin-bottom:12px;}
   .price-card .desc{color:var(--muted); font-size:14px; font-weight:300; margin-bottom:18px;}
-  .price-card ul{list-style:none; margin-bottom:24px; flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px 22px;}
-  @media(max-width:420px){ .price-card ul{grid-template-columns:1fr} }
+  .price-card ul{list-style:none; margin-bottom:24px; flex:1; display:grid; grid-template-columns:1fr; gap:10px;}
   .price-card li{color:var(--muted); font-size:13px; font-weight:300; line-height:1.4; display:flex; gap:9px; align-items:flex-start;}
   .price-card li::before{content:'✓'; color:var(--accent); font-weight:600; flex-shrink:0;}
   /* кнопки «Обсудить» — постоянный бегущий луч по контуру */
@@ -485,6 +421,20 @@
   }
   .price-note{text-align:center; color:var(--muted-2); font-size:12.5px; font-weight:300; margin-top:22px;}
 
+  /* ---------- FAQ ---------- */
+  .faq{max-width:820px; margin:0 auto; display:flex; flex-direction:column; gap:12px;}
+  .faq-item{background:var(--glass); border:1px solid var(--border); border-radius:16px; backdrop-filter:blur(14px); transition:border-color .2s;}
+  .faq-item[open]{border-color:var(--border-hover);}
+  .faq-item summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:18px 22px; font-weight:600; font-size:15.5px;}
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary:focus-visible{outline:2px solid var(--accent2); outline-offset:2px; border-radius:16px;}
+  .faq-ic{position:relative; width:14px; height:14px; flex-shrink:0;}
+  .faq-ic::before,.faq-ic::after{content:''; position:absolute; left:0; top:6px; width:14px; height:2px; border-radius:1px; background:var(--accent2); transition:transform .2s cubic-bezier(.2,.8,.2,1);}
+  .faq-ic::after{transform:rotate(90deg);}
+  .faq-item[open] .faq-ic::after{transform:rotate(0);}
+  .faq-item p{color:var(--muted); font-size:14px; font-weight:300; line-height:1.6; padding:0 22px 18px; margin-top:-4px;}
+
   /* ---------- CONTACT ---------- */
   .contact{text-align:center; padding:64px 0;}
   @media(max-width:720px){ .contact{padding:52px 0;} }
@@ -505,6 +455,9 @@
   .foot-in{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;}
   .foot-in .brand{font-size:18px}
   footer .muted{color:var(--muted-2); font-size:13px;}
+  .foot-r{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  .foot-link{color:var(--muted-2); font-size:13px; text-decoration:underline; text-underline-offset:3px; transition:color .2s;}
+  .foot-link:hover{color:var(--txt);}
 
   /* ---------- i18n: кросс-фейд только текста (фон/логотип не трогаем) ---------- */
   [data-i18n]{transition:opacity .25s ease;}
@@ -517,6 +470,12 @@
   .lang.en .pill{transform:translateX(100%);}
   .lang button{position:relative; z-index:1; background:none; border:none; color:var(--muted); font-family:inherit; font-weight:600; font-size:13px; padding:7px 14px; cursor:pointer; transition:color .3s; width:50px;}
   .lang button.on{color:#fff;}
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important; transition-duration:.01ms!important}
+    .reveal{opacity:1; transform:none}
+  }
 
   /* reveal on scroll */
   .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s, transform .7s;}
@@ -543,16 +502,16 @@
       <span><span class="w">Ne</span><span class="x">x</span><span class="w">us&nbsp;AI</span></span>
     </div>
     <div class="nav-links">
+      <a href="#results" data-i18n="nav.results">Результат</a>
       <a href="#services" data-i18n="nav.services">Услуги</a>
-      <a href="#projects" data-i18n="nav.works">Работы</a>
       <a href="#funnels" data-i18n="nav.funnels">Автоворонки</a>
       <a href="#process" data-i18n="nav.process">Как работаем</a>
       <a href="#pricing" data-i18n="nav.pricing">Цены</a>
-      <a href="#contact" data-i18n="nav.contacts">Контакты</a>
+      <a href="#faq" data-i18n="nav.faq">Вопросы</a>
     </div>
     <div class="nav-right">
       <div class="lang" id="lang"><span class="pill"></span><button class="on" data-lang="ru">RU</button><button data-lang="en">EN</button></div>
-      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="nav-cta"><span class="t" data-i18n="nav.cta">Заказать</span></a>
+      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="nav-cta" data-track="tg_nav"><span class="t" data-i18n="nav.cta">Обсудить</span></a>
     </div>
   </div>
 </nav>
@@ -577,56 +536,108 @@
       <span class="hero-name"><span class="w">Ne</span><span class="x">x</span><span class="w">us&nbsp;AI</span></span>
     </div>
     <div class="kicker">Build · Connect · Automate</div>
-    <h1><span class="t1" data-i18n="hero.t1">Расширения и сайты,</span><br><span class="accent" data-i18n="hero.t2">созданные с искусственным интеллектом</span></h1>
-    <p data-i18n="hero.sub">Nexus AI разрабатывает Chrome-расширения, веб-сайты и инструменты автоматизации. Быстро, аккуратно и честно — с использованием ИИ на каждом этапе.</p>
+    <h1><span class="t1" data-i18n="hero.t1">CRM, сайт и Telegram —</span><br><span class="accent" data-i18n="hero.t2">в одной работающей системе</span></h1>
+    <p data-i18n="hero.sub">Chrome-расширения для CRM, Telegram-боты и Mini Apps, сайты, дашборды с ИИ-контролем качества и интеграции с трекерами. Меньше ручной работы — данные не теряются.</p>
     <div class="hero-btns">
-      <a href="#projects" class="btn-primary"><span class="t" data-i18n="hero.b1">Смотреть работы</span></a>
-      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-ghost"><span class="t" data-i18n="hero.b2">Обсудить проект</span></a>
+      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-primary" data-track="tg_hero"><span class="t" data-i18n="hero.b1">Обсудить проект</span></a>
+      <a href="#portfolio" class="btn-ghost"><span class="t" data-i18n="hero.b2">Смотреть работы</span></a>
       <a href="#funnels" class="ch-btn">
         <span class="ch-graph" aria-hidden="true"><span class="b"></span><span class="b" style="animation-delay:-0.07s"></span><span class="b" style="animation-delay:-0.14s"></span><span class="b" style="animation-delay:-0.21s"></span><span class="b" style="animation-delay:-0.28s"></span><span class="b" style="animation-delay:-0.35s"></span><span class="b" style="animation-delay:-0.42s"></span><span class="b" style="animation-delay:-0.49s"></span><span class="b" style="animation-delay:-0.56s"></span><span class="b" style="animation-delay:-0.63s"></span><span class="b" style="animation-delay:-0.7s"></span><span class="b" style="animation-delay:-0.77s"></span><span class="b" style="animation-delay:-0.84s"></span><span class="b" style="animation-delay:-0.91s"></span><span class="b" style="animation-delay:-0.98s"></span><span class="b" style="animation-delay:-1.05s"></span><span class="b" style="animation-delay:-1.12s"></span><span class="b" style="animation-delay:-1.19s"></span><span class="b" style="animation-delay:-1.26s"></span><span class="b" style="animation-delay:-1.33s"></span><span class="b" style="animation-delay:-1.4s"></span><span class="b" style="animation-delay:-1.47s"></span><span class="b" style="animation-delay:-1.54s"></span><span class="b" style="animation-delay:-1.61s"></span></span>
         <span class="ch-text"><span data-i18n="hero.b3">Автоворонки Chatterfy</span> <span class="arrow">→</span></span>
       </a>
     </div>
+    <ul class="hero-chips">
+      <li data-i18n="hero.p1">Интеграция с CRM без API</li><li data-i18n="hero.p2">Постбэки в Keitaro и Binom</li><li data-i18n="hero.p3">Поддержка — $200/мес</li>
+    </ul>
   </div>
 </header>
+
+<!-- РЕЗУЛЬТАТ -->
+<section class="section" id="results">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tag" data-i18n="results.kicker">Что вы получите</span>
+      <h2 data-i18n="results.title">Результат, а не просто код</h2>
+      <p data-i18n="results.sub">Мы делаем инструменты под конкретную задачу бизнеса. Вот что меняется после запуска.</p>
+    </div>
+    <div class="results">
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3 data-i18n="results.r1t">Меньше ручной работы</h3>
+        <p data-i18n="results.r1d">Данные из CRM подставляются сами, звонок — в один клик. Операторы работают с клиентами, а не заполняют формы.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3 data-i18n="results.r2t">Данные не теряются</h3>
+        <p data-i18n="results.r2d">Лиды, события и постбэки автоматически передаются между CRM, ERP, трекерами и таблицами. Дубли отсекаются ещё до внесения.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 15v-3M12 15V9M17 15v-5"/></svg></div>
+        <h3 data-i18n="results.r3t">Вся команда на одном экране</h3>
+        <p data-i18n="results.r3d">Воронка, нагрузка и скорость ответов — в реальном времени. ИИ оценивает диалоги операторов по вашей рубрике и строит рейтинг.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></div>
+        <h3 data-i18n="results.r4t">Клиенты на связи 24/7</h3>
+        <p data-i18n="results.r4d">Telegram-бот или Mini App принимает заявки и ведёт клиента к цели в любое время — даже когда команда офлайн.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- УСЛУГИ -->
 <section class="section" id="services">
   <div class="container">
     <div class="sec-head reveal">
       <span class="tag" data-i18n="services.kicker">Что мы делаем</span>
-      <h2 data-i18n="services.title">Услуги</h2>
-      <p data-i18n="services.sub">От идеи до готового продукта. Каждый проект — под конкретную задачу.</p>
+      <h2 data-i18n="services.title">Решения под вашу задачу</h2>
+      <p data-i18n="services.sub">Каждое решение можно связать с остальными: бот, сайт, CRM и трекер работают как одна система.</p>
     </div>
     <div class="services">
       <div class="service reveal">
-        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg></div>
-        <h3 data-i18n="services.c1t">Chrome-расширения</h3>
-        <p data-i18n="services.c1d">Расширения для автоматизации, парсинга, удобства работы в браузере. От простых до сложных с панелями и интеграциями.</p>
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg></div>
+        <h3 data-i18n="services.c1t">Chrome-расширения для CRM</h3>
+        <p data-i18n="services.c1d">Работают прямо в вашей CRM: подставляют данные, звонок в один клик, очередь и дедупликация. Подключаемся даже без публичного API.</p>
       </div>
       <div class="service reveal">
-        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8"><path d="M3 9h18M3 9l0 9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9M3 9V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/></svg></div>
-        <h3 data-i18n="services.c2t">Веб-сайты</h3>
-        <p data-i18n="services.c2d">Лендинги, портфолио, корпоративные сайты. Современный дизайн, адаптив под телефон, анимации, быстрая загрузка.</p>
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg></div>
+        <h3 data-i18n="services.c2t">Telegram-боты</h3>
+        <p data-i18n="services.c2d">Принимают заявки, отвечают клиентам и передают лиды в CRM. Клиент получает ответ сразу, менеджер — готовые данные.</p>
       </div>
       <div class="service reveal">
-        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4"/><circle cx="12" cy="12" r="3"/></svg></div>
-        <h3 data-i18n="services.c3t">Автоматизация</h3>
-        <p data-i18n="services.c3d">Инструменты, которые делают рутину за вас: сверка данных, обработка, интеграции с ботами и сервисами.</p>
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4M9 7h6M9 11h6"/></svg></div>
+        <h3 data-i18n="services.c3t">Telegram Mini Apps</h3>
+        <p data-i18n="services.c3d">Полноценное приложение внутри Telegram: клиенту не нужно ничего скачивать или переходить на сайт. Данные сразу уходят в вашу CRM.</p>
+      </div>
+      <div class="service reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18M3 9v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9M3 9V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/></svg></div>
+        <h3 data-i18n="services.c4t">Сайты и лендинги</h3>
+        <p data-i18n="services.c4d">Премиум-дизайн, живые анимации, адаптив под телефон и версии RU/EN. Деплой и домен берём на себя — вы получаете готовый сайт.</p>
+      </div>
+      <div class="service reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <h3 data-i18n="services.c5t">Дашборды и ИИ-контроль качества</h3>
+        <p data-i18n="services.c5d">Воронка и работа команды в реальном времени. ИИ проверяет диалоги операторов по рубрике и формирует рейтинги — видно, где теряются лиды.</p>
+      </div>
+      <div class="service reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M9 6h6M18 9v6M8.2 8.2l7.6 7.6"/></svg></div>
+        <h3 data-i18n="services.c6t">Интеграции и постбэки</h3>
+        <p data-i18n="services.c6d">Keitaro и Binom, корректная передача постбэков, синхронизация CRM ↔ ERP. Связываем бота, сайт и CRM без ручного переноса данных.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ПРОЕКТЫ -->
-<section class="section" id="projects">
+<!-- ПОРТФОЛИО: строка-кнопка (ссылка — PORTFOLIO_URL; пока ведёт в Telegram, позже — видео/страница) -->
+<section class="pf-wrap" id="portfolio">
   <div class="container">
-    <div class="sec-head reveal">
-      <span class="tag" data-i18n="works.kicker">Портфолио</span>
-      <h2 data-i18n="works.title">Работы</h2>
-      <p data-i18n="works.sub">Кликни по миниатюре — фото перелетит в главный квадрат.</p>
+    <div class="pf-strip reveal">
+      <div class="pf-txt">
+        <span class="pf-title" data-i18n="pf.title">Портфолио</span>
+        <span class="pf-text" data-i18n="pf.text">Реальные проекты: расширения, дашборды, боты и сайты. Скоро — видео.</span>
+      </div>
+      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-primary pf-btn" id="pf-btn" data-track="portfolio"><span class="t" data-i18n="pf.btn">Смотреть портфолио</span></a>
     </div>
-    <div class="grid" id="grid"></div>
   </div>
 </section>
 
@@ -683,7 +694,7 @@
     </div>
 
     <div class="funnel-cta reveal">
-      <a href="https://t.me/+k1ShAmy4AIYxZGIy" target="_blank" rel="noopener" class="btn-primary"><span class="t" data-i18n="funnels.cta">Заказать воронку</span></a>
+      <a href="https://t.me/+k1ShAmy4AIYxZGIy" target="_blank" rel="noopener" class="btn-primary" data-track="tg_funnels"><span class="t" data-i18n="funnels.cta">Заказать воронку</span></a>
     </div>
   </div>
 </section>
@@ -696,10 +707,10 @@
       <h2 data-i18n="process.title">Как мы работаем</h2>
     </div>
     <div class="steps">
-      <div class="step reveal"><div class="num">01</div><h4 data-i18n="process.s1t">Обсуждаем</h4><p data-i18n="process.s1d">Вы рассказываете задачу — мы предлагаем решение и сроки.</p></div>
-      <div class="step reveal"><div class="num">02</div><h4 data-i18n="process.s2t">Прототип</h4><p data-i18n="process.s2d">Быстро собираем рабочий вариант, чтобы вы увидели результат.</p></div>
-      <div class="step reveal"><div class="num">03</div><h4 data-i18n="process.s3t">Дорабатываем</h4><p data-i18n="process.s3d">Правки, тесты, шлифовка деталей до идеала.</p></div>
-      <div class="step reveal"><div class="num">04</div><h4 data-i18n="process.s4t">Запуск</h4><p data-i18n="process.s4d">Готовый продукт у вас на руках. Поддержка по необходимости.</p></div>
+      <div class="step reveal"><div class="num">01</div><h4 data-i18n="process.s1t">Обсуждаем</h4><p data-i18n="process.s1d">Разбираем задачу и предлагаем решение с понятной стоимостью и сроками.</p></div>
+      <div class="step reveal"><div class="num">02</div><h4 data-i18n="process.s2t">Прототип</h4><p data-i18n="process.s2d">Собираем рабочую версию — вы видите результат до финальной доработки.</p></div>
+      <div class="step reveal"><div class="num">03</div><h4 data-i18n="process.s3t">Дорабатываем</h4><p data-i18n="process.s3d">Вносим ваши правки и тестируем на реальных рабочих сценариях.</p></div>
+      <div class="step reveal"><div class="num">04</div><h4 data-i18n="process.s4t">Запуск и поддержка</h4><p data-i18n="process.s4d">Запускаем и передаём готовый продукт. Дальше — поддержка за $200/мес.</p></div>
     </div>
   </div>
 </section>
@@ -708,9 +719,9 @@
 <section class="section">
   <div class="container">
     <div class="ai-band reveal">
-      <span class="chip" data-i18n="ai.chip">Открыто и честно</span>
-      <h2 data-i18n="ai.title">Да, мы используем ИИ — и гордимся этим</h2>
-      <p data-i18n="ai.text">Искусственный интеллект — наш главный инструмент. Он позволяет делать качественно и в разы быстрее. Мы не скрываем это: вы получаете современный результат за адекватные сроки, а каждый проект проверяется и дорабатывается вручную.</p>
+      <span class="chip" data-i18n="ai.chip">Честно про ИИ</span>
+      <h2 data-i18n="ai.title">ИИ ускоряет — люди проверяют</h2>
+      <p data-i18n="ai.text">Мы используем ИИ на каждом этапе разработки. Для вас это значит: рабочий прототип раньше, а в смете меньше часов рутинной работы. Каждый проект мы проверяем, тестируем и дорабатываем вручную.</p>
     </div>
   </div>
 </section>
@@ -724,19 +735,6 @@
       <p data-i18n="price.sub">Прозрачно и честно. Финальная стоимость — после обсуждения задачи.</p>
     </div>
     <div class="pricing">
-      <div class="price-card reveal">
-        <div class="plan" data-i18n="price.t1.title">Расширения (Chrome)</div>
-        <div class="amount" data-i18n="price.t1.amount">от $700</div>
-        <div class="price-sub" data-i18n="price.support">Поддержка — $200 / мес</div>
-        <p class="desc" data-i18n="price.t1.desc">Браузерные расширения, которые автоматизируют рутину прямо внутри вашей CRM</p>
-        <ul>
-          <li data-i18n="price.t1.f1">Интеграция с CRM даже без публичного API</li>
-          <li data-i18n="price.t1.f2">Перенос данных между системами (CRM ↔ ERP)</li>
-          <li data-i18n="price.t1.f3">Очередь, дедупликация, массовые операции</li>
-          <li data-i18n="price.t1.f4">Кастомная панель внутри интерфейса CRM</li>
-        </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
-      </div>
       <div class="price-card featured reveal">
         <span class="pop" data-i18n="price.popular">Популярное</span>
         <div class="plan" data-i18n="price.t2.title">Сайты / Лендинги</div>
@@ -749,7 +747,33 @@
           <li data-i18n="price.t2.f3">Мультиязычность (RU / EN)</li>
           <li data-i18n="price.t2.f4">Деплой, домен и HTTPS под ключ</li>
         </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow" data-track="tg_price"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
+      </div>
+      <div class="price-card reveal">
+        <div class="plan" data-i18n="price.t1.title">Расширения (Chrome)</div>
+        <div class="amount" data-i18n="price.t1.amount">от $700</div>
+        <div class="price-sub" data-i18n="price.support">Поддержка — $200 / мес</div>
+        <p class="desc" data-i18n="price.t1.desc">Браузерные расширения, которые автоматизируют рутину прямо внутри вашей CRM</p>
+        <ul>
+          <li data-i18n="price.t1.f1">Интеграция с CRM даже без публичного API</li>
+          <li data-i18n="price.t1.f2">Перенос данных между системами (CRM ↔ ERP)</li>
+          <li data-i18n="price.t1.f3">Очередь, дедупликация, массовые операции</li>
+          <li data-i18n="price.t1.f4">Кастомная панель внутри интерфейса CRM</li>
+        </ul>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow" data-track="tg_price"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
+      </div>
+      <div class="price-card reveal">
+        <div class="plan" data-i18n="price.t5.title">Telegram-боты и Mini Apps</div>
+        <div class="amount" data-i18n="price.t5.amount">индивидуально</div>
+        <div class="price-sub" data-i18n="price.support">Поддержка — $200 / мес</div>
+        <p class="desc" data-i18n="price.t5.desc">Боты и приложения в Telegram, связанные с вашим сайтом и CRM</p>
+        <ul>
+          <li data-i18n="price.t5.f1">Боты для заявок и поддержки клиентов</li>
+          <li data-i18n="price.t5.f2">Mini Apps без установки и перехода</li>
+          <li data-i18n="price.t5.f3">Связка с сайтом, CRM и трекерами</li>
+          <li data-i18n="price.t5.f4">Передача лидов и постбэков</li>
+        </ul>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow" data-track="tg_price_t5"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
       </div>
       <div class="price-card reveal">
         <div class="plan" data-i18n="price.t3.title">Дашборды / Аналитика</div>
@@ -762,7 +786,7 @@
           <li data-i18n="price.t3.f3">Сквозная аналитика: реклама → результат</li>
           <li data-i18n="price.t3.f4">Backend на Supabase, отчёты и выгрузки</li>
         </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow" data-track="tg_price"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
       </div>
       <div class="price-card reveal">
         <div class="plan" data-i18n="price.t4.title">Автоматизация</div>
@@ -776,10 +800,46 @@
           <li data-i18n="price.t4.f3">Боты и внутренние инструменты</li>
           <li data-i18n="price.t4.f4">Решение под вашу задачу</li>
         </ul>
-        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
+        <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="price-glow" data-track="tg_price"><span class="pg-inner" data-i18n="price.discuss">Обсудить</span></a>
       </div>
     </div>
     <p class="price-note reveal" data-i18n="price.note">Цены указаны ориентировочно и обсуждаются индивидуально под каждый проект.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tag" data-i18n="faq.kicker">FAQ</span>
+      <h2 data-i18n="faq.title">Частые вопросы</h2>
+    </div>
+    <div class="faq">
+      <details class="faq-item reveal">
+        <summary><span data-i18n="faq.q1">Сможете встроиться в CRM без API?</span><span class="faq-ic" aria-hidden="true"></span></summary>
+        <p data-i18n="faq.a1">Да. Chrome-расширение работает прямо в интерфейсе CRM: подставляет и переносит данные, даже если у системы нет публичного API.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary><span data-i18n="faq.q2">Можно связать бота или Mini App с сайтом и CRM?</span><span class="faq-ic" aria-hidden="true"></span></summary>
+        <p data-i18n="faq.a2">Да. Заявки из бота, Mini App и сайта попадают в CRM, постбэки передаются в трекер — всё работает как одна система, без ручного переноса данных.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary><span data-i18n="faq.q3">С какими трекерами работаете?</span><span class="faq-ic" aria-hidden="true"></span></summary>
+        <p data-i18n="faq.a3">С Keitaro и Binom: настраиваем корректную передачу постбэков и связываем трекер с CRM, ботом или сайтом. Если у вас другой трекер — напишите, обсудим задачу.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary><span data-i18n="faq.q4">Есть поддержка после запуска?</span><span class="faq-ic" aria-hidden="true"></span></summary>
+        <p data-i18n="faq.a4">Да. После запуска мы остаёмся на поддержке — $200 в месяц. Что именно в неё войдёт, согласуем под ваш проект.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary><span data-i18n="faq.q5">Как формируется цена?</span><span class="faq-ic" aria-hidden="true"></span></summary>
+        <p data-i18n="faq.a5">Цены на сайте ориентировочные: расширения от $700, сайты от $600, дашборды от $2500, автоматизация обычно $1500–5000. Точную стоимость называем после обсуждения задачи.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary><span data-i18n="faq.q6">На каких языках делаете сайты и ботов?</span><span class="faq-ic" aria-hidden="true"></span></summary>
+        <p data-i18n="faq.a6">На русском и английском. Сайт, бот или Mini App можно сделать сразу на двух языках — RU и EN.</p>
+      </details>
+    </div>
   </div>
 </section>
 
@@ -787,15 +847,15 @@
 <section class="contact" id="contact">
   <div class="container">
     <div class="contact-card reveal">
-      <h2 data-i18n="contact.title">Готовы начать?</h2>
-      <p data-i18n="contact.sub">Расскажите о своей задаче — отвечу и предложу решение.</p>
-      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-primary tg-btn">
+      <h2 data-i18n="contact.title">Расскажите о задаче</h2>
+      <p data-i18n="contact.sub">Напишите, что хотите автоматизировать или запустить, — предложим решение и назовём ориентировочную стоимость.</p>
+      <a href="https://t.me/Ppavel69" target="_blank" rel="noopener" class="btn-primary tg-btn" data-track="tg_contact">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
           <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
         </svg>
         <span class="t" data-i18n="contact.btn">Написать в Telegram</span>
       </a>
-      <p class="tg-note" data-i18n="contact.note">Отвечаю быстро. Обсудим задачу, сроки и стоимость.</p>
+      <p class="tg-note" data-i18n="contact.note">Обсудим задачу, сроки и стоимость в переписке.</p>
     </div>
   </div>
 </section>
@@ -815,7 +875,10 @@
       </svg>
       <span><span class="w">Ne</span><span class="x" style="color:#4f8cff">x</span><span class="w">us&nbsp;AI</span></span>
     </div>
-    <div class="muted" data-i18n="footer.copy">© 2026 Nexus AI · Разработка с искусственным интеллектом</div>
+    <div class="foot-r">
+      <div class="muted" data-i18n="footer.copy">© 2026 Nexus AI · Расширения, боты, сайты и автоматизация</div>
+      <a class="foot-link" href="/privacy" data-i18n="footer.privacy">Политика конфиденциальности</a>
+    </div>
   </div>
 </footer>
 
@@ -951,7 +1014,8 @@
       requestAnimationFrame(step);
     }
 
-    addEventListener('resize', resize);
+    let lastW = innerWidth;
+    addEventListener('resize', ()=>{ if(innerWidth !== lastW){ lastW = innerWidth; resize(); } else { H = canvas.height = innerHeight * DPR; canvas.style.height = innerHeight + 'px'; } });
     addEventListener('mousemove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
     addEventListener('mouseleave', ()=>{ mouse.x=-9999; mouse.y=-9999; });
     addEventListener('touchmove', e=>{
@@ -981,74 +1045,34 @@
   // ---------- i18n: движок двуязычности (RU/EN), расширяется по секциям ----------
   const i18n = {
     ru: {
-      'nav.services':'Услуги', 'nav.works':'Работы', 'nav.funnels':'Автоворонки',
-      'nav.process':'Как работаем', 'nav.pricing':'Цены', 'nav.contacts':'Контакты', 'nav.cta':'Заказать',
-      'hero.t1':'Расширения и сайты,', 'hero.t2':'созданные с искусственным интеллектом',
-      'hero.sub':'Nexus AI разрабатывает Chrome-расширения, веб-сайты и инструменты автоматизации. Быстро, аккуратно и честно — с использованием ИИ на каждом этапе.',
-      'hero.b1':'Смотреть работы', 'hero.b2':'Обсудить проект', 'hero.b3':'Автоворонки Chatterfy',
-      'services.kicker':'Что мы делаем', 'services.title':'Услуги',
-      'services.c1t':'Chrome-расширения', 'services.c1d':'Расширения для автоматизации, парсинга, удобства работы в браузере. От простых до сложных с панелями и интеграциями.',
-      'services.c2t':'Веб-сайты', 'services.c2d':'Лендинги, портфолио, корпоративные сайты. Современный дизайн, адаптив под телефон, анимации, быстрая загрузка.',
-      'services.c3t':'Автоматизация', 'services.c3d':'Инструменты, которые делают рутину за вас: сверка данных, обработка, интеграции с ботами и сервисами.',
-      'process.kicker':'Процесс', 'process.title':'Как мы работаем',
-      'process.s1t':'Обсуждаем', 'process.s1d':'Вы рассказываете задачу — мы предлагаем решение и сроки.',
-      'process.s2t':'Прототип', 'process.s2d':'Быстро собираем рабочий вариант, чтобы вы увидели результат.',
-      'process.s3t':'Дорабатываем', 'process.s3d':'Правки, тесты, шлифовка деталей до идеала.',
-      'process.s4t':'Запуск', 'process.s4d':'Готовый продукт у вас на руках. Поддержка по необходимости.',
-      'services.sub':'От идеи до готового продукта. Каждый проект — под конкретную задачу.',
-      'works.kicker':'Портфолио', 'works.title':'Работы', 'works.sub':'Кликни по миниатюре — фото перелетит в главный квадрат.', 'works.open':'Открыть',
-      'funnels.kicker':'Автоворонки', 'funnels.title':'Автоматизация продаж в Chatterfy', 'funnels.sub':'Превращаем ручную обработку лидов в автоматическую систему. Путь клиента Reg → FD → RD работает 24/7 без человеческого фактора.',
-      'funnels.caseSub':'Рост конверсии в регистрацию после автоматизации воронки. BO, ГЕО: LatAm (Колумбия/Мексика), источник Facebook.',
-      'funnels.m1':'24/7 работа', 'funnels.m2':'0 человеческого фактора', 'funnels.m3':'A/B тест за май',
-      'funnels.s1t':'Регистрация (Reg)', 'funnels.s1d':'Моментальный подхват пользователя, стартовый прогрев, сегментация по действиям в первые 15/30/60 минут.',
-      'funnels.s2t':'Первый депозит (FD)', 'funnels.s2d':'Триггерные цепочки, имитация живого общения, прогревающие механики по таймингам.',
-      'funnels.s3t':'Повторные депозиты (RD)', 'funnels.s3d':'Автоматическая работа с активной базой: сегментация неактивных клиентов, индивидуальные триггеры без спама.',
-      'funnels.inclT':'Что входит', 'funnels.i1':'Интеграция с трекерами (Keitaro, Binom и др.)', 'funnels.i2':'Корректная передача постбэков', 'funnels.i3':'Рандомизация текстов и медиа (защита от спам-фильтров)', 'funnels.i4':'Логика удержания под любые ГЕО и офферы',
-      'funnels.price':'от $300', 'funnels.priceNote':'Создание воронки под ключ. Финальная стоимость обсуждается индивидуально — зависит от сложности воронки, источника и задач.', 'funnels.cta':'Заказать воронку',
-      'ai.chip':'Открыто и честно', 'ai.title':'Да, мы используем ИИ — и гордимся этим', 'ai.text':'Искусственный интеллект — наш главный инструмент. Он позволяет делать качественно и в разы быстрее. Мы не скрываем это: вы получаете современный результат за адекватные сроки, а каждый проект проверяется и дорабатывается вручную.',
-      'price.kicker':'Тарифы', 'price.title':'Цены', 'price.sub':'Прозрачно и честно. Финальная стоимость — после обсуждения задачи.', 'price.support':'Поддержка — $200 / мес', 'price.popular':'Популярное', 'price.usually':'обычно $1500–5000', 'price.discuss':'Обсудить', 'price.note':'Цены указаны ориентировочно и обсуждаются индивидуально под каждый проект.',
-      'price.t1.amount':'от $700', 'price.t2.amount':'от $600', 'price.t3.amount':'от $2500',
-      'price.t1.title':'Расширения (Chrome)', 'price.t1.desc':'Браузерные расширения, которые автоматизируют рутину прямо внутри вашей CRM', 'price.t1.f1':'Интеграция с CRM даже без публичного API', 'price.t1.f2':'Перенос данных между системами (CRM ↔ ERP)', 'price.t1.f3':'Очередь, дедупликация, массовые операции', 'price.t1.f4':'Кастомная панель внутри интерфейса CRM',
-      'price.t2.title':'Сайты / Лендинги', 'price.t2.desc':'Premium-сайты с анимацией и адаптивом — от идеи до домена', 'price.t2.f1':'Уникальный дизайн под бренд (premium / editorial)', 'price.t2.f2':'Живые анимации и адаптив под телефон', 'price.t2.f3':'Мультиязычность (RU / EN)', 'price.t2.f4':'Деплой, домен и HTTPS под ключ',
-      'price.t3.title':'Дашборды / Аналитика', 'price.t3.desc':'Аналитические панели: вся команда и воронка в реальном времени', 'price.t3.f1':'Метрики и воронка в реальном времени', 'price.t3.f2':'Контроль качества и эффективность операторов', 'price.t3.f3':'Сквозная аналитика: реклама → результат', 'price.t3.f4':'Backend на Supabase, отчёты и выгрузки',
-      'price.t4.title':'Автоматизация', 'price.t4.amount':'индивидуально', 'price.t4.desc':'Интеграции и инструменты под конкретную задачу', 'price.t4.f1':'Интеграции трекеров и передача постбэков', 'price.t4.f2':'Синхронизация данных CRM ↔ ERP', 'price.t4.f3':'Боты и внутренние инструменты', 'price.t4.f4':'Решение под вашу задачу',
-      'contact.title':'Готовы начать?', 'contact.sub':'Расскажите о своей задаче — отвечу и предложу решение.', 'contact.btn':'Написать в Telegram', 'contact.note':'Отвечаю быстро. Обсудим задачу, сроки и стоимость.',
-      'footer.copy':'© 2026 Nexus AI · Разработка с искусственным интеллектом'
+      'nav.services':"Услуги", 'nav.funnels':"Автоворонки", 'nav.process':"Как работаем", 'nav.pricing':"Цены", 'nav.cta':"Обсудить", 'nav.results':"Результат", 'nav.faq':"Вопросы",
+      'hero.t1':"CRM, сайт и Telegram —", 'hero.t2':"в одной работающей системе", 'hero.sub':"Chrome-расширения для CRM, Telegram-боты и Mini Apps, сайты, дашборды с ИИ-контролем качества и интеграции с трекерами. Меньше ручной работы — данные не теряются.", 'hero.b1':"Обсудить проект", 'hero.b2':"Смотреть работы", 'hero.b3':"Автоворонки Chatterfy", 'hero.p1':"Интеграция с CRM без API", 'hero.p2':"Постбэки в Keitaro и Binom", 'hero.p3':"Поддержка — $200/мес",
+      'services.kicker':"Что мы делаем", 'services.title':"Решения под вашу задачу", 'services.c1t':"Chrome-расширения для CRM", 'services.c1d':"Работают прямо в вашей CRM: подставляют данные, звонок в один клик, очередь и дедупликация. Подключаемся даже без публичного API.", 'services.c2t':"Telegram-боты", 'services.c2d':"Принимают заявки, отвечают клиентам и передают лиды в CRM. Клиент получает ответ сразу, менеджер — готовые данные.", 'services.c3t':"Telegram Mini Apps", 'services.c3d':"Полноценное приложение внутри Telegram: клиенту не нужно ничего скачивать или переходить на сайт. Данные сразу уходят в вашу CRM.", 'services.sub':"Каждое решение можно связать с остальными: бот, сайт, CRM и трекер работают как одна система.", 'services.c4t':"Сайты и лендинги", 'services.c4d':"Премиум-дизайн, живые анимации, адаптив под телефон и версии RU/EN. Деплой и домен берём на себя — вы получаете готовый сайт.", 'services.c5t':"Дашборды и ИИ-контроль качества", 'services.c5d':"Воронка и работа команды в реальном времени. ИИ проверяет диалоги операторов по рубрике и формирует рейтинги — видно, где теряются лиды.", 'services.c6t':"Интеграции и постбэки", 'services.c6d':"Keitaro и Binom, корректная передача постбэков, синхронизация CRM ↔ ERP. Связываем бота, сайт и CRM без ручного переноса данных.",
+      'process.kicker':"Процесс", 'process.title':"Как мы работаем", 'process.s1t':"Обсуждаем", 'process.s1d':"Разбираем задачу и предлагаем решение с понятной стоимостью и сроками.", 'process.s2t':"Прототип", 'process.s2d':"Собираем рабочую версию — вы видите результат до финальной доработки.", 'process.s3t':"Дорабатываем", 'process.s3d':"Вносим ваши правки и тестируем на реальных рабочих сценариях.", 'process.s4t':"Запуск и поддержка", 'process.s4d':"Запускаем и передаём готовый продукт. Дальше — поддержка за $200/мес.",
+      'funnels.kicker':"Автоворонки", 'funnels.title':"Автоматизация продаж в Chatterfy", 'funnels.sub':"Превращаем ручную обработку лидов в автоматическую систему. Путь клиента Reg → FD → RD работает 24/7 без человеческого фактора.", 'funnels.caseSub':"Рост конверсии в регистрацию после автоматизации воронки. BO, ГЕО: LatAm (Колумбия/Мексика), источник Facebook.", 'funnels.m1':"24/7 работа", 'funnels.m2':"0 человеческого фактора", 'funnels.m3':"A/B тест за май", 'funnels.s1t':"Регистрация (Reg)", 'funnels.s1d':"Моментальный подхват пользователя, стартовый прогрев, сегментация по действиям в первые 15/30/60 минут.", 'funnels.s2t':"Первый депозит (FD)", 'funnels.s2d':"Триггерные цепочки, имитация живого общения, прогревающие механики по таймингам.", 'funnels.s3t':"Повторные депозиты (RD)", 'funnels.s3d':"Автоматическая работа с активной базой: сегментация неактивных клиентов, индивидуальные триггеры без спама.", 'funnels.inclT':"Что входит", 'funnels.i1':"Интеграция с трекерами (Keitaro, Binom и др.)", 'funnels.i2':"Корректная передача постбэков", 'funnels.i3':"Рандомизация текстов и медиа (защита от спам-фильтров)", 'funnels.i4':"Логика удержания под любые ГЕО и офферы", 'funnels.price':"от $300", 'funnels.priceNote':"Создание воронки под ключ. Финальная стоимость обсуждается индивидуально — зависит от сложности воронки, источника и задач.", 'funnels.cta':"Заказать воронку",
+      'ai.chip':"Честно про ИИ", 'ai.title':"ИИ ускоряет — люди проверяют", 'ai.text':"Мы используем ИИ на каждом этапе разработки. Для вас это значит: рабочий прототип раньше, а в смете меньше часов рутинной работы. Каждый проект мы проверяем, тестируем и дорабатываем вручную.",
+      'price.kicker':"Тарифы", 'price.title':"Цены", 'price.sub':"Прозрачно и честно. Финальная стоимость — после обсуждения задачи.", 'price.support':"Поддержка — $200 / мес", 'price.popular':"Популярное", 'price.usually':"обычно $1500–5000", 'price.discuss':"Обсудить", 'price.note':"Цены указаны ориентировочно и обсуждаются индивидуально под каждый проект.", 'price.t1.amount':"от $700", 'price.t2.amount':"от $600", 'price.t3.amount':"от $2500", 'price.t1.title':"Расширения (Chrome)", 'price.t1.desc':"Браузерные расширения, которые автоматизируют рутину прямо внутри вашей CRM", 'price.t1.f1':"Интеграция с CRM даже без публичного API", 'price.t1.f2':"Перенос данных между системами (CRM ↔ ERP)", 'price.t1.f3':"Очередь, дедупликация, массовые операции", 'price.t1.f4':"Кастомная панель внутри интерфейса CRM", 'price.t2.title':"Сайты / Лендинги", 'price.t2.desc':"Premium-сайты с анимацией и адаптивом — от идеи до домена", 'price.t2.f1':"Уникальный дизайн под бренд (premium / editorial)", 'price.t2.f2':"Живые анимации и адаптив под телефон", 'price.t2.f3':"Мультиязычность (RU / EN)", 'price.t2.f4':"Деплой, домен и HTTPS под ключ", 'price.t3.title':"Дашборды / Аналитика", 'price.t3.desc':"Аналитические панели: вся команда и воронка в реальном времени", 'price.t3.f1':"Метрики и воронка в реальном времени", 'price.t3.f2':"Контроль качества и эффективность операторов", 'price.t3.f3':"Сквозная аналитика: реклама → результат", 'price.t3.f4':"Backend на Supabase, отчёты и выгрузки", 'price.t4.title':"Автоматизация", 'price.t4.amount':"индивидуально", 'price.t4.desc':"Интеграции и инструменты под конкретную задачу", 'price.t4.f1':"Интеграции трекеров и передача постбэков", 'price.t4.f2':"Синхронизация данных CRM ↔ ERP", 'price.t4.f3':"Боты и внутренние инструменты", 'price.t4.f4':"Решение под вашу задачу", 'price.t5.title':"Telegram-боты и Mini Apps", 'price.t5.amount':"индивидуально", 'price.t5.desc':"Боты и приложения в Telegram, связанные с вашим сайтом и CRM", 'price.t5.f1':"Боты для заявок и поддержки клиентов", 'price.t5.f2':"Mini Apps без установки и перехода", 'price.t5.f3':"Связка с сайтом, CRM и трекерами", 'price.t5.f4':"Передача лидов и постбэков",
+      'contact.title':"Расскажите о задаче", 'contact.sub':"Напишите, что хотите автоматизировать или запустить, — предложим решение и назовём ориентировочную стоимость.", 'contact.btn':"Написать в Telegram", 'contact.note':"Обсудим задачу, сроки и стоимость в переписке.",
+      'footer.copy':"© 2026 Nexus AI · Расширения, боты, сайты и автоматизация", 'footer.privacy':"Политика конфиденциальности",
+      'meta.title':"Nexus AI — расширения для CRM, Telegram-боты и сайты", 'meta.desc':"Chrome-расширения для CRM, Telegram-боты и Mini Apps, сайты, дашборды с ИИ-контролем качества, интеграции Keitaro/Binom. Меньше ручной работы.",
+      'results.kicker':"Что вы получите", 'results.title':"Результат, а не просто код", 'results.sub':"Мы делаем инструменты под конкретную задачу бизнеса. Вот что меняется после запуска.", 'results.r1t':"Меньше ручной работы", 'results.r1d':"Данные из CRM подставляются сами, звонок — в один клик. Операторы работают с клиентами, а не заполняют формы.", 'results.r2t':"Данные не теряются", 'results.r2d':"Лиды, события и постбэки автоматически передаются между CRM, ERP, трекерами и таблицами. Дубли отсекаются ещё до внесения.", 'results.r3t':"Вся команда на одном экране", 'results.r3d':"Воронка, нагрузка и скорость ответов — в реальном времени. ИИ оценивает диалоги операторов по вашей рубрике и строит рейтинг.", 'results.r4t':"Клиенты на связи 24/7", 'results.r4d':"Telegram-бот или Mini App принимает заявки и ведёт клиента к цели в любое время — даже когда команда офлайн.",
+      'pf.title':"Портфолио", 'pf.text':"Реальные проекты: расширения, дашборды, боты и сайты. Скоро — видео.", 'pf.btn':"Смотреть портфолио",
+      'faq.kicker':"FAQ", 'faq.title':"Частые вопросы", 'faq.q1':"Сможете встроиться в CRM без API?", 'faq.a1':"Да. Chrome-расширение работает прямо в интерфейсе CRM: подставляет и переносит данные, даже если у системы нет публичного API.", 'faq.q2':"Можно связать бота или Mini App с сайтом и CRM?", 'faq.a2':"Да. Заявки из бота, Mini App и сайта попадают в CRM, постбэки передаются в трекер — всё работает как одна система, без ручного переноса данных.", 'faq.q3':"С какими трекерами работаете?", 'faq.a3':"С Keitaro и Binom: настраиваем корректную передачу постбэков и связываем трекер с CRM, ботом или сайтом. Если у вас другой трекер — напишите, обсудим задачу.", 'faq.q4':"Есть поддержка после запуска?", 'faq.a4':"Да. После запуска мы остаёмся на поддержке — $200 в месяц. Что именно в неё войдёт, согласуем под ваш проект.", 'faq.q5':"Как формируется цена?", 'faq.a5':"Цены на сайте ориентировочные: расширения от $700, сайты от $600, дашборды от $2500, автоматизация обычно $1500–5000. Точную стоимость называем после обсуждения задачи.", 'faq.q6':"На каких языках делаете сайты и ботов?", 'faq.a6':"На русском и английском. Сайт, бот или Mini App можно сделать сразу на двух языках — RU и EN."
     },
     en: {
-      'nav.services':'Services', 'nav.works':'Work', 'nav.funnels':'Funnels',
-      'nav.process':'Process', 'nav.pricing':'Pricing', 'nav.contacts':'Contacts', 'nav.cta':'Get started',
-      'hero.t1':'Extensions and websites,', 'hero.t2':'built with artificial intelligence',
-      'hero.sub':'Nexus AI builds Chrome extensions, websites and automation tools. Fast, precise and honest — with AI at every step.',
-      'hero.b1':'View work', 'hero.b2':'Discuss a project', 'hero.b3':'Chatterfy funnels',
-      'services.kicker':'What we do', 'services.title':'Services',
-      'services.c1t':'Chrome extensions', 'services.c1d':'Extensions for automation, parsing and smoother browser work. From simple ones to complex panels and integrations.',
-      'services.c2t':'Websites', 'services.c2d':'Landing pages, portfolios, corporate sites. Modern design, mobile-responsive, animations, fast loading.',
-      'services.c3t':'Automation', 'services.c3d':'Tools that handle the routine for you: data reconciliation, processing, integrations with bots and services.',
-      'process.kicker':'Process', 'process.title':'How we work',
-      'process.s1t':'Discuss', 'process.s1d':'You describe the task — we propose a solution and timeline.',
-      'process.s2t':'Prototype', 'process.s2d':'We quickly build a working version so you can see the result.',
-      'process.s3t':'Refine', 'process.s3d':'Edits, testing, polishing details to perfection.',
-      'process.s4t':'Launch', 'process.s4d':'The finished product is yours. Support as needed.',
-      'services.sub':'From idea to finished product. Every project is built for a specific task.',
-      'works.kicker':'Portfolio', 'works.title':'Work', 'works.sub':'Tap a thumbnail — it flies into the main frame.', 'works.open':'Open',
-      'funnels.kicker':'Auto-funnels', 'funnels.title':'Sales automation in Chatterfy', 'funnels.sub':'We turn manual lead handling into an automated system. The Reg → FD → RD journey runs 24/7 — no human factor.',
-      'funnels.caseSub':'Registration-conversion growth after funnel automation. BO, GEO: LatAm (Colombia/Mexico), source: Facebook.',
-      'funnels.m1':'24/7 operation', 'funnels.m2':'0 human factor', 'funnels.m3':'A/B test, May',
-      'funnels.s1t':'Registration (Reg)', 'funnels.s1d':'Instant user pickup, starter warm-up, action-based segmentation in the first 15/30/60 minutes.',
-      'funnels.s2t':'First Deposit (FD)', 'funnels.s2d':'Trigger chains, lifelike conversation, timed warm-up mechanics.',
-      'funnels.s3t':'Repeat Deposits (RD)', 'funnels.s3d':'Automated work with your active base: segmenting inactive clients, personalized triggers — no spam.',
-      'funnels.inclT':'What’s included', 'funnels.i1':'Tracker integration (Keitaro, Binom, etc.)', 'funnels.i2':'Reliable postback delivery', 'funnels.i3':'Randomized texts and media (spam-filter protection)', 'funnels.i4':'Retention logic for any GEO and offer',
-      'funnels.price':'from $300', 'funnels.priceNote':'Turnkey funnel build. Final price is set individually — it depends on funnel complexity, traffic source and goals.', 'funnels.cta':'Order a funnel',
-      'ai.chip':'Open & honest', 'ai.title':'Yes, we use AI — and we’re proud of it', 'ai.text':'AI is our main tool. It lets us build to a high standard and many times faster. We don’t hide it: you get a modern result in a sensible timeframe — and every project is reviewed and refined by hand.',
-      'price.kicker':'Plans', 'price.title':'Pricing', 'price.sub':'Transparent and honest. Final price after we discuss the task.', 'price.support':'Support — $200 / mo', 'price.popular':'Popular', 'price.usually':'usually $1500–5000', 'price.discuss':'Discuss', 'price.note':'Prices are indicative and discussed individually for each project.',
-      'price.t1.amount':'from $700', 'price.t2.amount':'from $600', 'price.t3.amount':'from $2500',
-      'price.t1.title':'Extensions (Chrome)', 'price.t1.desc':'Browser extensions that automate routine right inside your CRM', 'price.t1.f1':'CRM integration even without a public API', 'price.t1.f2':'Data transfer between systems (CRM ↔ ERP)', 'price.t1.f3':'Queue, deduplication, bulk operations', 'price.t1.f4':'Custom panel inside the CRM interface',
-      'price.t2.title':'Websites / Landing pages', 'price.t2.desc':'Premium sites with animation and responsive design — from idea to domain', 'price.t2.f1':'Unique on-brand design (premium / editorial)', 'price.t2.f2':'Live animations and a mobile-responsive layout', 'price.t2.f3':'Multilingual (RU / EN)', 'price.t2.f4':'Deploy, domain and HTTPS — turnkey',
-      'price.t3.title':'Dashboards / Analytics', 'price.t3.desc':'Analytics panels: your whole team and funnel in real time', 'price.t3.f1':'Metrics and funnel in real time', 'price.t3.f2':'Quality control and agent performance', 'price.t3.f3':'End-to-end analytics: ad → result', 'price.t3.f4':'Supabase backend, reports and exports',
-      'price.t4.title':'Automation', 'price.t4.amount':'custom', 'price.t4.desc':'Integrations and tools for your specific task', 'price.t4.f1':'Tracker integrations and postback delivery', 'price.t4.f2':'Data sync CRM ↔ ERP', 'price.t4.f3':'Bots and internal tools', 'price.t4.f4':'A solution built for your task',
-      'contact.title':'Ready to start?', 'contact.sub':'Tell me about your task — I’ll reply and propose a solution.', 'contact.btn':'Message on Telegram', 'contact.note':'I reply fast. We’ll talk through the task, timeline and price.',
-      'footer.copy':'© 2026 Nexus AI · Built with artificial intelligence'
+      'nav.services':"Services", 'nav.funnels':"Funnels", 'nav.process':"Process", 'nav.pricing':"Pricing", 'nav.cta':"Let's talk", 'nav.results':"Results", 'nav.faq':"FAQ",
+      'hero.t1':"Your CRM, site and Telegram —", 'hero.t2':"working as one system", 'hero.sub':"CRM Chrome extensions, Telegram bots and Mini Apps, websites, AI quality-control dashboards and tracker integrations. Less manual work, no lost data.", 'hero.b1':"Discuss your project", 'hero.b2':"See our work", 'hero.b3':"Chatterfy funnels", 'hero.p1':"CRM integration, no API needed", 'hero.p2':"Keitaro & Binom postbacks", 'hero.p3':"Support — $200/mo",
+      'services.kicker':"What we do", 'services.title':"Built around your task", 'services.c1t':"Chrome extensions for CRM", 'services.c1d':"Work right inside your CRM: auto-filled data, one-click calls, queues and deduplication. We connect even when there’s no public API.", 'services.c2t':"Telegram bots", 'services.c2d':"Capture leads, answer customers and push everything to your CRM. Customers get an instant reply, managers get clean data.", 'services.c3t':"Telegram Mini Apps", 'services.c3d':"A full app inside Telegram — nothing to download, no jumping to a website. Data goes straight into your CRM.", 'services.sub':"Every piece connects to the rest: your bot, site, CRM and tracker run as one system.", 'services.c4t':"Websites & landing pages", 'services.c4d':"Premium design, live animations, mobile-ready, in RU and EN. We handle deployment and the domain — you get a site that’s ready to go.", 'services.c5t':"Dashboards & AI quality control", 'services.c5d':"Your funnel and team performance in real time. AI reviews agent chats against a rubric and builds rankings — so you see where leads slip.", 'services.c6t':"Integrations & postbacks", 'services.c6d':"Keitaro and Binom, reliable postback delivery, CRM ↔ ERP sync. We tie your bot, site and CRM together — no manual data transfer.",
+      'process.kicker':"Process", 'process.title':"How we work", 'process.s1t':"Discuss", 'process.s1d':"We dig into your task and propose a solution with a clear price and timeline.", 'process.s2t':"Prototype", 'process.s2d':"We build a working version, so you see the result before final polish.", 'process.s3t':"Refine", 'process.s3d':"We apply your feedback and test against real-world workflows.", 'process.s4t':"Launch & support", 'process.s4d':"We launch and hand over the finished product. Ongoing support is $200/mo.",
+      'funnels.kicker':"Auto-funnels", 'funnels.title':"Sales automation in Chatterfy", 'funnels.sub':"We turn manual lead handling into an automated system. The Reg → FD → RD journey runs 24/7 — no human factor.", 'funnels.caseSub':"Registration-conversion growth after funnel automation. BO, GEO: LatAm (Colombia/Mexico), source: Facebook.", 'funnels.m1':"24/7 operation", 'funnels.m2':"0 human factor", 'funnels.m3':"A/B test, May", 'funnels.s1t':"Registration (Reg)", 'funnels.s1d':"Instant user pickup, starter warm-up, action-based segmentation in the first 15/30/60 minutes.", 'funnels.s2t':"First Deposit (FD)", 'funnels.s2d':"Trigger chains, lifelike conversation, timed warm-up mechanics.", 'funnels.s3t':"Repeat Deposits (RD)", 'funnels.s3d':"Automated work with your active base: segmenting inactive clients, personalized triggers — no spam.", 'funnels.inclT':"What’s included", 'funnels.i1':"Tracker integration (Keitaro, Binom, etc.)", 'funnels.i2':"Reliable postback delivery", 'funnels.i3':"Randomized texts and media (spam-filter protection)", 'funnels.i4':"Retention logic for any GEO and offer", 'funnels.price':"from $300", 'funnels.priceNote':"Turnkey funnel build. Final price is set individually — it depends on funnel complexity, traffic source and goals.", 'funnels.cta':"Order a funnel",
+      'ai.chip':"Straight talk on AI", 'ai.title':"AI speeds it up. People sign it off.", 'ai.text':"We use AI at every stage of development. For you, that means a working prototype sooner and fewer hours of routine work on the invoice. Every project is still reviewed, tested and refined by hand.",
+      'price.kicker':"Plans", 'price.title':"Pricing", 'price.sub':"Transparent and honest. Final price after we discuss the task.", 'price.support':"Support — $200 / mo", 'price.popular':"Popular", 'price.usually':"usually $1500–5000", 'price.discuss':"Discuss", 'price.note':"Prices are indicative and discussed individually for each project.", 'price.t1.amount':"from $700", 'price.t2.amount':"from $600", 'price.t3.amount':"from $2500", 'price.t1.title':"Extensions (Chrome)", 'price.t1.desc':"Browser extensions that automate routine right inside your CRM", 'price.t1.f1':"CRM integration even without a public API", 'price.t1.f2':"Data transfer between systems (CRM ↔ ERP)", 'price.t1.f3':"Queue, deduplication, bulk operations", 'price.t1.f4':"Custom panel inside the CRM interface", 'price.t2.title':"Websites / Landing pages", 'price.t2.desc':"Premium sites with animation and responsive design — from idea to domain", 'price.t2.f1':"Unique on-brand design (premium / editorial)", 'price.t2.f2':"Live animations and a mobile-responsive layout", 'price.t2.f3':"Multilingual (RU / EN)", 'price.t2.f4':"Deploy, domain and HTTPS — turnkey", 'price.t3.title':"Dashboards / Analytics", 'price.t3.desc':"Analytics panels: your whole team and funnel in real time", 'price.t3.f1':"Metrics and funnel in real time", 'price.t3.f2':"Quality control and agent performance", 'price.t3.f3':"End-to-end analytics: ad → result", 'price.t3.f4':"Supabase backend, reports and exports", 'price.t4.title':"Automation", 'price.t4.amount':"custom", 'price.t4.desc':"Integrations and tools for your specific task", 'price.t4.f1':"Tracker integrations and postback delivery", 'price.t4.f2':"Data sync CRM ↔ ERP", 'price.t4.f3':"Bots and internal tools", 'price.t4.f4':"A solution built for your task", 'price.t5.title':"Telegram bots & Mini Apps", 'price.t5.amount':"custom", 'price.t5.desc':"Bots and Telegram apps connected to your website and CRM", 'price.t5.f1':"Bots for leads and customer support", 'price.t5.f2':"Mini Apps — no install needed", 'price.t5.f3':"Linked to your site, CRM and trackers", 'price.t5.f4':"Lead and postback delivery",
+      'contact.title':"Tell us what you need", 'contact.sub':"Share what you want to automate or launch — we’ll suggest a solution and give you a ballpark price.", 'contact.btn':"Message us on Telegram", 'contact.note':"We’ll talk through the task, timeline and price in chat.",
+      'footer.copy':"© 2026 Nexus AI · Extensions, bots, websites & automation", 'footer.privacy':"Privacy policy",
+      'meta.title':"Nexus AI — CRM Extensions, Telegram Bots & Websites", 'meta.desc':"Chrome extensions for your CRM, Telegram bots and Mini Apps, websites, AI quality-control dashboards and Keitaro/Binom integrations. Less manual work.",
+      'results.kicker':"What you get", 'results.title':"Outcomes, not just code", 'results.sub':"We build tools around a specific business problem. Here’s what changes after launch.", 'results.r1t':"Less manual work", 'results.r1d':"CRM data fills itself in, calls take one click. Your agents spend time on customers, not on forms.", 'results.r2t':"No lost or duplicate data", 'results.r2d':"Leads, events and postbacks flow automatically between your CRM, ERP, trackers and sheets. Duplicates are caught before they’re logged.", 'results.r3t':"Whole team, one screen", 'results.r3d':"Funnel, workload and response times in real time. AI scores agent chats against your rubric and ranks the team.", 'results.r4t':"Customers served 24/7", 'results.r4d':"Your Telegram bot or Mini App takes requests and walks customers to the finish line 24/7 — even when your team is offline.",
+      'pf.title':"Portfolio", 'pf.text':"Real projects: extensions, dashboards, bots and websites. Videos coming soon.", 'pf.btn':"View portfolio",
+      'faq.kicker':"FAQ", 'faq.title':"Common questions", 'faq.q1':"Can you integrate with a CRM that has no API?", 'faq.a1':"Yes. A Chrome extension works right inside your CRM’s interface, filling in and moving data even when the system has no public API.", 'faq.q2':"Can a bot or Mini App connect to our site and CRM?", 'faq.a2':"Yes. Leads from your bot, Mini App and website land in your CRM, and postbacks go to your tracker — one system, no manual data transfer.", 'faq.q3':"Which trackers do you work with?", 'faq.a3':"Keitaro and Binom. We set up reliable postback delivery and connect the tracker to your CRM, bot or website. Using a different tracker? Message us and we’ll talk it through.", 'faq.q4':"Do you offer support after launch?", 'faq.a4':"Yes. We stay on for support after launch at $200 a month. We’ll agree on exactly what it covers for your project.", 'faq.q5':"How is pricing set?", 'faq.a5':"Prices on the site are indicative: extensions from $700, websites from $600, dashboards from $2500, automation usually $1500–5000. We quote the exact price once we’ve discussed your task.", 'faq.q6':"What languages do you build in?", 'faq.a6':"Russian and English. Your website, bot or Mini App can launch in both languages — RU and EN."
     }
   };
 
@@ -1061,7 +1085,10 @@
       if(dict[key] != null) el.textContent = dict[key];
     });
     document.documentElement.lang = lang;
-    if(typeof renderGallery === 'function') renderGallery();  // перерисовка JS-карточек галереи на текущем языке
+    // заголовок вкладки и description тоже на текущем языке
+    if(dict['meta.title']) document.title = dict['meta.title'];
+    const md = document.querySelector('meta[name="description"]');
+    if(md && dict['meta.desc']) md.setAttribute('content', dict['meta.desc']);
   }
 
   const langEl = document.getElementById('lang');
@@ -1085,200 +1112,25 @@
     b.addEventListener('click', ()=> setLang(b.dataset.lang));
   });
 
-  // i18n-инициализация перенесена в конец скрипта (после галереи), чтобы renderGallery был определён
-
-  // ---------- ГАЛЕРЕЯ «РАБОТЫ»: FLIP-перелёт фото ----------
-  // карточки галереи — двуязычные данные (badge/ph не переводятся)
-  const projects = [
-    { badge:'Chrome Extension',
-      title:{ru:'Nexus КЦ', en:'Nexus Call Center'},
-      tagline:{ru:'Форма заполняется сама. Звонок — в один клик.', en:'The form fills itself. Calls in one click.'},
-      pain:{ru:'Расширение подставляет данные клиента из CRM и ставит звонок в очередь КЦ. Оператор только жмёт «Отправить» — без ручного заполнения, без повторных звонков и потерь.', en:'The extension pulls client data from your CRM and queues the call for the team. The agent just hits “Send” — no manual entry, no duplicate calls, nothing slips through.'},
-      shots:[
-        {ph:'kc1', cap:{ru:'Данные из CRM', en:'Data from CRM'}},
-        {ph:'kc2', cap:{ru:'Звонок в один клик', en:'One-click call'}},
-        {ph:'kc3', cap:{ru:'История прозвонов', en:'Call history'}},
-        {ph:'kc4', cap:{ru:'Очередь и таблица', en:'Queue & sheet'}}
-      ]},
-    { badge:'Chrome Extension',
-      title:{ru:'Nexus Автоматизация', en:'Nexus Automation'},
-      tagline:{ru:'Рутина уходит. Данные вносят себя сами.', en:'Routine, gone. Data enters itself.'},
-      pain:{ru:'Расширение видит REG/ФД/РД в CRM и само вносит их в таблицу или нашу аналитику. Оператор только проверяет — внесение за секунды, без ручной работы и дубликатов.', en:'The extension spots REG/FD/RD events in your CRM and logs them into a sheet or our analytics automatically. The agent just reviews — entries in seconds, no manual work, no duplicates.'},
-      shots:[
-        {ph:'av1', cap:{ru:'Форма внесения', en:'Entry form'}},
-        {ph:'av2', cap:{ru:'Очередь и внесение', en:'Queue & entry'}},
-        {ph:'av3', cap:{ru:'Поиск трейдеров', en:'Trader search'}},
-        {ph:'av4', cap:{ru:'Автонаблюдение', en:'Auto-watch'}}
-      ]},
-    { badge:'Web Dashboard',
-      title:{ru:'Аналитика команды', en:'Team Analytics'},
-      tagline:{ru:'Вся команда — на одном экране.', en:'Your whole team on one screen.'},
-      pain:{ru:'Скорость ответов, воронка по этапам и нагрузка операторов — в реальном времени. Видно, где теряются лиды, а отчёты собираются в один клик.', en:'Response times, the stage funnel and agent workload — in real time. See exactly where leads slip, and pull reports in one click.'},
-      shots:[
-        {ph:'db1', cap:{ru:'Обзор и метрики', en:'Overview & metrics'}},
-        {ph:'db2', cap:{ru:'Сводка за день', en:'Daily summary'}},
-        {ph:'db3', cap:{ru:'Команда', en:'Team'}},
-        {ph:'db4', cap:{ru:'Журнал диалогов', en:'Chat log'}}
-      ]},
-    { badge:'Web Dashboard',
-      title:{ru:'Nexus ОКК — контроль качества', en:'Nexus QC — Quality Control'},
-      tagline:{ru:'Контроль качества — на ИИ.', en:'Quality control, powered by AI.'},
-      pain:{ru:'Дашборд ОКК: воронка, проверки диалогов через ИИ, баллы и рейтинг по командам, ботам и сотрудникам — всё из склада в одном месте.', en:'The QC dashboard: funnel, AI-scored chat reviews, grades and rankings across teams, bots and agents — all from your warehouse in one place.'},
-      shots:[
-        {ph:'okk1', cap:{ru:'Сводный дашборд', en:'Overview dashboard'}},
-        {ph:'okk2', cap:{ru:'Проверки ОКК', en:'QC checks'}},
-        {ph:'okk3', cap:{ru:'Анализ команды', en:'Team analysis'}},
-        {ph:'okk4', cap:{ru:'Рейтинг', en:'Ranking'}}
-      ]}
-  ];
-  // выбор текста по текущему языку
-  function tx(v){ return (v && typeof v === 'object') ? (v[curLang] || v.ru) : v; }
-
-  const grid = document.getElementById('grid');
-  // рендер галереи на текущем языке (вызывается из apply() при загрузке и при переключении)
-  function renderGallery(){
-    const openLbl = (i18n[curLang] && i18n[curLang]['works.open']) || 'Открыть';
-    grid.innerHTML = '';
-    projects.forEach((p, pi)=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-top"><span class="badge">${p.badge}</span><h3>${tx(p.title)}</h3></div>
-        <div class="card-sell">
-          <h4 class="tagline">${tx(p.tagline)}</h4>
-          <p class="pain">${tx(p.pain)}</p>
-        </div>
-        <div class="gallery">
-          <div class="main-shot"><div class="ph ${p.shots[0].ph}" data-cap="${tx(p.shots[0].cap)}"></div><button class="zoom-btn" type="button" data-pi="${pi}" aria-label="${openLbl}">${openLbl}</button></div>
-          <div class="thumbs">
-            ${p.shots.map((s,si)=>`<div class="thumb" data-pi="${pi}" data-si="${si}"><div class="ph ${s.ph}"></div></div>`).join('')}
-          </div>
-        </div>
-        <div class="card-text"><p class="cap">${tx(p.shots[0].cap)}</p></div>
-      `;
-      grid.appendChild(card);
-    });
-  }
-
-  // ---------- лайтбокс главного фото ----------
-  const lb = document.createElement('div');
-  lb.className = 'lb';
-  lb.innerHTML = '<div class="lb-backdrop"></div><button class="lb-close" type="button" aria-label="Закрыть">×</button><div class="lb-dialog"><div class="lb-stage ph"></div><div class="lb-cap"></div><div class="lb-strip"></div></div>';
-  document.body.appendChild(lb);
-  const lbStage = lb.querySelector('.lb-stage');
-  const lbCap = lb.querySelector('.lb-cap');
-  const lbStrip = lb.querySelector('.lb-strip');
-  let lbPi = 0;
-
-  function lbShow(i){
-    const shots = projects[lbPi].shots;
-    lbStage.className = 'lb-stage ph ' + shots[i].ph;
-    lbCap.textContent = tx(shots[i].cap);
-    lbStrip.querySelectorAll('.lb-thumb').forEach((b,bi)=> b.classList.toggle('on', bi===i));
-  }
-  function openLightbox(pi){
-    lbPi = pi;
-    const shots = projects[pi].shots;
-    lbStrip.innerHTML = shots.map((s,i)=>`<button class="lb-thumb ph ${s.ph}" type="button" data-i="${i}" aria-label="${tx(s.cap)}"></button>`).join('');
-    lbShow(0);                              // главный кадр карточки = shots[0]
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeLightbox(){
-    lb.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  lbStrip.addEventListener('click', e=>{ const b=e.target.closest('.lb-thumb'); if(b) lbShow(+b.dataset.i); });
-  lb.querySelector('.lb-close').addEventListener('click', closeLightbox);
-  lb.querySelector('.lb-backdrop').addEventListener('click', closeLightbox);
-  addEventListener('keydown', e=>{ if(e.key==='Escape' && lb.classList.contains('open')) closeLightbox(); });
-
-  grid.addEventListener('click', e=>{
-    const zoom = e.target.closest('.zoom-btn');
-    if(zoom){ openLightbox(+zoom.dataset.pi); return; }
-    const thumb = e.target.closest('.thumb');
-    if(!thumb) return;
-
-    const pi=+thumb.dataset.pi, si=+thumb.dataset.si;
-    const card = thumb.closest('.card');
-    const mainShot = card.querySelector('.main-shot');
-    const mainPh = mainShot.querySelector('.ph');
-    const cardText = card.querySelector('.card-text');
-    const thumbPhEl = thumb.querySelector('.ph');
-
-    // запрет повторных кликов во время анимации
-    if(card.dataset.animating==='1') return;
-    card.dataset.animating='1';
-
-    // --- состояние ДО обмена ---
-    const newPhClass = thumbPhEl.className.replace('ph ','').trim(); // что станет главным (из миниатюры)
-    const shot = projects[pi].shots[si];
-    const newCap = tx(shot.cap);
-    const oldPhClass = mainPh.className.replace('ph ','').trim();    // что было главным
-
-    // позиции (FLIP)
-    const fromRect = thumb.getBoundingClientRect();
-    const toRect = mainShot.getBoundingClientRect();
-
-    // СРАЗУ кладём финальные фото в реальные элементы и прячем их визуально через visibility.
-    // visibility:hidden НЕ моргает (в отличие от opacity-переходов) и держит layout.
-    mainPh.className = 'ph '+newPhClass;        // главный квадрат уже содержит новое фото
-    mainPh.style.visibility = 'hidden';
-    thumbPhEl.className = 'ph '+oldPhClass;      // миниатюра уже содержит прежнее главное
-    thumbPhEl.style.visibility = 'hidden';
-
-    // КЛОН 1: летит из позиции миниатюры в главный квадрат (показывает НОВОЕ фото)
-    const flierIn = document.createElement('div');
-    flierIn.className = 'flier';
-    flierIn.innerHTML = `<div class="ph ${newPhClass}" style="width:100%;height:100%"></div>`;
-    Object.assign(flierIn.style,{left:fromRect.left+'px', top:fromRect.top+'px', width:fromRect.width+'px', height:fromRect.height+'px', borderRadius:'11px'});
-    document.body.appendChild(flierIn);
-
-    // КЛОН 2: летит из главного квадрата в позицию миниатюры (показывает СТАРОЕ фото)
-    const flierOut = document.createElement('div');
-    flierOut.className = 'flier';
-    flierOut.innerHTML = `<div class="ph ${oldPhClass}" style="width:100%;height:100%"></div>`;
-    Object.assign(flierOut.style,{left:toRect.left+'px', top:toRect.top+'px', width:toRect.width+'px', height:toRect.height+'px', borderRadius:'16px'});
-    document.body.appendChild(flierOut);
-
-    // запускаем оба перелёта навстречу
-    requestAnimationFrame(()=>{
-      flierIn.style.left=toRect.left+'px'; flierIn.style.top=toRect.top+'px';
-      flierIn.style.width=toRect.width+'px'; flierIn.style.height=toRect.height+'px'; flierIn.style.borderRadius='16px';
-      flierOut.style.left=fromRect.left+'px'; flierOut.style.top=fromRect.top+'px';
-      flierOut.style.width=fromRect.width+'px'; flierOut.style.height=fromRect.height+'px'; flierOut.style.borderRadius='11px';
-    });
-
-    // подпись под фото плавно меняется (tagline и pain не трогаем — они постоянные)
-    cardText.classList.add('swapping');
-    setTimeout(()=>{
-      cardText.querySelector('.cap').textContent = newCap;
-      cardText.classList.remove('swapping');
-    }, 280);
-
-    // завершение по КЛОНУ 1 (обе анимации одинаковой длины — завершатся синхронно)
-    flierIn.addEventListener('transitionend', ()=>{
-      // показываем реальные фото (они уже на местах, под клонами) — без зазора
-      mainPh.style.visibility = 'visible';
-      thumbPhEl.style.visibility = 'visible';
-
-      // обмен данных в массиве для корректных повторных кликов
-      mainPh.dataset.cap = newCap;
-      const tmp = projects[pi].shots[si];
-      projects[pi].shots[si] = projects[pi].shots[0];
-      projects[pi].shots[0] = tmp;
-
-      // на следующем кадре убираем оба клона — под ними уже настоящие фото, удаление незаметно
-      requestAnimationFrame(()=>{
-        flierIn.remove();
-        flierOut.remove();
-        card.dataset.animating='0';
-      });
-    }, {once:true});
+  // ---------- трекинг кликов по кнопкам связи (data-track) ----------
+  // пиксели подключим позже: как только появятся fbq / gtag / dataLayer — события пойдут в них
+  document.addEventListener('click', e=>{
+    const el = e.target.closest('[data-track]');
+    if(!el) return;
+    const place = el.dataset.track;
+    try{
+      (window.dataLayer = window.dataLayer || []).push({event:'lead_click', place, lang:curLang});
+      if(typeof window.fbq === 'function') fbq('track', 'Contact', {place});
+      if(typeof window.gtag === 'function') gtag('event', 'generate_lead', {place});
+    }catch(err){}
   });
 
-  // ---------- i18n-инициализация (в конце: галерея и renderGallery уже определены) ----------
+  // ---------- i18n-инициализация ----------
   (function(){
+    // ?lang=ru|en в ссылке (для рекламных кампаний) — главнее всего, гео не запрашиваем
+    const forced = new URLSearchParams(location.search).get('lang');
+    if(forced === 'ru' || forced === 'en'){ apply(forced); setSwitcher(forced); return; }
+
     let saved = null;
     try{ saved = localStorage.getItem('nexus_lang'); }catch(e){}
     const browser = (navigator.language || 'en').toLowerCase().startsWith('ru') ? 'ru' : 'en';
