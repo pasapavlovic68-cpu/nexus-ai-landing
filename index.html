@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono&display=swap">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth; scroll-padding-top:84px}
+  html{scroll-behavior:smooth; scroll-padding-top:84px; overflow-anchor:none}
 
   :root{
     --bg:#05060a; --bg2:#0a0a12;
@@ -269,6 +269,24 @@
   .result p{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55;}
 
   /* ---------- ПОРТФОЛИО: строка-кнопка ---------- */
+  /* «Работы в деле» — раскрывающийся список: кнопка под заголовком, карточки выезжают плавно
+     (grid-template-rows 0fr -> 1fr), а когда их пролистали и они ушли с экрана — сворачиваются сами */
+  .works-bar{text-align:center;}
+  .works-toggle{display:inline-flex; align-items:center; gap:10px;}
+  .works-cnt{font-family:'Space Mono',monospace; font-size:12px; line-height:1; padding:4px 8px; border-radius:8px;
+    color:var(--accent2); background:rgba(79,140,255,0.14); border:1px solid rgba(121,168,255,0.28);}
+  .works-chev{transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+  .works-toggle[aria-expanded="true"] .works-chev{transform:rotate(180deg);}
+  .works{display:grid; grid-template-rows:0fr; transition:grid-template-rows .6s cubic-bezier(.2,.8,.2,1);}
+  .works.open{grid-template-rows:1fr;}
+  .works-in{min-height:0; overflow:hidden; margin:0 -24px; padding:0 24px;}
+  .works-in > .work:first-child{margin-top:var(--head);}
+  .works-in > .work:last-child{margin-bottom:0;}
+  .works .work{opacity:0; transform:translateY(16px); transition:opacity .35s ease, transform .45s cubic-bezier(.2,.8,.2,1);}
+  .works.open .work{opacity:1; transform:none; transition-delay:.12s;}
+  .works.open .work + .work{transition-delay:.22s;}
+  .works.instant, .works.instant *{transition:none !important;}
+
   /* карточка работы: видео 16:9 в стеклянной рамке + подпись */
   .work{display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); gap:36px; align-items:center; margin-bottom:var(--gap);
     background:var(--glass-2); border:1px solid var(--border); border-radius:24px; padding:18px 36px 18px 18px; backdrop-filter:blur(14px);}
@@ -320,14 +338,6 @@
     .work-cap{padding:0 10px;}
   }
 
-  .pf-strip{display:flex; align-items:center; justify-content:space-between; gap:20px;
-    background:var(--glass-2); border:1px solid var(--border);
-    border-radius:20px; padding:20px 26px; backdrop-filter:blur(14px);}
-  .pf-txt{display:flex; flex-direction:column; gap:4px;}
-  .pf-title{font-size:18px; font-weight:700; letter-spacing:-.3px;}
-  .pf-text{color:var(--muted); font-size:14px; font-weight:300;}
-  .pf-btn{flex-shrink:0; white-space:nowrap;}
-  @media(max-width:640px){ .pf-strip{flex-direction:column; align-items:stretch; text-align:center; padding:22px 20px;} .pf-btn{text-align:center;} }
 
   /* ---------- АВТОВОРОНКИ CHATTERFY ---------- */
   .case-band{
@@ -737,7 +747,16 @@
       <p>Настоящий интерфейс наших проектов — короткими роликами. Данные в видео демонстрационные.</p>
     </div>
 
-    <article class="work reveal">
+    <div class="works-bar reveal">
+      <button class="btn-ghost works-toggle" id="works-toggle" type="button" aria-expanded="false" aria-controls="works">
+        <span class="t works-label">Смотреть работы</span><span class="works-cnt"></span>
+        <svg class="works-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="works" id="works">
+      <div class="works-in">
+    <article class="work">
       <div class="work-media">
         <video class="work-video" muted loop playsinline preload="none" poster="assets/video/voronka-ii-poster.webp" aria-label="Видеообзор расширения «Воронка ИИ»">
           <source src="assets/video/voronka-ii.mp4" type="video/mp4">
@@ -765,7 +784,7 @@
       </div>
     </article>
 
-    <article class="work work--rev reveal">
+    <article class="work work--rev">
       <div class="work-media">
         <video class="work-video" muted loop playsinline preload="none" poster="assets/video/omnix-poster.webp" aria-label="Видеообзор CRM Omnix">
           <source src="assets/video/omnix.mp4" type="video/mp4">
@@ -793,14 +812,9 @@
         <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_omnix">Обсудить свою CRM <span aria-hidden="true">→</span></a>
       </div>
     </article>
-
-    <div class="pf-strip reveal">
-      <div class="pf-txt">
-        <span class="pf-title">Больше проектов</span>
-        <span class="pf-text">Расширения для CRM, дашборды и контроль качества — покажем в Telegram, пока готовим новые ролики.</span>
       </div>
-      <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="btn-ghost pf-btn" id="pf-btn" data-track="portfolio"><span class="t">Запросить портфолио</span></a>
     </div>
+
   </div>
 </section>
 
@@ -1262,6 +1276,44 @@
     let rw = innerWidth;
     addEventListener('resize', ()=>{ if(innerWidth !== rw){ rw = innerWidth; build(); } });
     build();
+  })();
+
+  // ---------- «Работы в деле»: раскрыть по кнопке, свернуть, когда ушли с экрана ----------
+  (function(){
+    const works = document.getElementById('works'), btn = document.getElementById('works-toggle');
+    const label = btn.querySelector('.works-label');
+    btn.querySelector('.works-cnt').textContent = works.querySelectorAll('.work').length;
+    let openedAt = 0;
+    function setOpen(v){
+      works.classList.toggle('open', v);
+      btn.setAttribute('aria-expanded', v);
+      label.textContent = v ? 'Свернуть' : 'Смотреть работы';
+      if(v) openedAt = Date.now();
+    }
+    btn.addEventListener('click', ()=> setOpen(!works.classList.contains('open')));
+    // «Работы» в меню и «Смотреть работы» на первом экране — сразу раскрывают список
+    document.querySelectorAll('a[href="#portfolio"]').forEach(a=> a.addEventListener('click', ()=> setOpen(true)));
+
+    // проверка раз в кадр при прокрутке: блок целиком ушёл с экрана — сворачиваем
+    let ticking = false;
+    function check(){
+      ticking = false;
+      if(!works.classList.contains('open') || Date.now() - openedAt < 900) return;
+      const r = works.getBoundingClientRect();
+      if(r.bottom <= 0){
+        // карточки выше экрана: сворачиваем мгновенно и сдвигаем прокрутку на ту же высоту — страница не прыгает
+        const h = works.offsetHeight;
+        works.classList.add('instant');
+        setOpen(false);
+        const d = h - works.offsetHeight;
+        const html = document.documentElement, sb = html.style.scrollBehavior;
+        html.style.scrollBehavior = 'auto'; scrollBy(0, -d); html.style.scrollBehavior = sb;
+        requestAnimationFrame(()=> requestAnimationFrame(()=> works.classList.remove('instant')));
+      } else if(r.top >= innerHeight){
+        setOpen(false);   // ниже экрана — сворачиваем плавно, прыжка нет
+      }
+    }
+    addEventListener('scroll', ()=>{ if(!ticking){ ticking = true; requestAnimationFrame(check); } }, {passive:true});
   })();
 
   // ---------- видео в портфолио: грузится и играет, только когда на экране ----------
