@@ -470,6 +470,35 @@
   .foot-link{color:var(--muted-2); font-size:13px; text-decoration:underline; text-underline-offset:3px; transition:color .2s;}
   .foot-link:hover{color:var(--txt);}
 
+  .nav-right{display:flex; align-items:center; gap:14px;}
+
+  /* ---------- кнопка «Наверх»: стекло в цвет фона, появляется после первого экрана ---------- */
+  .to-top{
+    position:fixed; z-index:60; right:max(20px, env(safe-area-inset-right)); bottom:max(20px, env(safe-area-inset-bottom));
+    width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    background:rgba(5,6,10,0.45); border:1px solid rgba(121,168,255,0.22); color:var(--accent2);
+    backdrop-filter:blur(14px) saturate(1.2); -webkit-backdrop-filter:blur(14px) saturate(1.2);
+    box-shadow:0 6px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+    opacity:0; transform:translateY(12px) scale(.9); pointer-events:none;
+    transition:opacity .25s cubic-bezier(.2,.8,.2,1), transform .25s cubic-bezier(.2,.8,.2,1), border-color .2s, box-shadow .2s, color .2s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .to-top.show{opacity:1; transform:none; pointer-events:auto;}
+  .to-top svg{transition:transform .2s cubic-bezier(.2,.8,.2,1);}
+  @media (hover:hover) and (pointer:fine){
+    .to-top:hover{border-color:rgba(121,168,255,0.55); color:#fff; box-shadow:0 8px 28px rgba(79,140,255,0.3), inset 0 1px 0 rgba(255,255,255,0.06);}
+    .to-top:hover svg{transform:translateY(-2px);}
+  }
+  .to-top.show:active{transform:scale(.94);}
+  .to-top:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px;}
+  @media(max-width:520px){ .to-top{width:44px; height:44px; right:max(14px, env(safe-area-inset-right)); bottom:max(14px, env(safe-area-inset-bottom));} }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important; transition-duration:.01ms!important}
+    .reveal{opacity:1; transform:none}
+  }
+
   /* reveal on scroll */
   .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s, transform .7s;}
   .reveal.in{opacity:1; transform:none;}
@@ -868,6 +897,10 @@
   </div>
 </footer>
 
+<button class="to-top" id="to-top" type="button" aria-label="Наверх" title="Наверх">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
+</button>
+
 <script>
   // ---------- ЖИВАЯ СЕТЬ УЗЛОВ НА ФОНЕ ----------
   (function(){
@@ -1027,6 +1060,16 @@
     el.style.transitionDelay = (i%4*60)+'ms';
     io.observe(el);
   });
+
+  // ---------- кнопка «Наверх»: видна, когда первый экран ушёл из вида ----------
+  (function(){
+    const btn = document.getElementById('to-top');
+    new IntersectionObserver(([e])=> btn.classList.toggle('show', !e.isIntersecting)).observe(document.querySelector('.hero'));
+    btn.addEventListener('click', ()=>{
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      scrollTo({top:0, behavior: reduce ? 'auto' : 'smooth'});
+    });
+  })();
 
   // ---------- трекинг кликов по кнопкам связи (data-track) ----------
   // пиксели подключим позже: как только появятся fbq / gtag / dataLayer — события пойдут в них
