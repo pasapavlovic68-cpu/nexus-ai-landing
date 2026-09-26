@@ -292,7 +292,7 @@
   .work-progress i{display:block; height:100%; width:100%; transform-origin:0 50%; transform:scaleX(0);
     background:linear-gradient(90deg,var(--accent),var(--accent2)); box-shadow:0 0 10px rgba(79,140,255,0.7);}
 
-  .work-kicker{display:flex; align-items:center; gap:12px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:var(--accent2); margin-bottom:14px;}
+  .work-kicker{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:var(--accent2); margin-bottom:14px;}
   .work-num{font-size:12px; color:#fff; padding:3px 9px; border-radius:8px; border:1px solid rgba(121,168,255,0.4); background:rgba(79,140,255,0.12);}
   .work-title{font-size:clamp(30px,3.4vw,42px); font-weight:800; letter-spacing:-1.2px; line-height:1.05; margin-bottom:10px;
     background:linear-gradient(180deg,#fff,#c3cbe6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
@@ -309,8 +309,14 @@
     border-bottom:1px solid rgba(121,168,255,0.35); padding-bottom:2px; transition:color .2s, border-color .2s, gap .2s cubic-bezier(.2,.8,.2,1);}
   @media (hover:hover) and (pointer:fine){ .work-cta:hover{color:#fff; border-color:#fff; gap:12px;} }
   .work-cta:focus-visible{outline:2px solid var(--accent-bright); outline-offset:4px; border-radius:4px;}
+  /* зеркальная карточка: подпись слева, видео справа (на телефоне видео всё равно сверху) */
+  .work--rev{grid-template-columns:minmax(0,5fr) minmax(0,7fr); padding:18px 18px 18px 36px;}
+  .work--rev .work-media{order:2;}
+  .work-status{font-size:9.5px; letter-spacing:1.2px; color:#f2c46b; padding:2px 8px; border-radius:6px;
+    border:1px solid rgba(242,196,107,0.35); background:rgba(242,196,107,0.08);}
   @media(max-width:900px){
-    .work{grid-template-columns:1fr; gap:22px; padding:12px 12px 24px;}
+    .work,.work--rev{grid-template-columns:1fr; gap:22px; padding:12px 12px 24px;}
+    .work--rev .work-media{order:0;}
     .work-cap{padding:0 10px;}
   }
 
@@ -756,6 +762,35 @@
         </ul>
         <div class="work-chips"><span>Данные из API Chatterfy</span><span>Блок — по отказу Telegram</span><span>Chrome · Manifest V3</span></div>
         <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_voronka">Хочу такую аналитику <span aria-hidden="true">→</span></a>
+      </div>
+    </article>
+
+    <article class="work work--rev reveal">
+      <div class="work-media">
+        <video class="work-video" muted loop playsinline preload="none" poster="assets/video/omnix-poster.webp" aria-label="Видеообзор CRM Omnix">
+          <source src="assets/video/omnix.mp4" type="video/mp4">
+        </video>
+        <button class="work-play" type="button" aria-label="Воспроизвести видео">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        </button>
+        <button class="work-full" type="button" aria-label="Смотреть на весь экран" title="На весь экран">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        </button>
+        <div class="work-progress" aria-hidden="true"><i></i></div>
+      </div>
+
+      <div class="work-cap">
+        <div class="work-kicker"><span class="work-num">02</span>CRM · Telegram Mini App<span class="work-status">В разработке</span></div>
+        <h3 class="work-title">Omni<span class="accent">x</span></h3>
+        <p class="work-lead">CRM для команд, которые продают в мессенджерах: все чаты, клиенты и деньги — в одном окне.</p>
+        <ul class="work-points">
+          <li><b>Чаты.</b> Telegram, WhatsApp и Instagram в одном окне. ИИ подсказывает ответ и переводит сообщения.</li>
+          <li><b>Контроль.</b> Руководитель видит, кто ждёт ответа прямо сейчас и где теряются клиенты.</li>
+          <li><b>Деньги.</b> Депозиты сверяются с постбэком, зарплаты сотрудников считаются сами.</li>
+          <li><b>Telegram.</b> Та же CRM как Mini App — без установки, вход через Telegram.</li>
+        </ul>
+        <div class="work-chips"><span>ИИ: подсказки, перевод, резюме клиента</span><span>React · TypeScript</span><span>Cloudflare</span></div>
+        <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_omnix">Обсудить свою CRM <span aria-hidden="true">→</span></a>
       </div>
     </article>
 
