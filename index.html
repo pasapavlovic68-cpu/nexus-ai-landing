@@ -28,8 +28,6 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth; scroll-padding-top:84px}
-  /* «Смотреть работы» — строка портфолио встаёт по центру экрана, а не под шапку */
-  #portfolio{scroll-margin-top:calc(50vh - 70px)}
 
   :root{
     --bg:#05060a; --bg2:#0a0a12;
@@ -271,12 +269,56 @@
   .result p{color:var(--muted); font-size:13.5px; font-weight:300; line-height:1.55;}
 
   /* ---------- ПОРТФОЛИО: строка-кнопка ---------- */
-  .pf-wrap{padding:0 0 var(--sec);}
+  /* карточка работы: видео 16:9 в стеклянной рамке + подпись */
+  .work{display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); gap:36px; align-items:center; margin-bottom:var(--gap);
+    background:var(--glass-2); border:1px solid var(--border); border-radius:24px; padding:18px 36px 18px 18px; backdrop-filter:blur(14px);}
+  .work-media{position:relative; aspect-ratio:16/9; border-radius:16px; overflow:hidden; background:#05060a;
+    border:1px solid rgba(121,168,255,0.28); box-shadow:0 0 0 1px rgba(79,140,255,0.08), 0 18px 50px rgba(0,0,0,0.45), 0 0 40px rgba(79,140,255,0.12);}
+  .work-video{display:block; width:100%; height:100%; object-fit:cover; cursor:pointer;}
+  .work-play,.work-full{position:absolute; z-index:2; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff;
+    background:rgba(5,6,10,0.5); border:1px solid rgba(255,255,255,0.18); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    transition:opacity .25s cubic-bezier(.2,.8,.2,1), transform .25s cubic-bezier(.2,.8,.2,1), background .2s, border-color .2s;}
+  .work-play{left:50%; top:50%; width:64px; height:64px; border-radius:50%; transform:translate(-50%,-50%);}
+  .work-play svg{margin-left:3px;}
+  .work-media.playing .work-play{opacity:0; transform:translate(-50%,-50%) scale(.85); pointer-events:none;}
+  .work-full{right:12px; top:12px; width:36px; height:36px; border-radius:10px; opacity:.0;}
+  .work-media:hover .work-full,.work-full:focus-visible{opacity:1;}
+  @media (hover:none){ .work-full{opacity:.85;} }
+  @media (hover:hover) and (pointer:fine){
+    .work-play:hover,.work-full:hover{background:rgba(79,140,255,0.55); border-color:var(--accent2);}
+  }
+  .work-play:focus-visible,.work-full:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px;}
+  .work-progress{position:absolute; z-index:2; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,0.08);}
+  .work-progress i{display:block; height:100%; width:100%; transform-origin:0 50%; transform:scaleX(0);
+    background:linear-gradient(90deg,var(--accent),var(--accent2)); box-shadow:0 0 10px rgba(79,140,255,0.7);}
+
+  .work-kicker{display:flex; align-items:center; gap:12px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:var(--accent2); margin-bottom:14px;}
+  .work-num{font-size:12px; color:#fff; padding:3px 9px; border-radius:8px; border:1px solid rgba(121,168,255,0.4); background:rgba(79,140,255,0.12);}
+  .work-title{font-size:clamp(30px,3.4vw,42px); font-weight:800; letter-spacing:-1.2px; line-height:1.05; margin-bottom:10px;
+    background:linear-gradient(180deg,#fff,#c3cbe6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+  .work-title .accent{background:linear-gradient(135deg,var(--accent-bright),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+  .work-lead{font-size:17px; font-weight:500; line-height:1.45; margin-bottom:18px; color:var(--txt);}
+  .work-points{list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:18px;}
+  .work-points li{position:relative; padding-left:18px; color:var(--muted); font-size:14px; font-weight:300; line-height:1.5;}
+  .work-points li::before{content:''; position:absolute; left:0; top:.62em; width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px rgba(79,140,255,0.8);}
+  .work-points b{color:var(--txt); font-weight:600;}
+  .work-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+  .work-chips span{font-family:'Space Mono',monospace; font-size:10.5px; letter-spacing:.6px; color:var(--accent-bright);
+    background:rgba(79,140,255,0.08); border:1px solid rgba(79,140,255,0.2); padding:5px 11px; border-radius:20px;}
+  .work-cta{display:inline-flex; align-items:center; gap:8px; color:var(--accent2); font-weight:600; font-size:15px; text-decoration:none;
+    border-bottom:1px solid rgba(121,168,255,0.35); padding-bottom:2px; transition:color .2s, border-color .2s, gap .2s cubic-bezier(.2,.8,.2,1);}
+  @media (hover:hover) and (pointer:fine){ .work-cta:hover{color:#fff; border-color:#fff; gap:12px;} }
+  .work-cta:focus-visible{outline:2px solid var(--accent-bright); outline-offset:4px; border-radius:4px;}
+  @media(max-width:900px){
+    .work{grid-template-columns:1fr; gap:22px; padding:12px 12px 24px;}
+    .work-cap{padding:0 10px;}
+  }
+
   .pf-strip{display:flex; align-items:center; justify-content:space-between; gap:20px;
-    background:linear-gradient(135deg,rgba(79,140,255,0.10),rgba(30,79,208,0.04)); border:1px solid rgba(121,168,255,0.28);
-    border-radius:20px; padding:22px 26px; backdrop-filter:blur(14px);}
+    background:var(--glass-2); border:1px solid var(--border);
+    border-radius:20px; padding:20px 26px; backdrop-filter:blur(14px);}
   .pf-txt{display:flex; flex-direction:column; gap:4px;}
-  .pf-title{font-size:20px; font-weight:700; letter-spacing:-.4px;}
+  .pf-title{font-size:18px; font-weight:700; letter-spacing:-.3px;}
   .pf-text{color:var(--muted); font-size:14px; font-weight:300;}
   .pf-btn{flex-shrink:0; white-space:nowrap;}
   @media(max-width:640px){ .pf-strip{flex-direction:column; align-items:stretch; text-align:center; padding:22px 20px;} .pf-btn{text-align:center;} }
@@ -556,6 +598,7 @@
     <div class="nav-links">
       <a href="#results">Результат</a>
       <a href="#services">Услуги</a>
+      <a href="#portfolio">Работы</a>
       <a href="#funnels">Автоворонки</a>
       <a href="#process">Как работаем</a>
       <a href="#pricing">Цены</a>
@@ -591,7 +634,7 @@
     <p>Встраиваемся в вашу CRM даже без API, делаем Telegram-ботов и Mini Apps, сайты и дашборды — и связываем всё в одну систему, где заявки и данные не теряются.</p>
     <div class="hero-btns">
       <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="btn-primary" data-track="tg_hero"><span class="t">Обсудить проект</span></a>
-      <a href="#services" class="btn-ghost"><span class="t">Что мы делаем</span></a>
+      <a href="#portfolio" class="btn-ghost"><span class="t">Смотреть работы</span></a>
       <a href="#funnels" class="ch-btn">
         <span class="ch-graph" aria-hidden="true"><span class="b"></span><span class="b" style="animation-delay:-0.07s"></span><span class="b" style="animation-delay:-0.14s"></span><span class="b" style="animation-delay:-0.21s"></span><span class="b" style="animation-delay:-0.28s"></span><span class="b" style="animation-delay:-0.35s"></span><span class="b" style="animation-delay:-0.42s"></span><span class="b" style="animation-delay:-0.49s"></span><span class="b" style="animation-delay:-0.56s"></span><span class="b" style="animation-delay:-0.63s"></span><span class="b" style="animation-delay:-0.7s"></span><span class="b" style="animation-delay:-0.77s"></span><span class="b" style="animation-delay:-0.84s"></span><span class="b" style="animation-delay:-0.91s"></span><span class="b" style="animation-delay:-0.98s"></span><span class="b" style="animation-delay:-1.05s"></span><span class="b" style="animation-delay:-1.12s"></span><span class="b" style="animation-delay:-1.19s"></span><span class="b" style="animation-delay:-1.26s"></span><span class="b" style="animation-delay:-1.33s"></span><span class="b" style="animation-delay:-1.4s"></span><span class="b" style="animation-delay:-1.47s"></span><span class="b" style="animation-delay:-1.54s"></span><span class="b" style="animation-delay:-1.61s"></span></span>
         <span class="ch-text"><span>Автоворонки Chatterfy</span> <span class="arrow">→</span></span>
@@ -679,15 +722,49 @@
   </div>
 </section>
 
-<!-- ПОРТФОЛИО: строка-кнопка (ссылка — PORTFOLIO_URL; пока ведёт в Telegram, позже — видео/страница) -->
-<section class="pf-wrap" id="portfolio">
+<!-- ПОРТФОЛИО: видео-работы + строка «больше проектов» -->
+<section class="section" id="portfolio">
   <div class="container">
+    <div class="sec-head reveal">
+      <span class="tag">Портфолио</span>
+      <h2>Работы в деле</h2>
+      <p>Настоящий интерфейс наших проектов — короткими роликами. Данные в видео демонстрационные.</p>
+    </div>
+
+    <article class="work reveal">
+      <div class="work-media">
+        <video class="work-video" muted loop playsinline preload="none" poster="assets/video/voronka-ii-poster.webp" aria-label="Видеообзор расширения «Воронка ИИ»">
+          <source src="assets/video/voronka-ii.mp4" type="video/mp4">
+        </video>
+        <button class="work-play" type="button" aria-label="Воспроизвести видео">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        </button>
+        <button class="work-full" type="button" aria-label="Смотреть на весь экран" title="На весь экран">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        </button>
+        <div class="work-progress" aria-hidden="true"><i></i></div>
+      </div>
+
+      <div class="work-cap">
+        <div class="work-kicker"><span class="work-num">01</span>Chrome-расширение · Chatterfy</div>
+        <h3 class="work-title">Воронка <span class="accent">ИИ</span></h3>
+        <p class="work-lead">Видно, на каком шаге диалога с ИИ-ботом уходят лиды — и почему.</p>
+        <ul class="work-points">
+          <li><b>По этапам.</b> Сколько дошло, сколько замолчало и сколько закрыло бота.</li>
+          <li><b>По блокам.</b> Кто закрыл бота и после какого сообщения.</li>
+          <li><b>По кампаниям.</b> Рег, ФД и блоки по каждой метке из рекламы.</li>
+        </ul>
+        <div class="work-chips"><span>Данные из API Chatterfy</span><span>Блок — по отказу Telegram</span><span>Chrome · Manifest V3</span></div>
+        <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_voronka">Хочу такую аналитику <span aria-hidden="true">→</span></a>
+      </div>
+    </article>
+
     <div class="pf-strip reveal">
       <div class="pf-txt">
-        <span class="pf-title">Портфолио</span>
-        <span class="pf-text">Покажем реальные проекты в Telegram: расширения для CRM, дашборды и контроль качества. Видеообзор — скоро.</span>
+        <span class="pf-title">Больше проектов</span>
+        <span class="pf-text">Расширения для CRM, дашборды и контроль качества — покажем в Telegram, пока готовим новые ролики.</span>
       </div>
-      <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="btn-primary pf-btn" id="pf-btn" data-track="portfolio"><span class="t">Запросить портфолио</span></a>
+      <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="btn-ghost pf-btn" id="pf-btn" data-track="portfolio"><span class="t">Запросить портфолио</span></a>
     </div>
   </div>
 </section>
@@ -1151,6 +1228,35 @@
     addEventListener('resize', ()=>{ if(innerWidth !== rw){ rw = innerWidth; build(); } });
     build();
   })();
+
+  // ---------- видео в портфолио: грузится и играет, только когда на экране ----------
+  document.querySelectorAll('.work-media').forEach(box=>{
+    const v = box.querySelector('video'), bar = box.querySelector('.work-progress i');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let userPaused = false, raf = 0;
+    const tick = ()=>{ if(v.duration) bar.style.transform = 'scaleX(' + (v.currentTime / v.duration) + ')'; raf = requestAnimationFrame(tick); };
+    v.addEventListener('play',  ()=>{ box.classList.add('playing'); cancelAnimationFrame(raf); tick(); });
+    v.addEventListener('pause', ()=>{ box.classList.remove('playing'); cancelAnimationFrame(raf); });
+    const toggle = ()=>{ if(v.paused){ userPaused = false; v.play().catch(()=>{}); } else { userPaused = true; v.pause(); } };
+    v.addEventListener('click', toggle);
+    box.querySelector('.work-play').addEventListener('click', toggle);
+    // на весь экран — с родными контролами (на iPhone — системный плеер)
+    box.querySelector('.work-full').addEventListener('click', ()=>{
+      v.controls = true;
+      if(v.requestFullscreen) v.requestFullscreen().catch(()=>{});
+      else if(v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+      if(v.paused) v.play().catch(()=>{});
+    });
+    document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement) v.controls = false; });
+    v.addEventListener('webkitendfullscreen', ()=>{ v.controls = false; });
+    // автозапуск в зоне видимости (без звука — в ролике его нет), пауза вне экрана
+    new IntersectionObserver(([e])=>{
+      if(e.isIntersecting){
+        if(v.preload !== 'auto'){ v.preload = 'auto'; v.load(); }
+        if(!reduce && !userPaused) v.play().catch(()=>{});
+      } else if(!v.paused && !document.fullscreenElement){ v.pause(); }
+    }, {threshold:.4}).observe(box);
+  });
 
   // ---------- шапка: плашка-стекло появляется, как только страница сдвинулась ----------
   (function(){
