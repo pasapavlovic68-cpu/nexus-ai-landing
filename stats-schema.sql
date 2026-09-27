@@ -63,3 +63,14 @@ CREATE TABLE IF NOT EXISTS spend (
   created  INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_spend_date ON spend(date);
+
+-- короткие ссылки nexusnova.app/<slug> -> страница с utm-метками (campaign = slug)
+CREATE TABLE IF NOT EXISTS links (
+  slug     TEXT PRIMARY KEY,
+  target   TEXT NOT NULL,          -- "/", "/#pricing" …
+  source   TEXT NOT NULL,          -- utm_source
+  medium   TEXT,                   -- utm_medium
+  content  TEXT,                   -- utm_content
+  hits     INTEGER NOT NULL DEFAULT 0,
+  created  INTEGER NOT NULL
+);

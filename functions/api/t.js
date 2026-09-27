@@ -1,4 +1,5 @@
 // Приём событий статистики с лендинга -> D1 (привязка DB).
+import { authed } from './stats.js';
 // Тело: {sid, m?:{ref,us,um,uc,ut,lang}, e:[{t,n,v}]} — отправляется sendBeacon/fetch с text/plain.
 // Без cookie и персональных данных: sid живёт только в sessionStorage вкладки.
 
@@ -38,6 +39,8 @@ export async function onRequestPost({ request, env }){
   }
   const ua = request.headers.get('user-agent') || '';
   if(!ua || BOT.test(ua)) return ok;
+  // владелец (вошёл в /stats в этом браузере) — его визиты в статистику не пишем
+  if(await authed(request, env.STATS_PASSWORD)) return ok;
 
   const raw = await request.text();
   if(raw.length > 16000) return ok;

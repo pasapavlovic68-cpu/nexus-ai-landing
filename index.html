@@ -1059,8 +1059,10 @@
 
 <script>
   // ---------- СТАТИСТИКА: свои события -> /api/t (Cloudflare D1), дашборд — /stats ----------
-  // без cookie: id визита живёт в sessionStorage вкладки. ?notrack в ссылке — навсегда
-  // выключить учёт в этом браузере (для своих визитов), ?notrack=0 — включить обратно.
+  // без cookie. Визит = как в Google Analytics: обновления и новые вкладки в течение 30 минут —
+  // один визит; новый — после 30 минут тишины или при переходе по ссылке с utm-метками.
+  // Визиты владельца (вошёл в /stats в этом браузере) сервер отбрасывает сам.
+  // ?notrack в ссылке — выключить учёт в этом браузере, ?notrack=0 — включить обратно.
   const track = (function(){
     let off = false, sid = '', q = [], timer = 0, meta = null;
     try{
@@ -1068,15 +1070,24 @@
       if(nt === '0') localStorage.removeItem('nexus_notrack');
       else if(nt !== null) localStorage.setItem('nexus_notrack', '1');
       off = !!localStorage.getItem('nexus_notrack');
-      sid = sessionStorage.getItem('nexus_sid') || '';
-      if(!sid){
+      const p = new URLSearchParams(location.search);
+      const hasUtm = [...p.keys()].some(k => k.startsWith('utm_'));
+      let st = null;
+      try{ st = JSON.parse(localStorage.getItem('nexus_visit') || 'null'); }catch(e){}
+      if(st && st.sid && Date.now() - st.t < 30 * 60 * 1000 && !hasUtm) sid = st.sid;
+      else {
         sid = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2,'0')).join('');
-        sessionStorage.setItem('nexus_sid', sid);
         // источник и рекламные метки — один раз на визит
-        const p = new URLSearchParams(location.search);
         let ref = null;
         try{ const h = new URL(document.referrer).hostname.replace(/^www\./,''); if(h && h !== location.hostname) ref = h; }catch(e){}
         meta = { ref, us:p.get('utm_source'), um:p.get('utm_medium'), uc:p.get('utm_campaign'), ut:p.get('utm_content'), lang:navigator.language };
+      }
+      localStorage.setItem('nexus_visit', JSON.stringify({ sid, t:Date.now() }));
+      // метки прочитаны — убираем их из адресной строки, чтобы ссылка у человека была чистой
+      if(hasUtm){
+        [...p.keys()].filter(k => k.startsWith('utm_')).forEach(k => p.delete(k));
+        const qs = p.toString();
+        history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
       }
     }catch(e){ off = true; }
 
@@ -1103,6 +1114,7 @@
 
     return function(t, n, v){
       if(off) return;
+      try{ localStorage.setItem('nexus_visit', JSON.stringify({ sid, t:Date.now() })); }catch(e){}
       q.push({ t, n:n == null ? null : String(n), v:v == null ? null : v });
       clearTimeout(timer);
       timer = setTimeout(()=> flush(false), q.length > 20 ? 0 : 1500);
