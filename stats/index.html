@@ -838,7 +838,7 @@
       <div class="mt mt--main" data-m="profit"><div class="mt-l">Прибыль</div><div class="mt-v">$0</div><div class="mt-s">&nbsp;</div></div>
       <div class="mt" data-m="romi"><div class="mt-l">ROMI</div><div class="mt-v">—</div><div class="mt-s">&nbsp;</div></div>
       <div class="mt" data-m="sales"><div class="mt-l">Продаж</div><div class="mt-v">0</div><div class="mt-s">&nbsp;</div></div>
-      <div class="mt" data-m="cpl"><div class="mt-l">Цена клика в Telegram</div><div class="mt-v">—</div><div class="mt-s">&nbsp;</div></div>
+      <div class="mt" data-m="cpl"><div class="mt-l" title="Сколько рекламы потрачено на одного человека, который нажал «Написать» на сайте. Без расходов на рекламу — «—»">Цена обращения</div><div class="mt-v">—</div><div class="mt-s">&nbsp;</div></div>
       <div class="mt" data-m="cps"><div class="mt-l">Цена продажи</div><div class="mt-v">—</div><div class="mt-s">&nbsp;</div></div>
     </div>
     <div id="money-empty" hidden></div>
@@ -2657,7 +2657,7 @@
         T.profit > 0 ? 'pos' : T.profit < 0 ? 'neg' : '');
       tile('romi', T.romi, v => fmtInt(v) + '%', '<span>прибыль / расход</span>', T.romi > 0 ? 'pos' : T.romi < 0 ? 'neg' : '');
       tile('sales', T.sales, fmtInt, dRel(T.sales, P && P.sales) + `<span>ср. чек ${T.sales ? esc(fmtMoney(T.avgCheck || T.revenue / T.sales)) : '—'}</span>`);
-      tile('cpl', T.cpl, fmtCents, '<span>расход / клики</span>');
+      tile('cpl', T.cpl, fmtCents, '<span>реклама / обращения</span>');
       tile('cps', T.cps, fmtCents, '<span>расход / продажи</span>');
 
       const isEmpty = !M.items.length && !M.byCampaign.length && !T.revenue && !T.spend;
