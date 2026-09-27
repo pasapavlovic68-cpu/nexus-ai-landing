@@ -9,3 +9,8 @@ nexus-flip-gallery.html
 
 # локальные настройки Claude Code (превью-сервер)
 .claude/
+
+# локальная разработка Cloudflare (секреты и локальная база)
+.dev.vars
+.wrangler/
+.stats-password.txt

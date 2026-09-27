@@ -758,7 +758,7 @@
       <div class="works-in">
     <article class="work">
       <div class="work-media">
-        <video class="work-video" muted loop playsinline preload="none" poster="assets/video/voronka-ii-poster.webp" aria-label="Видеообзор расширения «Воронка ИИ»">
+        <video class="work-video" data-v="voronka" muted loop playsinline preload="none" poster="assets/video/voronka-ii-poster.webp" aria-label="Видеообзор расширения «Воронка ИИ»">
           <source src="assets/video/voronka-ii.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -786,7 +786,7 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" muted loop playsinline preload="none" poster="assets/video/omnix-poster.webp" aria-label="Видеообзор CRM Omnix">
+        <video class="work-video" data-v="omnix" muted loop playsinline preload="none" poster="assets/video/omnix-poster.webp" aria-label="Видеообзор CRM Omnix">
           <source src="assets/video/omnix.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -1058,6 +1058,58 @@
 </button>
 
 <script>
+  // ---------- СТАТИСТИКА: свои события -> /api/t (Cloudflare D1), дашборд — /stats ----------
+  // без cookie: id визита живёт в sessionStorage вкладки. ?notrack в ссылке — навсегда
+  // выключить учёт в этом браузере (для своих визитов), ?notrack=0 — включить обратно.
+  const track = (function(){
+    let off = false, sid = '', q = [], timer = 0, meta = null;
+    try{
+      const nt = new URLSearchParams(location.search).get('notrack');
+      if(nt === '0') localStorage.removeItem('nexus_notrack');
+      else if(nt !== null) localStorage.setItem('nexus_notrack', '1');
+      off = !!localStorage.getItem('nexus_notrack');
+      sid = sessionStorage.getItem('nexus_sid') || '';
+      if(!sid){
+        sid = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2,'0')).join('');
+        sessionStorage.setItem('nexus_sid', sid);
+        // источник и рекламные метки — один раз на визит
+        const p = new URLSearchParams(location.search);
+        let ref = null;
+        try{ const h = new URL(document.referrer).hostname.replace(/^www\./,''); if(h && h !== location.hostname) ref = h; }catch(e){}
+        meta = { ref, us:p.get('utm_source'), um:p.get('utm_medium'), uc:p.get('utm_campaign'), ut:p.get('utm_content'), lang:navigator.language };
+      }
+    }catch(e){ off = true; }
+
+    function flush(beacon){
+      clearTimeout(timer);
+      if(!q.length || off) { q = []; return; }
+      const body = JSON.stringify(Object.assign({ sid, e:q.splice(0, 40) }, meta ? { m:meta } : {}));
+      meta = null;
+      const blob = new Blob([body], { type:'text/plain' });
+      if(!(beacon && navigator.sendBeacon && navigator.sendBeacon('/api/t', blob)))
+        fetch('/api/t', { method:'POST', body, keepalive:true, headers:{ 'content-type':'text/plain' } }).catch(()=>{});
+      if(q.length) flush(beacon);
+    }
+    // активное время на странице (пока вкладка видна)
+    let active = 0, since = document.visibilityState === 'visible' ? Date.now() : 0;
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'hidden'){
+        if(since){ active += Date.now() - since; since = 0; }
+        q.push({ t:'leave', v:Math.round(active / 1000) });
+        flush(true);
+      } else since = Date.now();
+    });
+    addEventListener('pagehide', ()=> flush(true));
+
+    return function(t, n, v){
+      if(off) return;
+      q.push({ t, n:n == null ? null : String(n), v:v == null ? null : v });
+      clearTimeout(timer);
+      timer = setTimeout(()=> flush(false), q.length > 20 ? 0 : 1500);
+    };
+  })();
+  track('pv');
+
   // ---------- ЖИВАЯ СЕТЬ УЗЛОВ НА ФОНЕ ----------
   (function(){
     const canvas = document.getElementById('net-bg');
@@ -1288,7 +1340,7 @@
       works.classList.toggle('open', v);
       btn.setAttribute('aria-expanded', v);
       label.textContent = v ? 'Свернуть' : 'Смотреть работы';
-      if(v) openedAt = Date.now();
+      if(v){ openedAt = Date.now(); track('works_open'); }
     }
     btn.addEventListener('click', ()=> setOpen(!works.classList.contains('open')));
     // «Работы» в меню и «Смотреть работы» на первом экране — сразу раскрывают список
@@ -1320,15 +1372,18 @@
   document.querySelectorAll('.work-media').forEach(box=>{
     const v = box.querySelector('video'), bar = box.querySelector('.work-progress i');
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let userPaused = false, raf = 0;
+    let userPaused = false, raf = 0, played = false, done = false;
+    const vname = v.dataset.v || 'video';
     const tick = ()=>{ if(v.duration) bar.style.transform = 'scaleX(' + (v.currentTime / v.duration) + ')'; raf = requestAnimationFrame(tick); };
-    v.addEventListener('play',  ()=>{ box.classList.add('playing'); cancelAnimationFrame(raf); tick(); });
+    v.addEventListener('play',  ()=>{ box.classList.add('playing'); cancelAnimationFrame(raf); tick(); if(!played){ played = true; track('video_play', vname); } });
+    v.addEventListener('timeupdate', ()=>{ if(!done && v.duration && v.currentTime / v.duration > .95){ done = true; track('video_done', vname); } });
     v.addEventListener('pause', ()=>{ box.classList.remove('playing'); cancelAnimationFrame(raf); });
     const toggle = ()=>{ if(v.paused){ userPaused = false; v.play().catch(()=>{}); } else { userPaused = true; v.pause(); } };
     v.addEventListener('click', toggle);
     box.querySelector('.work-play').addEventListener('click', toggle);
     // на весь экран — с родными контролами (на iPhone — системный плеер)
     box.querySelector('.work-full').addEventListener('click', ()=>{
+      track('video_fs', vname);
       v.controls = true;
       if(v.requestFullscreen) v.requestFullscreen().catch(()=>{});
       else if(v.webkitEnterFullscreen) v.webkitEnterFullscreen();
@@ -1364,12 +1419,40 @@
     });
   })();
 
+  // ---------- статистика: глубина прокрутки, увиденные секции, вопросы FAQ ----------
+  (function(){
+    const marks = [25, 50, 75, 100], sent = new Set();
+    let tick = false;
+    addEventListener('scroll', ()=>{
+      if(tick) return; tick = true;
+      requestAnimationFrame(()=>{
+        tick = false;
+        const h = document.documentElement.scrollHeight - innerHeight;
+        const pct = h > 0 ? (scrollY / h) * 100 : 100;
+        for(const m of marks) if(pct >= m - 2 && !sent.has(m)){ sent.add(m); track('scroll', null, m); }
+      });
+    }, {passive:true});
+
+    const seen = new Set();
+    const io = new IntersectionObserver(es => es.forEach(e=>{
+      if(e.isIntersecting && !seen.has(e.target.id)){ seen.add(e.target.id); track('section', e.target.id); io.unobserve(e.target); }
+    }), {threshold:.25});
+    ['results','services','portfolio','funnels','process','pricing','faq','contact'].forEach(id=>{
+      const el = document.getElementById(id); if(el) io.observe(el);
+    });
+
+    document.querySelectorAll('.faq-item').forEach((d, i)=>{
+      d.addEventListener('toggle', ()=>{ if(d.open) track('faq', 'q' + (i + 1)); });
+    });
+  })();
+
   // ---------- трекинг кликов по кнопкам связи (data-track) ----------
   // пиксели подключим позже: как только появятся fbq / gtag / dataLayer — события пойдут в них
   document.addEventListener('click', e=>{
     const el = e.target.closest('[data-track]');
     if(!el) return;
     const place = el.dataset.track;
+    track('click', place);
     try{
       (window.dataLayer = window.dataLayer || []).push({event:'lead_click', place});
       if(typeof window.fbq === 'function') fbq('track', 'Contact', {place});

@@ -1,0 +1,13 @@
+# Конфигурация Cloudflare Pages (проект nexus-ai-landing, автодеплой из main).
+# Файл — источник настроек проекта: привязки из панели Cloudflare больше не редактируются.
+# Секрет STATS_PASSWORD задаётся отдельно:
+#   npx wrangler pages secret put STATS_PASSWORD --project-name nexus-ai-landing
+name = "nexus-ai-landing"
+pages_build_output_dir = "."
+compatibility_date = "2026-07-15"
+
+# статистика лендинга (functions/api/t.js, stats.js), схема — stats-schema.sql
+[[d1_databases]]
+binding = "DB"
+database_name = "nexus-landing-stats"
+database_id = "93e5dc8a-df5d-4d31-bf0b-60b936e332af"

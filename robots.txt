@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /stats
+Disallow: /api/
 
 Sitemap: https://nexusnova.app/sitemap.xml
