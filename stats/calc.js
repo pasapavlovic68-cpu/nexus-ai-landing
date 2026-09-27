@@ -675,6 +675,8 @@
   const usd = n => '$' + nf(n);
   const dec = n => (Math.round(n * 100) / 100).toLocaleString('ru-RU');
   const fx = n => '×' + n.toLocaleString('ru-RU', {minimumFractionDigits:1, maximumFractionDigits:2});
+  // часы -> рабочие дни (по 6 продуктивных часов в день), с шагом 0,5
+  const hd = h => { const d = Math.round(h / P.days.perDayMax * 2) / 2; return d < 0.5 ? '<0,5 дн' : '≈' + dec(d) + ' дн'; };
   const ceilTo = (n, s) => Math.ceil(n / s - 1e-9) * s;
   const plural = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) ? b : c; };
   const daysTxt = (a, b) => `${a}–${b} ${plural(b, 'день', 'дня', 'дней')}`;
@@ -840,7 +842,7 @@
 
   function optHTML(q, o, on, scope){
     const many = q.type === 'many';
-    const meta = o.meta || (o.h ? `+${dec(o.h)} ч` : '');
+    const meta = o.meta || (o.h ? `+${dec(o.h)} ч · ${hd(o.h)}` : '');
     return `<button type="button" class="nc-opt" data-scope="${scope}" data-q="${q.id}" data-k="${o.k}" aria-pressed="${on}"${o.title ? ` title="${esc(o.title)}"` : ''}>
       ${many ? `<span class="nc-cb">${I_CHECK}</span>` : ''}
       <span class="t"><span class="l">${esc(o.label)}</span>${o.sub ? `<span class="s">${esc(o.sub)}</span>` : ''}${meta ? `<span class="m">${esc(meta)}</span>` : ''}</span>
@@ -849,7 +851,7 @@
   function numMeta(q, v){
     if(q.money) return '';
     const extra = Math.max(0, v - q.free);
-    return extra && q.h ? `+${dec(extra * q.h)} ч` : 'в базе';
+    return extra && q.h ? `+${dec(extra * q.h)} ч · ${hd(extra * q.h)}` : 'в базе';
   }
   function numHTML(q, v, scope, tid){
     return `<div class="nc-num" data-scope="${scope}" data-q="${q.id}">
@@ -923,9 +925,9 @@
     const C = P.complexity[E.lvl];
     const rows = [];
     const row = (t, v, cls = '', note = '') => rows.push(`<div class="nc-row ${cls}"><span>${esc(t)}</span><span class="v">${esc(v)}</span>${note ? `<small>${esc(note)}</small>` : ''}</div>`);
-    row(`База · ${E.base.label}`, `${dec(E.base.h)} ч`, '', 'Дизайн и анимации включены');
-    E.items.forEach(x => row(x.t, `+${dec(x.h)} ч`, '', x.note || ''));
-    row(`Всего работы · ${dec(E.hours)} ч × ${usd(P.rate)}`, usd(E.cost), 'sub');
+    row(`База · ${E.base.label}`, `${dec(E.base.h)} ч · ${hd(E.base.h)}`, '', 'Дизайн и анимации включены');
+    E.items.forEach(x => row(x.t, `+${dec(x.h)} ч · ${hd(x.h)}`, '', x.note || ''));
+    row(`Всего работы · ${dec(E.hours)} ч (${hd(E.hours)}) × ${usd(P.rate)}`, usd(E.cost), 'sub');
     row(`Сложность: ${C.label} проект`, fx(C.mult), 'mul',
       (E.why.length ? 'Учтено: ' + E.why.join(', ') + '. ' : 'Без усложняющих опций. ') + `Баллов: ${E.w} (средний от ${E.p.cx[0]}, сложный от ${E.p.cx[1]})`);
     if(E.U.mult !== 1) row(`Срочность: ${E.U.label.toLowerCase()}`, fx(E.U.mult), 'mul');
@@ -937,6 +939,10 @@
     if(E.ext) row('Внешние расходы', '+' + usd(E.ext), '', 'Хостинг, API, лицензии — разово');
     if(E.floorHit) row(`Минимум: ${E.floorWhy}`, usd(E.floor), 'warn', 'Расчёт ниже минимума услуги — цена поднята до него');
     row('Рекомендуемая цена', usd(E.rec), 'tot');
+    // откуда срок: дни работы × сложность (× без API) + согласования (× срочность)
+    row('Срок', daysTxt(E.dFrom, E.dTo), 'sub',
+      `${hd(E.hours).replace('≈', '≈ ')} работы × сложность ${fx(C.mult)}${E.noApi ? ' × без API ' + fx(E.kApi) : ''} + ${Math.round(P.days.approvals * 100)}% на согласования и правки`
+      + (E.U.days !== 1 ? `, срочность сжимает срок ${fx(E.U.days)}` : '') + `; в день 5–6 рабочих часов`);
 
     const T = E.sup;
     return `<h2 class="nc-h" tabindex="-1">Смета · ${esc(E.p.name)}</h2>
