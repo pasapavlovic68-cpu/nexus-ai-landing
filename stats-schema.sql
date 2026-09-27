@@ -39,3 +39,27 @@ CREATE TABLE IF NOT EXISTS auth (
   k TEXT PRIMARY KEY,      -- pin_hash | pin_fails | pin_lock_until
   v TEXT NOT NULL
 );
+
+-- деньги: продажи и расходы на рекламу, которые владелец вносит вручную в дашборде
+CREATE TABLE IF NOT EXISTS sales (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  date     TEXT NOT NULL,          -- YYYY-MM-DD (дата продажи, по местному времени владельца)
+  amount   REAL NOT NULL,          -- $
+  product  TEXT NOT NULL,
+  campaign TEXT,                   -- utm_campaign, NULL = без рекламы / сарафан
+  source   TEXT,                   -- utm_source
+  note     TEXT,
+  created  INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sales_date ON sales(date);
+
+CREATE TABLE IF NOT EXISTS spend (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  date     TEXT NOT NULL,
+  amount   REAL NOT NULL,
+  campaign TEXT NOT NULL,
+  source   TEXT,
+  note     TEXT,
+  created  INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_spend_date ON spend(date);
