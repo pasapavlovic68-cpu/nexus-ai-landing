@@ -88,7 +88,7 @@
             {k:'quiz', label:'Квиз / калькулятор', h:6, w:1}
           ]},
           {id:'extra', type:'many', title:'Дополнительно', def:[], opts:[
-            {k:'cms', label:'CMS / админка', sub:'клиент сам меняет тексты', h:12, w:2},
+            {k:'cms', label:'CMS / админка', sub:'клиент сам меняет тексты', h:12, w:2, copy:'Админ-панель: вы сами меняете тексты и фото'},
             {k:'texts', label:'Тексты под ключ', h:6},
             {k:'seo', label:'SEO и аналитика', sub:'мета, карта сайта, цели', h:5, row:'SEO-база и аналитика'}
           ]}
@@ -165,12 +165,12 @@
         support:'business', extHint:'Обычно без внешних расходов',
         qs:[
           {id:'crm', type:'one', title:'Какая CRM', def:'popular', opts:[
-            {k:'popular', label:'Популярная', sub:'amoCRM, Bitrix24, HubSpot', copy:'CRM: популярная (amoCRM / Bitrix24 / HubSpot)'},
-            {k:'custom', label:'Своя / редкая', sub:'изучаем интерфейс с нуля', h:6, w:1, row:'Своя или редкая CRM'}
+            {k:'popular', label:'Популярная', sub:'amoCRM, Bitrix24, HubSpot', copy:'Работа в вашей CRM (amoCRM, Bitrix24, HubSpot и др.)'},
+            {k:'custom', label:'Своя / редкая', sub:'изучаем интерфейс с нуля', h:6, w:1, row:'Своя или редкая CRM', copy:'Адаптация под вашу CRM'}
           ]},
           {id:'api', type:'one', title:'Есть ли у CRM API', def:'yes', opts:[
-            {k:'yes', label:'Есть API', copy:'У CRM есть API'},
-            {k:'no', label:'Нет API', sub:'работаем через интерфейс', noApi:true, copy:'Работа без API — через интерфейс CRM'}
+            {k:'yes', label:'Есть API', none:true},
+            {k:'no', label:'Нет API', sub:'работаем через интерфейс', noApi:true, copy:'Интеграция с CRM без API — через её интерфейс'}
           ]},
           {id:'acts', type:'many', title:'Что автоматизировать', def:['fill'], opts:[
             {k:'fill', label:'Автоподстановка данных', h:3},
@@ -237,8 +237,8 @@
           {id:'sys', type:'num', when:{q:'kind', is:['sync']}, title:'Сколько систем связать', short:'Систем', unit:'шт.',
             min:2, max:8, step:1, def:2, free:2, h:15, wAt:[[4,1],[6,2]], hint:'2 системы — в базе (40 ч), каждая следующая +15 ч'},
           {id:'api', type:'one', when:{q:'kind', is:['sync']}, title:'У всех систем есть API?', def:'yes', opts:[
-            {k:'yes', label:'Да', copy:'У всех систем есть API'},
-            {k:'no', label:'Нет у одной или нескольких', noApi:true, copy:'Часть систем — без API'}
+            {k:'yes', label:'Да', none:true},
+            {k:'no', label:'Нет у одной или нескольких', noApi:true, copy:'Подключение систем без API'}
           ]},
           {id:'mode', type:'one', when:{q:'kind', is:['sync']}, title:'Как синхронизировать', def:'sched', opts:[
             {k:'sched', label:'По расписанию', copy:'Регулярная синхронизация по расписанию'},
@@ -259,9 +259,9 @@
         support:'business', extHint:'Chatterfy ≈ $3/день ≈ $90/мес',
         qs:[
           {id:'stages', type:'one', title:'Этапы воронки', def:'reg', opts:[
-            {k:'reg', label:'Reg', sub:'регистрация', copy:'Этапы: Reg'},
-            {k:'fd', label:'Reg → FD', sub:'+ первый депозит', h:4, row:'Этап FD', copy:'Этапы: Reg → FD'},
-            {k:'rd', label:'Reg → FD → RD', sub:'+ повторные депозиты', h:8, w:1, row:'Этапы FD и RD', copy:'Этапы: Reg → FD → RD'}
+            {k:'reg', label:'Reg', sub:'регистрация', copy:'Воронка: регистрация (Reg)'},
+            {k:'fd', label:'Reg → FD', sub:'+ первый депозит', h:4, row:'Этап FD', copy:'Воронка: регистрация → первый депозит (Reg → FD)'},
+            {k:'rd', label:'Reg → FD → RD', sub:'+ повторные депозиты', h:8, w:1, row:'Этапы FD и RD', copy:'Воронка: регистрация → первый → повторные депозиты (Reg → FD → RD)'}
           ]},
           {id:'chains', type:'num', title:'Цепочек дожима', short:'Цепочек дожима', unit:'шт.',
             min:1, max:15, step:1, def:2, free:2, h:1.5, wAt:[[6,1]], hint:'2 — в базе, дальше +1,5 ч за цепочку'},
@@ -298,8 +298,8 @@
           {id:'ints', type:'num', title:'Внешних интеграций', short:'Внешних интеграций', unit:'шт.',
             min:0, max:10, step:1, def:0, free:0, h:10, int:1, hint:'Телефония, платёжка, трекер, ERP… +10 ч и +15% за каждую'},
           {id:'api', type:'one', when:{q:'ints', gt:0}, title:'У этих систем есть API?', def:'yes', opts:[
-            {k:'yes', label:'Да', copy:'У внешних систем есть API'},
-            {k:'no', label:'Нет у некоторых', noApi:true, copy:'Часть систем — без API'}
+            {k:'yes', label:'Да', none:true},
+            {k:'no', label:'Нет у некоторых', noApi:true, copy:'Подключение внешних систем без API'}
           ]},
           {id:'mig', type:'one', title:'Перенос данных', def:'no', opts:[
             {k:'no', label:'Начинаем с нуля', none:true},
@@ -980,13 +980,13 @@
     L.push('Что входит:');
     L.push(`• ${E.base.copy || E.base.label}`);
     E.incl.forEach(t => L.push(`• ${t}`));
-    if(E.urgK !== 'normal') L.push(`• Срочность: ${E.U.label.toLowerCase()} (${E.U.sub})`);
+    if(E.urgK !== 'normal') L.push('• Приоритетный запуск — работаем в ускоренном режиме');
     L.push('');
     L.push(`Стоимость: ${usd(E.rec)}`);
     if(E.ext) L.push(`В том числе внешние расходы (хостинг, API, лицензии): ${usd(E.ext)}`);
     L.push(`Срок: ${E.dTo} рабочих ${plural(E.dTo, 'день', 'дня', 'дней')}`);
     if(E.sup) L.push(`Поддержка после запуска: «${E.sup.name}» — ${usd(E.sup.price)} в месяц (${E.sup.desc}; сверх пакета ${usd(P.support.overHour)}/ч)`);
-    L.push('', 'Ориентир. Точная цена — после разбора задачи.', 'Nexus AI · nexusnova.app');
+    L.push('', 'Nexus AI · nexusnova.app · Telegram @Ppasha69');
     return plain(L.join('\n'));
   }
   function askText(pk){
@@ -1277,7 +1277,7 @@
 
     // --- содержимое: те же данные, что в тексте сметы
     const incl = [E.base.copy || E.base.label, ...E.incl];
-    if(E.urgK !== 'normal') incl.push(`Срочность: ${E.U.label.toLowerCase()} (${E.U.sub})`);
+    if(E.urgK !== 'normal') incl.push('Приоритетный запуск — работаем в ускоренном режиме');
 
     let y = PAD;
     const draw = () => {
@@ -1309,7 +1309,7 @@
       c.save(); rr(PAD, y, cw, cardH, 28);
       c.fillStyle = grad(PAD, y, PAD + cw, y + cardH, [[0,'rgba(79,140,255,.16)'],[1,'rgba(30,79,208,.05)']]); c.fill();
       c.strokeStyle = 'rgba(121,168,255,.35)'; c.lineWidth = 1.5; c.stroke(); c.restore();
-      c.font = font(400, 19, 'mono'); c.fillStyle = BLUE2; spaced('РЕКОМЕНДУЕМАЯ СТОИМОСТЬ', PAD + 36, y + 52, 2.5);
+      c.font = font(400, 19, 'mono'); c.fillStyle = BLUE2; spaced('СТОИМОСТЬ', PAD + 36, y + 52, 2.5);
       c.font = font(800, 104);
       c.shadowColor = 'rgba(79,140,255,.45)'; c.shadowBlur = 30;
       c.fillStyle = grad(PAD, y + 70, PAD + 520, y + 170, [[0,'#a9c8ff'],[1,BLUE]]); c.fillText(usd(E.rec), PAD + 32, y + 162);
@@ -1353,9 +1353,7 @@
 
       // подвал
       c.strokeStyle = 'rgba(255,255,255,.09)'; c.lineWidth = 1; c.beginPath(); c.moveTo(PAD, y); c.lineTo(W - PAD, y); c.stroke();
-      y += 50;
-      c.font = font(300, 22); c.fillStyle = MUT; c.fillText('Ориентир. Точная цена — после разбора задачи.', PAD, y);
-      y += 46;
+      y += 56;
       c.font = font(400, 22, 'mono'); c.fillStyle = BLUE2; c.fillText('nexusnova.app', PAD, y);
       c.textAlign = 'right'; c.fillStyle = TXT; c.fillText('Telegram @Ppasha69', W - PAD, y); c.textAlign = 'left';
       y += PAD - 10;
