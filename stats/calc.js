@@ -12,6 +12,7 @@
                 вверх_до_50( себестоимость × Кслож × Ксроч × КбезAPI × (1 + 0.15 × N_интеграций)
                              × (1 + буфер) × (1 + маржа) ) + внешние_расходы)
      При всех коэффициентах 1.0: 1 час ≈ $25 × 1.2 × 1.3 = $39.
+     Уникальный дизайн и анимации делаем всегда — они уже в базовых часах.
 
      Как задаются вопросы продукта (qs):
        type:'one'  — один выбор; type:'many' — несколько; type:'num' — степпер числа.
@@ -55,21 +56,23 @@
     support: {
       overHour: 35,      // $ за час сверх пакета
       tiers: {
-        start:    {name:'Старт',  price:80,  short:'до 1 ч правок, реакция 1 раб. день', desc:'мониторинг, бэкапы, домен и SSL, до 1 ч правок, реакция 1 рабочий день'},
-        business: {name:'Бизнес', price:200, short:'до 4 ч правок, реакция ≤ 4 ч',       desc:'мониторинг, бэкапы, до 4 ч правок в месяц, реакция до 4 часов'},
-        pro:      {name:'Про',    price:450, short:'до 10 ч, реакция ≤ 1 ч, приоритет',  desc:'до 10 ч правок, реакция до 1 часа, приоритет, ежемесячный отчёт'}
+        start:    {name:'Старт',  price:80,  short:'до 1 ч правок',     desc:'мониторинг, бэкапы, домен и SSL, до 1 ч правок, реакция 1 рабочий день'},
+        business: {name:'Бизнес', price:200, short:'до 4 ч · ответ 4 ч', desc:'мониторинг, бэкапы, до 4 ч правок в месяц, реакция до 4 часов'},
+        pro:      {name:'Про',    price:450, short:'до 10 ч · ответ 1 ч', desc:'до 10 ч правок, реакция до 1 часа, приоритет, ежемесячный отчёт'}
       }
     },
 
     products: {
       // Лендинг 16 ч, мин $600; многостраничный ~31 ч, мин $1 200
       site: {
-        name:'Лендинг / сайт', icon:'site', copy:'Сайт: дизайн, адаптив под телефон, домен и публикация', hours:16, min:600, cx:[3,6],
-        designH:10, support:'start', extHint:'Домен и хостинг ≈ $20–60 в год',
+        name:'Лендинг / сайт', icon:'site', hours:16, min:600, cx:[3,6],
+        support:'start', extHint:'Домен и хостинг ≈ $20–60 в год',
         qs:[
           {id:'kind', type:'one', title:'Формат', def:'landing', opts:[
-            {k:'landing', label:'Лендинг', sub:'одна страница', base:{h:16, min:600, label:'Лендинг', copy:'Лендинг: дизайн, адаптив под телефон, домен и публикация'}},
-            {k:'multi', label:'Многостраничный', sub:'до 5 страниц в базе', base:{h:31, min:1200, label:'Многостраничный сайт', copy:'Многостраничный сайт: дизайн, адаптив, домен и публикация'}}
+            {k:'landing', label:'Лендинг', sub:'одна страница', base:{h:16, min:600, label:'Лендинг',
+              copy:'Лендинг: уникальный дизайн, анимации, адаптив под телефон, домен и публикация'}},
+            {k:'multi', label:'Многостраничный', sub:'до 5 страниц в базе', base:{h:31, min:1200, label:'Многостраничный сайт',
+              copy:'Многостраничный сайт: уникальный дизайн, анимации, адаптив, домен и публикация'}}
           ]},
           {id:'pages', type:'num', when:{q:'kind', is:['multi']}, title:'Сколько страниц', short:'Страниц', unit:'стр.',
             min:2, max:40, step:1, def:5, free:5, h:3, wAt:[[10,1],[20,2]], hint:'5 страниц — в базе, дальше +3 ч за страницу'},
@@ -78,35 +81,25 @@
             {k:'two', label:'RU + EN', h:4, row:'Вторая языковая версия'},
             {k:'more', label:'3 и больше', h:8, w:1, row:'Три и больше языков'}
           ]},
-          {id:'anim', type:'one', title:'Анимации', def:'base', opts:[
-            {k:'base', label:'Аккуратные', sub:'появления, ховеры', copy:'Аккуратные анимации и адаптив'},
-            {k:'premium', label:'Премиум', sub:'сцены на скролле, 3D, интерактив', h:10, w:2, row:'Премиум-анимации'}
-          ]},
-          {id:'forms', type:'many', title:'Формы и интеграции', def:['tg'], opts:[
+          {id:'forms', type:'many', title:'Заявки и оплата', def:['tg'], opts:[
             {k:'tg', label:'Заявки в Telegram', h:1},
             {k:'crm', label:'Передача в CRM', h:4, int:1, intName:'CRM'},
             {k:'pay', label:'Онлайн-оплата', h:6, int:1, w:1, intName:'платёжка'},
             {k:'quiz', label:'Квиз / калькулятор', h:6, w:1}
           ]},
-          {id:'texts', type:'one', title:'Тексты', def:'client', opts:[
-            {k:'client', label:'Даёт клиент', none:true},
-            {k:'turnkey', label:'Пишем под ключ', h:6, row:'Тексты под ключ'}
-          ]},
-          {id:'cms', type:'one', title:'Правки без программиста', def:'no', opts:[
-            {k:'no', label:'Не нужно', none:true},
-            {k:'cms', label:'CMS / админка', sub:'клиент сам меняет тексты и фото', h:12, w:2, row:'CMS / админка'}
-          ]},
-          {id:'more', type:'many', title:'Дополнительно', def:[], opts:[
-            {k:'seo', label:'SEO-база', sub:'мета, карта сайта, скорость', h:3},
-            {k:'metrics', label:'Метрика и цели', h:2, row:'Аналитика и цели'}
+          {id:'extra', type:'many', title:'Дополнительно', def:[], opts:[
+            {k:'cms', label:'CMS / админка', sub:'клиент сам меняет тексты', h:12, w:2},
+            {k:'texts', label:'Тексты под ключ', h:6},
+            {k:'seo', label:'SEO и аналитика', sub:'мета, карта сайта, цели', h:5, row:'SEO-база и аналитика'}
           ]}
         ]
       },
 
       // бот простой 8 ч, мин $300; сложный (ИИ / CRM / оплаты) — мин $900
       bot: {
-        name:'Telegram-бот', icon:'bot', copy:'Бот: меню, приём заявок, ответы по кнопкам', hours:8, min:300, cx:[3,5],
-        designH:2, support:'start', extHint:'Сервер ≈ $5–10/мес, API ИИ — по объёму',
+        name:'Telegram-бот', icon:'bot', hours:8, min:300, cx:[3,5],
+        copy:'Бот: меню, приём заявок, ответы по кнопкам, оформление сообщений',
+        support:'start', extHint:'Сервер ≈ $5–10/мес, API ИИ — по объёму',
         qs:[
           {id:'scen', type:'num', title:'Сколько сценариев / команд', short:'Сценариев / команд', unit:'шт.',
             min:1, max:50, step:1, def:5, free:5, h:1, wAt:[[12,1],[25,2]], hint:'5 входят в базу: меню, заявка, FAQ. Дальше +1 ч за каждый'},
@@ -115,11 +108,6 @@
             {k:'stars', label:'Telegram Stars', h:3, row:'Оплата в Telegram Stars'},
             {k:'acq', label:'Эквайринг / крипто', sub:'ЮKassa, Stripe, CryptoBot', h:6, w:1, int:1, intName:'платёжка',
               min:900, minWhy:'сложный бот (ИИ / CRM / оплаты)', row:'Приём оплаты: эквайринг'}
-          ]},
-          {id:'admin', type:'one', title:'Управление ботом', def:'no', opts:[
-            {k:'no', label:'Не нужно', none:true},
-            {k:'cmd', label:'Админ-команды в боте', h:3},
-            {k:'web', label:'Веб-админка', sub:'заявки, пользователи, тексты', h:12, w:1}
           ]},
           {id:'dest', type:'one', title:'Куда уходят заявки', def:'chat', opts:[
             {k:'chat', label:'В чат менеджеру', copy:'Заявки — в чат менеджеру'},
@@ -133,18 +121,19 @@
             {k:'agent', label:'ИИ-агент', sub:'записывает, считает, создаёт заявки', h:16, w:3, min:900, minWhy:'сложный бот (ИИ / CRM / оплаты)', row:'ИИ-агент с действиями'}
           ]},
           {id:'extra', type:'many', title:'Ещё', def:[], opts:[
+            {k:'web', label:'Веб-админка', sub:'заявки, пользователи, тексты', h:12, w:1},
             {k:'mail', label:'Рассылки по сегментам', h:4},
             {k:'i18n', label:'Мультиязычность', h:3},
-            {k:'pb', label:'Постбэки в трекер', sub:'Keitaro, Binom', h:3, int:1, intName:'трекер'},
-            {k:'ref', label:'Реферальная система', h:5, w:1}
+            {k:'pb', label:'Постбэки в трекер', sub:'Keitaro, Binom', h:3, int:1, intName:'трекер'}
           ]}
         ]
       },
 
       // Mini App MVP (1 сценарий, 3–5 экранов) 40 ч, мин $1 500
       miniapp: {
-        name:'Telegram Mini App', icon:'miniapp', copy:'Mini App: вход через Telegram, 1 сценарий, до 5 экранов', hours:40, min:1500, cx:[3,6],
-        designH:12, support:'business', extHint:'Сервер и база ≈ $10–30/мес',
+        name:'Telegram Mini App', icon:'miniapp', hours:40, min:1500, cx:[3,6],
+        copy:'Mini App: вход через Telegram, уникальный дизайн и анимации, 1 сценарий, до 5 экранов',
+        support:'business', extHint:'Сервер и база ≈ $10–30/мес',
         qs:[
           {id:'screens', type:'num', title:'Сколько экранов', short:'Экранов', unit:'шт.',
             min:3, max:40, step:1, def:5, free:5, h:4, wAt:[[10,1],[20,2]], hint:'MVP — до 5 экранов. Дальше +4 ч за экран'},
@@ -155,10 +144,6 @@
             {k:'stars', label:'Telegram Stars', h:4, row:'Оплата в Telegram Stars'},
             {k:'acq', label:'Эквайринг / крипто', h:8, w:1, int:1, intName:'платёжка', row:'Приём оплаты: эквайринг'}
           ]},
-          {id:'admin', type:'one', title:'Админ-панель', def:'no', opts:[
-            {k:'no', label:'Не нужна', none:true},
-            {k:'yes', label:'Нужна', sub:'заказы, пользователи, контент', h:16, w:1, row:'Админ-панель'}
-          ]},
           {id:'links', type:'many', title:'Связать с', def:[], opts:[
             {k:'crm', label:'CRM', h:8, w:1, int:1, intName:'CRM', row:'Интеграция с CRM'},
             {k:'bot', label:'Ботом-компаньоном', h:6, row:'Бот-компаньон'},
@@ -166,8 +151,8 @@
             {k:'pb', label:'Трекером', sub:'постбэки', h:3, int:1, intName:'трекер', row:'Постбэки в трекер'}
           ]},
           {id:'extra', type:'many', title:'Ещё', def:[], opts:[
+            {k:'admin', label:'Админ-панель', sub:'заказы, пользователи, контент', h:16, w:1},
             {k:'i18n', label:'Мультиязычность', h:4},
-            {k:'motion', label:'Анимации интерфейса', h:8, w:1},
             {k:'push', label:'Уведомления через бота', h:3}
           ]}
         ]
@@ -175,8 +160,9 @@
 
       // расширение простое 18 ч, мин $700; + интеграция CRM 30 ч, мин $1 200
       ext: {
-        name:'Chrome-расширение для CRM', icon:'ext', copy:'Расширение Chrome, работает прямо в интерфейсе CRM', hours:18, min:700, cx:[3,6],
-        designH:3, support:'business', extHint:'Обычно без внешних расходов',
+        name:'Chrome-расширение для CRM', icon:'ext', hours:18, min:700, cx:[3,6],
+        copy:'Расширение Chrome, работает прямо в интерфейсе CRM',
+        support:'business', extHint:'Обычно без внешних расходов',
         qs:[
           {id:'crm', type:'one', title:'Какая CRM', def:'popular', opts:[
             {k:'popular', label:'Популярная', sub:'amoCRM, Bitrix24, HubSpot', copy:'CRM: популярная (amoCRM / Bitrix24 / HubSpot)'},
@@ -191,14 +177,8 @@
             {k:'call', label:'Звонок в один клик', h:3},
             {k:'tpl', label:'Шаблоны сообщений', h:2},
             {k:'bulk', label:'Массовые действия', h:6, w:1},
-            {k:'parse', label:'Сбор данных со страницы', h:5, w:1}
-          ]},
-          {id:'queue', type:'one', title:'Очередь и дубли', def:'no', opts:[
-            {k:'no', label:'Не нужно', none:true},
-            {k:'q', label:'Очередь + дедупликация', h:6, w:1}
-          ]},
-          {id:'ui', type:'one', title:'Интерфейс', def:'popup', opts:[
-            {k:'popup', label:'Окно расширения', copy:'Интерфейс в окне расширения'},
+            {k:'parse', label:'Сбор данных со страницы', h:5, w:1},
+            {k:'queue', label:'Очередь без дублей', h:6, w:1, row:'Очередь и дедупликация'},
             {k:'panel', label:'Панель внутри CRM', h:5, row:'Панель в интерфейсе CRM'}
           ]},
           {id:'out', type:'many', title:'Куда передавать данные', def:[], opts:[
@@ -215,8 +195,9 @@
 
       // дашборд метрик 20 ч, мин $800; с ИИ-контролем качества 64 ч, мин $2 500
       dash: {
-        name:'Дашборд / аналитика', icon:'dash', copy:'Дашборд: метрики и воронка на одном экране', hours:20, min:800, cx:[3,6],
-        designH:8, support:'pro', extHint:'API ИИ ≈ $20–100/мес, хостинг ≈ $10/мес',
+        name:'Дашборд / аналитика', icon:'dash', hours:20, min:800, cx:[3,6],
+        copy:'Дашборд: метрики и воронка на одном экране, уникальный дизайн',
+        support:'pro', extHint:'API ИИ ≈ $20–100/мес, хостинг ≈ $10/мес',
         qs:[
           {id:'src', type:'num', title:'Сколько источников данных', short:'Источников данных', unit:'шт.',
             min:1, max:15, step:1, def:1, free:1, h:6, int:1, wAt:[[3,1],[6,2]], hint:'Один — в базе. Каждый следующий: +6 ч и +15% как интеграция'},
@@ -227,33 +208,32 @@
           ]},
           {id:'views', type:'num', title:'Экранов / отчётов', short:'Экранов', unit:'шт.',
             min:1, max:20, step:1, def:3, free:3, h:3, wAt:[[8,1]], hint:'3 — в базе. Дальше +3 ч за экран'},
-          {id:'roles', type:'one', title:'Доступы', def:'one', opts:[
-            {k:'one', label:'Общий вход', copy:'Общий вход'},
-            {k:'roles', label:'Роли и права', h:8, w:1, row:'Роли и права доступа'}
-          ]},
-          {id:'rt', type:'one', title:'Обновление данных', def:'hour', opts:[
-            {k:'hour', label:'Раз в час / по кнопке', copy:'Обновление раз в час'},
-            {k:'rt', label:'Реалтайм', h:10, w:1, row:'Данные в реальном времени'}
-          ]},
-          {id:'exp', type:'many', title:'Выгрузки', def:[], opts:[
-            {k:'csv', label:'CSV / Excel', h:3, row:'Экспорт CSV / Excel'},
-            {k:'tg', label:'Отчёты в Telegram', h:4},
-            {k:'pdf', label:'PDF-отчёты', h:5}
+          {id:'extra', type:'many', title:'Ещё', def:[], opts:[
+            {k:'roles', label:'Роли и права', h:8, w:1, row:'Роли и права доступа'},
+            {k:'rt', label:'Реалтайм', sub:'вместо обновления раз в час', h:10, w:1, row:'Данные в реальном времени'},
+            {k:'csv', label:'Экспорт CSV / Excel', h:3},
+            {k:'tg', label:'Отчёты в Telegram', h:4}
           ]}
         ]
       },
 
       // постбэки разово 4 ч, мин $150; интеграция систем 40–130 ч, мин $1 000
       integr: {
-        name:'Интеграции и автоматизация', icon:'integr', copy:'Интеграция систем и автоматический обмен данными', hours:40, min:1000, cx:[3,5],
-        designH:0 /* дизайн не нужен — вопрос скрыт */, support:'pro', extHint:'Сервер для синхронизации ≈ $5–20/мес',
+        name:'Интеграции и автоматизация', icon:'integr', hours:40, min:1000, cx:[3,5],
+        support:'pro', extHint:'Сервер для синхронизации ≈ $5–20/мес',
         qs:[
           {id:'kind', type:'one', title:'Задача', def:'sync', opts:[
-            {k:'pb', label:'Постбэки в трекер', sub:'разовая настройка', base:{h:4, min:150, label:'Постбэки в трекер (Keitaro / Binom)', copy:'Настройка постбэков в трекер (Keitaro / Binom)'}},
-            {k:'sync', label:'Связка систем', sub:'CRM ↔ ERP, бот ↔ CRM…', base:{h:40, min:1000, label:'Интеграция систем', copy:'Интеграция систем и автоматический обмен данными'}}
+            {k:'pb', label:'Постбэки в трекер', sub:'разовая настройка', base:{h:4, min:150, label:'Постбэки в трекер (Keitaro / Binom)',
+              copy:'Настройка постбэков в трекер (Keitaro / Binom)'}},
+            {k:'sync', label:'Связка систем', sub:'CRM ↔ ERP, бот ↔ CRM…', base:{h:40, min:1000, label:'Интеграция систем',
+              copy:'Интеграция систем и автоматический обмен данными'}}
           ]},
           {id:'pbn', type:'num', when:{q:'kind', is:['pb']}, title:'Сколько источников / офферов', short:'Источников', unit:'шт.',
             min:1, max:20, step:1, def:1, free:1, h:1.5, hint:'Один — в базе, дальше +1,5 ч за каждый'},
+          {id:'pbmon', type:'one', when:{q:'kind', is:['pb']}, title:'Мониторинг', def:'no', opts:[
+            {k:'no', label:'Не нужен', none:true},
+            {k:'yes', label:'Алерты в Telegram', sub:'если постбэки перестали идти', h:3, row:'Алерты об ошибках в Telegram'}
+          ]},
           {id:'sys', type:'num', when:{q:'kind', is:['sync']}, title:'Сколько систем связать', short:'Систем', unit:'шт.',
             min:2, max:8, step:1, def:2, free:2, h:15, wAt:[[4,1],[6,2]], hint:'2 системы — в базе (40 ч), каждая следующая +15 ч'},
           {id:'api', type:'one', when:{q:'kind', is:['sync']}, title:'У всех систем есть API?', def:'yes', opts:[
@@ -264,25 +244,19 @@
             {k:'sched', label:'По расписанию', copy:'Регулярная синхронизация по расписанию'},
             {k:'rt', label:'В реальном времени', sub:'в обе стороны', h:20, w:2, row:'Двусторонняя синхронизация в реальном времени'}
           ]},
-          {id:'pbx', type:'one', when:{q:'kind', is:['sync']}, title:'Постбэки в трекер', def:'no', opts:[
-            {k:'no', label:'Не нужны', none:true},
-            {k:'yes', label:'Нужны', sub:'Keitaro / Binom', h:4, int:1, intName:'трекер', row:'Постбэки в трекер'}
-          ]},
-          {id:'rec', type:'one', when:{q:'kind', is:['sync']}, title:'Сверка данных', def:'no', opts:[
-            {k:'no', label:'Не нужна', none:true},
-            {k:'yes', label:'Сверка + отчёт о расхождениях', h:12, w:1, row:'Сверка данных и отчёт о расхождениях'}
-          ]},
-          {id:'mon', type:'one', title:'Мониторинг', def:'no', opts:[
-            {k:'no', label:'Не нужен', none:true},
-            {k:'yes', label:'Логи и алерты в Telegram', h:4}
+          {id:'more', type:'many', when:{q:'kind', is:['sync']}, title:'Ещё', def:[], opts:[
+            {k:'pbx', label:'Постбэки в трекер', sub:'Keitaro / Binom', h:4, int:1, intName:'трекер'},
+            {k:'rec', label:'Сверка данных', sub:'отчёт о расхождениях', h:12, w:1, row:'Сверка данных и отчёт о расхождениях'},
+            {k:'mon', label:'Логи и алерты', sub:'в Telegram', h:4, row:'Логи и алерты в Telegram'}
           ]}
         ]
       },
 
       // автоворонка Chatterfy 10 ч, мин $400
       funnel: {
-        name:'Автоворонка Chatterfy', icon:'funnel', copy:'Автоворонка в Chatterfy под ключ', hours:10, min:400, cx:[3,5],
-        designH:2, support:'business', extHint:'Chatterfy ≈ $3/день ≈ $90/мес',
+        name:'Автоворонка Chatterfy', icon:'funnel', hours:10, min:400, cx:[3,5],
+        copy:'Автоворонка в Chatterfy под ключ, с оформлением сообщений',
+        support:'business', extHint:'Chatterfy ≈ $3/день ≈ $90/мес',
         qs:[
           {id:'stages', type:'one', title:'Этапы воронки', def:'reg', opts:[
             {k:'reg', label:'Reg', sub:'регистрация', copy:'Этапы: Reg'},
@@ -293,25 +267,19 @@
             min:1, max:15, step:1, def:2, free:2, h:1.5, wAt:[[6,1]], hint:'2 — в базе, дальше +1,5 ч за цепочку'},
           {id:'geo', type:'num', title:'ГЕО / языков', short:'ГЕО / языков', unit:'шт.',
             min:1, max:15, step:1, def:1, free:1, h:2, wAt:[[4,1],[8,2]], hint:'Каждое следующее ГЕО: +2 ч на адаптацию'},
-          {id:'ab', type:'one', title:'A/B-тесты', def:'no', opts:[
-            {k:'no', label:'Не нужны', none:true},
-            {k:'yes', label:'Тесты сообщений и сценариев', h:4, w:1, row:'A/B-тесты'}
-          ]},
-          {id:'trk', type:'one', title:'Интеграция с трекером', def:'no', opts:[
-            {k:'no', label:'Не нужна', none:true},
-            {k:'yes', label:'Постбэки Keitaro / Binom', h:3, int:1, intName:'трекер', row:'Постбэки в трекер'}
-          ]},
-          {id:'ai', type:'one', title:'ИИ в диалогах', def:'no', opts:[
-            {k:'no', label:'Без ИИ', none:true},
-            {k:'yes', label:'GPT-ответы на вопросы', h:6, w:2, row:'ИИ-ответы в диалогах'}
+          {id:'extra', type:'many', title:'Ещё', def:[], opts:[
+            {k:'ab', label:'A/B-тесты', sub:'сообщений и сценариев', h:4, w:1},
+            {k:'trk', label:'Постбэки в трекер', sub:'Keitaro / Binom', h:3, int:1, intName:'трекер'},
+            {k:'ai', label:'ИИ-ответы', sub:'GPT в диалогах', h:6, w:2, row:'ИИ-ответы в диалогах'}
           ]}
         ]
       },
 
       // CRM MVP 90 ч, мин $3 500
       crm: {
-        name:'CRM под ключ', icon:'crm', copy:'CRM: клиенты, карточки, задачи, роли и доступы', hours:90, min:3500, cx:[4,7],
-        designH:16, support:'pro', extHint:'Сервер и база ≈ $20–60/мес, API ИИ — по объёму',
+        name:'CRM под ключ', icon:'crm', hours:90, min:3500, cx:[4,7],
+        copy:'CRM: клиенты, карточки, задачи, роли и доступы, уникальный дизайн',
+        support:'pro', extHint:'Сервер и база ≈ $20–60/мес, API ИИ — по объёму',
         qs:[
           {id:'mods', type:'many', title:'Модули', hint:'В базе: клиенты, карточки, задачи, роли', def:['deals'], opts:[
             {k:'chats', label:'Чаты мессенджеров', sub:'Telegram, WhatsApp', h:40, w:2, int:1, intName:'мессенджеры', row:'Модуль: чаты мессенджеров'},
@@ -327,24 +295,93 @@
             {k:'l', label:'50–200', h:20, w:2, row:'50–200 сотрудников', copy:'50–200 сотрудников'},
             {k:'xl', label:'200+', h:36, w:3, row:'200+ сотрудников', copy:'200+ сотрудников'}
           ]},
-          {id:'mig', type:'one', title:'Перенос данных', def:'no', opts:[
-            {k:'no', label:'Начинаем с нуля', none:true},
-            {k:'yes', label:'Из старой системы', h:12, w:1, row:'Перенос данных из старой системы'}
-          ]},
           {id:'ints', type:'num', title:'Внешних интеграций', short:'Внешних интеграций', unit:'шт.',
             min:0, max:10, step:1, def:0, free:0, h:10, int:1, hint:'Телефония, платёжка, трекер, ERP… +10 ч и +15% за каждую'},
           {id:'api', type:'one', when:{q:'ints', gt:0}, title:'У этих систем есть API?', def:'yes', opts:[
             {k:'yes', label:'Да', copy:'У внешних систем есть API'},
             {k:'no', label:'Нет у некоторых', noApi:true, copy:'Часть систем — без API'}
+          ]},
+          {id:'mig', type:'one', title:'Перенос данных', def:'no', opts:[
+            {k:'no', label:'Начинаем с нуля', none:true},
+            {k:'yes', label:'Из старой системы', h:12, w:1, row:'Перенос данных из старой системы'}
           ]}
         ]
       }
     }
   };
 
+  /* ---------------- вопросы клиенту (шаг 02) ----------------
+     Живым языком, на «вы». Порядок: задача → ключевые функции → общие (tail). */
+  const ASK_TAIL = {
+    users:'Кто будет пользоваться — вы, сотрудники или ваши клиенты? Примерно сколько человек?',
+    refs:'Есть ли примеры или референсы, которые вам нравятся? Пришлите ссылки или скриншоты.',
+    deadline:'К какому сроку нужно запустить?',
+    budget:'Есть ли ориентир по бюджету? Так мы сразу предложим подходящий вариант.'
+  };
+  const ASK = {
+    site:{q:[
+      'Расскажите коротко о бизнесе: чем занимаетесь и какую задачу должен решить сайт?',
+      'Нужен одностраничный лендинг или сайт из нескольких страниц? Если несколько — какие разделы?',
+      'На каких языках нужен сайт?',
+      'Куда отправлять заявки с сайта — в Telegram или в CRM (какую)? Нужна ли онлайн-оплата?',
+      'Хотите сами менять тексты и фото на сайте, или правки будем вносить мы?',
+      'Есть ли готовые тексты, логотип и фирменный стиль?'
+    ], tail:['refs','deadline','budget']},
+    bot:{q:[
+      'Расскажите о бизнесе: чем занимаетесь и что должен делать бот — какие заявки принимать, на какие вопросы отвечать?',
+      'Нужна ли оплата прямо в боте — Telegram Stars, карта или крипта?',
+      'Куда передавать заявки: менеджеру в чат, в Google Таблицу или в CRM (какую)?',
+      'Нужны ли ответы с ИИ по вашей базе знаний — как у живого консультанта?',
+      'Нужны ли рассылки, несколько языков или веб-админка для управления ботом?'
+    ], tail:['users','refs','deadline','budget']},
+    miniapp:{q:[
+      'Расскажите о бизнесе: что пользователь должен сделать в приложении — записаться, заказать, посмотреть личный кабинет?',
+      'Сколько примерно экранов и разделов вы видите?',
+      'Нужен ли приём оплаты внутри приложения?',
+      'С чем связать приложение: с CRM, ботом, Google Таблицей или трекером?'
+    ], tail:['users','refs','deadline','budget']},
+    ext:{q:[
+      'Расскажите о задаче: какую рутину команда сейчас делает в CRM вручную?',
+      'В какой CRM вы работаете? Пришлите, пожалуйста, скриншот рабочего экрана.',
+      'Есть ли у CRM открытый API или доступ к нему?',
+      'Какие действия автоматизировать: подстановку данных, звонки, шаблоны, массовые действия, очередь без дублей?',
+      'Куда передавать данные — в Google Таблицу, обратно в CRM или на ваш сервер?'
+    ], tail:['users','deadline','budget']},
+    dash:{q:[
+      'Расскажите о бизнесе: какие решения хотите принимать по дашборду?',
+      'Откуда брать данные — CRM, реклама, таблицы, мессенджеры? Сколько всего источников?',
+      'Какие метрики и отчёты важнее всего видеть каждый день?',
+      'Нужна ли проверка диалогов операторов с помощью ИИ — оценки и рейтинг команды?',
+      'Нужны ли роли и доступы, обновление в реальном времени, выгрузки или отчёты в Telegram?'
+    ], tail:['users','refs','deadline','budget']},
+    integr:{q:[
+      'Расскажите о задаче: какие данные сейчас переносятся вручную и сколько времени это занимает?',
+      'Какие системы нужно связать и что между ними должно передаваться?',
+      'Есть ли у этих систем API — или доступ к нему?',
+      'Как часто обновлять данные: по расписанию или сразу, в реальном времени?',
+      'Нужны ли постбэки в трекер (Keitaro, Binom), сверка данных или оповещения об ошибках?'
+    ], tail:['deadline','budget']},
+    funnel:{q:[
+      'Расскажите о продукте: что продвигаем, в каких ГЕО и на каких языках общаемся с аудиторией?',
+      'Какие этапы нужно вести: регистрация, первый депозит, повторные депозиты?',
+      'Сколько цепочек дожима и сообщений вы видите?',
+      'Какой источник трафика и какой трекер используете?',
+      'Нужны ли A/B-тесты сообщений или ИИ-ответы в диалогах?'
+    ], tail:['refs','deadline','budget']},
+    crm:{q:[
+      'Расскажите о бизнесе: какие процессы нужно вести в CRM — заявки, сделки, чаты, оплаты, зарплаты?',
+      'Сколько сотрудников будет работать в системе и какие у них роли?',
+      'Какими мессенджерами и сервисами пользуетесь — что нужно подключить (телефония, платёжка, трекер)?',
+      'Нужно ли перенести данные из старой системы? Из какой?',
+      'Нужны ли аналитика, ИИ-подсказки операторам или Mini App для сотрудников?'
+    ], tail:['refs','deadline','budget']}
+  };
+  const askList = pk => ASK[pk].q.concat(ASK[pk].tail.map(k => ASK_TAIL[k]));
+
   // порядок продуктов на первом шаге
   const ORDER = ['site','bot','miniapp','ext','dash','integr','funnel','crm'];
-  const STEPS = ['Продукт','Задача','Условия','Смета'];
+  const STEPS = ['Продукт','Вопросы','Задача','Условия','Смета'];
+  const ST = {prod:0, ask:1, task:2, cond:3, fin:4};
 
   const ICONS = {
     site:'<path d="M3 9h18M3 9v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9M3 9V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/>',
@@ -378,24 +415,42 @@
   .ncalc.is-open .nc-back{opacity:1; transition-duration:.26s;}
 
   /* окно: то же стекло, что у модалок дашборда */
-  .nc-card{position:relative; width:100%; max-width:640px; max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px);
+  .nc-card{--nc-th:118px; --nc-fh:76px;
+    position:relative; width:100%; max-width:640px; max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px);
     display:flex; flex-direction:column; overflow:hidden; border-radius:24px;
-    background:var(--nc-glass); border:1px solid var(--nc-border); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-    box-shadow:0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    border:1px solid var(--nc-border); box-shadow:0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     opacity:0; transform:translateY(12px) scale(.98);
     transition:opacity .2s ease-out, transform .2s var(--nc-out);}
+  /* стекло окна — в псевдоэлементе: backdrop-filter на самом окне сделал бы его «корнем»,
+     и размытие плашек шапки/низа перестало бы видеть контент под ними */
+  .nc-card::before{content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:var(--nc-glass); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);}
   .ncalc.is-open .nc-card{opacity:1; transform:none; transition-duration:.26s;}
 
-  .nc-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:22px 26px 0; flex:none;}
+  /* шапка и низ окна — без своего фона, поверх прокручиваемого тела.
+     Стеклянная плашка (::before) проявляется, только когда контент уходит под них; текст не двигается */
+  .nc-top,.nc-foot{position:absolute; left:0; right:0; z-index:3;}
+  .nc-top{top:0; padding:22px 26px 12px;}
+  .nc-foot{bottom:0; display:flex; align-items:center; gap:10px; padding:14px 26px 20px;}
+  .nc-top::before,.nc-foot::before{content:''; position:absolute; z-index:-1; border-radius:14px; pointer-events:none;
+    background:rgba(9,11,19,0.62); border:1px solid rgba(255,255,255,0.09);
+    backdrop-filter:blur(18px) saturate(1.3); -webkit-backdrop-filter:blur(18px) saturate(1.3);
+    box-shadow:0 12px 36px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.05);
+    opacity:0; transition:opacity .3s var(--nc-out), transform .3s var(--nc-out);}
+  .nc-top::before{inset:8px 10px 0; transform:translateY(-6px) scale(.985);}
+  .nc-foot::before{inset:4px 10px 8px; transform:translateY(6px) scale(.985);}
+  .nc-card.top-on .nc-top::before,.nc-card.bot-on .nc-foot::before{opacity:1; transform:none;}
+
+  .nc-head{display:flex; align-items:center; justify-content:space-between; gap:12px;}
   .nc-kicker{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--nc-bright); opacity:.85;}
   .nc-ib{flex:none; width:34px; height:34px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
     color:var(--nc-muted); background:rgba(255,255,255,0.04); border:1px solid var(--nc-border); -webkit-tap-highlight-color:transparent;
     transition:color .15s ease, border-color .15s ease, background-color .15s ease, transform .15s var(--nc-out);}
   .nc-ib:active{transform:scale(.94);}
 
-  /* прогресс: 4 шага, по ним можно кликать */
-  .nc-prog{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; padding:16px 26px 0; flex:none;}
-  .nc-ps{background:none; border:0; text-align:left; cursor:pointer; padding:0 0 2px; color:var(--nc-muted2); border-radius:6px;
+  /* прогресс: 5 шагов, по ним можно кликать */
+  .nc-prog{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; margin-top:16px;}
+  .nc-ps{background:none; border:0; text-align:left; cursor:pointer; padding:0 0 2px; color:var(--nc-muted2); border-radius:6px; min-width:0;
     transition:color .2s ease; -webkit-tap-highlight-color:transparent;}
   .nc-ps:disabled{cursor:default; opacity:.45;}
   .nc-bar{display:block; height:3px; border-radius:2px; background:rgba(255,255,255,0.08); overflow:hidden;}
@@ -408,11 +463,11 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .nc-pl b{font-weight:400; opacity:.6; margin-right:6px;}
 
-  /* область шагов: прокрутка внутри окна, горизонтальный сдвиг не даёт полосы */
+  /* тело окна: прокрутка под шапкой и низом; горизонтальный сдвиг не даёт полосы */
   .nc-view{position:relative; flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain;
     scrollbar-width:thin; scrollbar-color:rgba(121,168,255,.25) transparent;}
   .nc-card.nc-morph .nc-view{overflow-y:hidden;}
-  .nc-pane{padding:20px 26px 22px;}
+  .nc-pane{padding:calc(var(--nc-th) + 6px) 26px calc(var(--nc-fh) + 6px);}
   .nc-pane.out{position:absolute; left:0; right:0; pointer-events:none;}
   .nc-h{font-size:22px; font-weight:700; letter-spacing:-.4px; line-height:1.2; outline:none;}
   .nc-sub{color:var(--nc-muted); font-size:13.5px; font-weight:300; margin-top:6px;}
@@ -432,6 +487,21 @@
   .nc-prod[aria-pressed="true"] .ic{background:rgba(79,140,255,0.2); border-color:rgba(121,168,255,0.5);}
   .nc-prod[aria-pressed="true"] small{color:var(--nc-bright);}
   .nc-prod:active{transform:scale(.98);}
+
+  /* шаг 2: вопросы клиенту */
+  .nc-asks{display:flex; flex-direction:column; gap:8px;}
+  .nc-ask{display:flex; align-items:flex-start; gap:10px; width:100%; padding:11px 13px; border-radius:12px; cursor:pointer; text-align:left;
+    font-size:13.5px; line-height:1.45; color:var(--nc-muted); background:var(--nc-glass2); border:1px solid var(--nc-border);
+    -webkit-tap-highlight-color:transparent;
+    transition:color .15s ease, border-color .15s ease, background-color .15s ease, transform .15s var(--nc-out);}
+  .nc-ask .n{flex:none; min-width:18px; margin-top:1px; font-family:'Space Mono',monospace; font-size:11px; color:var(--nc-bright);
+    font-variant-numeric:tabular-nums; transition:opacity .15s ease;}
+  .nc-ask[aria-pressed="true"]{color:var(--nc-txt); border-color:rgba(121,168,255,0.28); background-color:rgba(79,140,255,0.06);}
+  .nc-ask[aria-pressed="false"] .n{opacity:0;}
+  .nc-ask:active{transform:scale(.99);}
+  .nc-ask .nc-cb{margin-top:2px;}
+  .nc-ask-acts{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; flex-wrap:wrap;}
+  .nc-ask-acts .nc-hint{margin:0; font-family:'Space Mono',monospace; font-size:10.5px;}
 
   /* вопросы */
   .nc-q{padding:16px 0; border-top:1px solid rgba(255,255,255,0.06);}
@@ -456,14 +526,19 @@
   .nc-cb{flex:none; width:16px; height:16px; margin-top:1px; border-radius:5px; border:1px solid rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center;
     color:#fff; transition:background-color .15s ease, border-color .15s ease;}
   .nc-cb svg{opacity:0; transform:scale(.6); transition:opacity .15s ease, transform .15s var(--nc-out);}
-  .nc-opt[aria-pressed="true"] .nc-cb{background:var(--nc-accent); border-color:var(--nc-accent);}
-  .nc-opt[aria-pressed="true"] .nc-cb svg{opacity:1; transform:none;}
+  [aria-pressed="true"] > .nc-cb{background:var(--nc-accent); border-color:var(--nc-accent);}
+  [aria-pressed="true"] > .nc-cb svg{opacity:1; transform:none;}
   .nc-rec{position:absolute; top:-8px; right:8px; font-style:normal; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:.6px; text-transform:uppercase;
-    color:#fff; padding:1px 7px; border-radius:6px; background:linear-gradient(135deg,var(--nc-accent),var(--nc-deep)); box-shadow:0 2px 10px rgba(79,140,255,.4);}
-  .nc-opt.has-rec{margin-top:6px;}
+    color:#fff; padding:1px 7px; border-radius:6px; white-space:nowrap; background:linear-gradient(135deg,var(--nc-accent),var(--nc-deep)); box-shadow:0 2px 10px rgba(79,140,255,.4);}
+  /* поддержка: 4 компактные карточки в одну строку (на телефоне 2×2), бейдж не влияет на высоту */
+  .nc-opts.g4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; padding-top:8px;}
+  .nc-opts.g4 .nc-opt{display:flex; padding:10px 12px;}
+  .nc-opts.g4 .t{width:100%;}
+  .nc-opts.g4 .s{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .nc-opts.g4 .m{margin-top:6px; font-size:11px;}
 
   /* степпер числа */
-  .nc-num{display:inline-flex; align-items:center; gap:2px; padding:3px; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--nc-border);
+  .nc-num{flex:none; display:inline-flex; align-items:center; gap:2px; padding:3px; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid var(--nc-border);
     transition:border-color .15s ease, box-shadow .15s ease;}
   .nc-num:focus-within{border-color:rgba(121,168,255,0.6); box-shadow:0 0 0 4px rgba(79,140,255,0.15);}
   .nc-num button{width:36px; height:36px; border-radius:9px; border:0; background:rgba(255,255,255,0.05); cursor:pointer; font-size:18px; line-height:1;
@@ -473,10 +548,14 @@
   .nc-num button:disabled{opacity:.35; cursor:default; transform:none;}
   .nc-num input{width:64px; height:36px; border:0; background:none; outline:none; text-align:center; font-size:16px; font-weight:600;
     font-variant-numeric:tabular-nums; color:var(--nc-txt);}
-  .nc-num input.wide{width:84px;}
+  .nc-num input.wide{width:76px;}
   .nc-nrow{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
   .nc-nrow .u{font-size:13px; color:var(--nc-muted);}
   .nc-nrow .m{font-family:'Space Mono',monospace; font-size:11px; color:var(--nc-bright); font-variant-numeric:tabular-nums;}
+  /* компактный вопрос в одну строку: подпись слева, степпер справа */
+  .nc-inl{display:flex; align-items:center; justify-content:space-between; gap:14px;}
+  .nc-inl .nc-il{min-width:0;}
+  .nc-inl .nc-hint{margin-top:2px;}
 
   /* итог */
   .nc-hero{padding:18px 20px 16px; border-radius:18px; border:1px solid rgba(121,168,255,0.35);
@@ -507,7 +586,6 @@
   .nc-fine{margin-top:16px; text-align:center; font-size:11.5px; color:var(--nc-muted2); font-weight:300;}
 
   /* низ окна: оценка + кнопки */
-  .nc-foot{display:flex; align-items:center; gap:10px; padding:14px 26px 20px; border-top:1px solid rgba(255,255,255,0.06); flex:none; flex-wrap:wrap;}
   .nc-est{margin-right:auto; min-width:0; line-height:1.25;}
   .nc-est .v{display:block; font-size:17px; font-weight:700; letter-spacing:-.3px; white-space:nowrap; font-variant-numeric:tabular-nums;}
   .nc-est .s{display:block; margin-top:3px; font-family:'Space Mono',monospace; font-size:10.5px; color:var(--nc-muted); white-space:nowrap;}
@@ -521,13 +599,13 @@
     background-origin:border-box; box-shadow:0 6px 28px rgba(79,140,255,.3);
     transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), background-position .22s cubic-bezier(.2,.8,.2,1), opacity .2s ease;}
   .nc-ghost{color:var(--nc-txt); font-weight:500; background-color:var(--nc-glass); border:1px solid var(--nc-border); background-origin:border-box;
-    transition:transform .18s cubic-bezier(.2,.8,.2,1), background-color .2s cubic-bezier(.2,.8,.2,1), border-color .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), color .2s cubic-bezier(.2,.8,.2,1);}
+    transition:transform .18s cubic-bezier(.2,.8,.2,1), background-color .2s cubic-bezier(.2,.8,.2,1), border-color .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s cubic-bezier(.2,.8,.2,1), color .2s cubic-bezier(.2,.8,.2,1), opacity .2s ease;}
   .nc-primary:active{transform:scale(.97); box-shadow:0 3px 14px rgba(79,140,255,.35);}
   .nc-ghost:active{transform:scale(.97); background-color:rgba(79,140,255,.16); border-color:rgba(121,168,255,.5);}
-  .nc-primary:disabled{opacity:.45; cursor:not-allowed; transform:none; box-shadow:none;}
+  .nc-btn:disabled{opacity:.45; cursor:not-allowed; transform:none; box-shadow:none;}
   .nc-btn[hidden]{display:none;}
   .nc-back-b{padding-left:14px;}
-  .nc-reset .nw{display:none;}
+  .nc-btn .nw{display:none;}
   .nc-foot.fin .nc-back-b{margin-right:auto;}
   /* «Скопировать» → «Скопировано ✓»: короткий blur-кроссфейд подписей */
   .nc-copy .a,.nc-copy .b{transition:opacity .2s ease, transform .2s var(--nc-out), filter .2s ease;}
@@ -535,17 +613,16 @@
   .nc-copy.done .a{opacity:0; transform:translateY(-6px); filter:blur(2px);}
   .nc-copy.done .b{opacity:1; transform:none; filter:none;}
 
-  .ncalc button:focus-visible,.nc-num input:focus-visible{outline:2px solid var(--nc-bright); outline-offset:2px;}
-  .nc-num input:focus-visible{outline:none;}
+  .ncalc button:focus-visible{outline:2px solid var(--nc-bright); outline-offset:2px;}
 
   @media (hover:hover) and (pointer:fine){
     .nc-ib:hover{color:var(--nc-txt); border-color:rgba(121,168,255,.4); background:rgba(79,140,255,.08);}
     .nc-ps:not(:disabled):not(.cur):hover{color:var(--nc-txt);}
     .nc-prod:not([aria-pressed="true"]):hover{border-color:rgba(121,168,255,.35); background-color:rgba(79,140,255,.06);}
-    .nc-opt:not([aria-pressed="true"]):hover{color:var(--nc-txt); border-color:rgba(121,168,255,.35);}
+    .nc-opt:not([aria-pressed="true"]):hover,.nc-ask:hover{color:var(--nc-txt); border-color:rgba(121,168,255,.35);}
     .nc-num button:not(:disabled):hover{background:rgba(79,140,255,.16);}
     .nc-primary:not(:disabled):hover{transform:translateY(-2px); background-position:50% 50%; box-shadow:0 12px 36px rgba(79,140,255,.5), 0 0 0 1px rgba(121,168,255,.35);}
-    .nc-ghost:hover{transform:translateY(-2px); color:#fff; background-color:rgba(79,140,255,.12); border-color:rgba(121,168,255,.5); box-shadow:0 8px 28px rgba(79,140,255,.22);}
+    .nc-ghost:not(:disabled):hover{transform:translateY(-2px); color:#fff; background-color:rgba(79,140,255,.12); border-color:rgba(121,168,255,.5); box-shadow:0 8px 28px rgba(79,140,255,.22);}
   }
 
   /* телефон: окно снизу, как sheet */
@@ -554,24 +631,28 @@
     .nc-card{max-width:none; max-height:calc(100dvh - 24px); border-radius:24px 24px 0 0; border-bottom:0;
       transform:translateY(100%); transition:opacity .2s ease-out, transform .2s var(--nc-out);}
     .ncalc.is-open .nc-card{transition:opacity .2s ease-out, transform .3s var(--nc-drawer);}
-    .nc-head{padding:18px 16px 0;}
-    .nc-prog{padding:14px 16px 0; gap:6px;}
-    .nc-pl{font-size:9.5px; letter-spacing:.5px;}
+    .nc-top{padding:18px 16px 12px;}
+    .nc-top::before{inset:6px 6px 0;}
+    .nc-foot{padding:12px 16px calc(14px + env(safe-area-inset-bottom)); gap:8px;}
+    .nc-foot::before{inset:4px 6px calc(6px + env(safe-area-inset-bottom));}
+    .nc-prog{margin-top:14px; gap:6px;}
+    .nc-pl{font-size:9.5px; letter-spacing:.3px;}
     .nc-pl b{display:none;}
-    .nc-pane{padding:18px 16px 20px;}
+    .nc-pane{padding:calc(var(--nc-th) + 6px) 16px calc(var(--nc-fh) + 6px);}
     .nc-h{font-size:20px;}
     .nc-prod{flex-direction:column; align-items:flex-start; gap:10px; padding:12px;}
     .nc-prod .ic{width:36px; height:36px; border-radius:11px;}
     .nc-prod b{font-size:13px;}
     .nc-opt{padding:8px 11px;}
     .nc-opt .l{font-size:12.5px;}
+    .nc-opts.g4{grid-template-columns:repeat(2,minmax(0,1fr)); row-gap:14px;}
+    .nc-ask{font-size:13px; padding:10px 12px;}
     .nc-facts{grid-template-columns:repeat(2,minmax(0,1fr));}
     .nc-fact:first-child{grid-column:1 / -1;}
-    .nc-foot{padding:12px 16px calc(14px + env(safe-area-inset-bottom)); gap:8px;}
     .nc-btn{padding:11px 16px;}
     .nc-back-b{padding:11px 12px;}
-    .nc-back-b .w,.nc-reset .w{display:none;}
-    .nc-reset .nw{display:inline;}
+    .nc-btn .w{display:none;}
+    .nc-btn .nw{display:inline;}
     .nc-foot.fin .nc-copy{flex:1;}
   }
   @media (max-width:360px){ .nc-prods{grid-template-columns:minmax(0,1fr);} .nc-prod{flex-direction:row; align-items:center;} }
@@ -579,8 +660,9 @@
   /* меньше движения: только проявления */
   @media (prefers-reduced-motion:reduce){
     .nc-card,.ncalc.is-open .nc-card{transform:none !important;}
+    .nc-top::before,.nc-foot::before{transform:none !important;}
     .nc-bar i{transition:none;}
-    .nc-btn,.nc-opt,.nc-prod,.nc-ib,.nc-num button{transform:none !important;}
+    .nc-btn,.nc-opt,.nc-prod,.nc-ask,.nc-ib,.nc-num button{transform:none !important;}
     .nc-copy .a,.nc-copy .b,.nc-cb svg{transform:none !important;}
   }`;
 
@@ -609,13 +691,15 @@
   const findOpt = (q, k) => q.opts.find(o => o.k === k) || q.opts[0];
 
   /* ---------------- состояние ---------------- */
-  const S = {step:0, product:null, ans:{}, common:{urg:'normal', design:'ready', support:'none', ext:P.ext.def}};
+  const freshCommon = () => ({urg:'normal', support:'none', ext:P.ext.def});
+  const S = {step:0, product:null, ans:{}, askOff:{}, common:freshCommon()};
   function initAns(pk){
     if(S.ans[pk]) return S.ans[pk];
     const a = {};
     P.products[pk].qs.forEach(q => { a[q.id] = q.type === 'many' ? (q.def || []).slice() : q.def; });
     return (S.ans[pk] = a);
   }
+  const askOff = pk => (S.askOff[pk] = S.askOff[pk] || []);
   function isVisible(q, a){
     if(!q.when) return true;
     const v = a[q.when.q];
@@ -624,22 +708,19 @@
     return true;
   }
 
-  // общие вопросы шага «Условия» (зависят от продукта: часы дизайна, рекомендуемая поддержка)
+  // общие вопросы шага «Условия» (рекомендуемая поддержка зависит от продукта)
   function commonQs(pk){
-    const p = P.products[pk], T = P.support.tiers, qs = [];
-    qs.push({id:'urg', type:'one', title:'Срочность', opts:Object.keys(P.urgency).map(k => {
-      const u = P.urgency[k]; return {k, label:u.label, sub:u.sub, meta:fx(u.mult)};
-    })});
-    if(p.designH) qs.push({id:'design', type:'one', title:'Дизайн', opts:[
-      {k:'ready', label:'Готовый стиль', sub:'аккуратно, на проверенной основе'},
-      {k:'custom', label:'Уникальный', sub:'под бренд клиента', h:p.designH}
-    ]});
-    qs.push({id:'ext', type:'num', title:'Внешние расходы', unit:'$', min:0, max:P.ext.max, step:P.ext.step, money:true,
-      hint:`Хостинг, API ИИ, лицензии — разово, отдельной строкой. ${p.extHint || ''}`});
-    qs.push({id:'support', type:'one', title:'Поддержка после запуска', opts:[
-      {k:'none', label:'Не нужна'}
-    ].concat(Object.keys(T).map(k => ({k, label:T[k].name, sub:T[k].short, meta:usd(T[k].price) + '/мес', rec:k === p.support})))});
-    return qs;
+    const p = P.products[pk], T = P.support.tiers;
+    return [
+      {id:'urg', type:'one', title:'Срочность', opts:Object.keys(P.urgency).map(k => {
+        const u = P.urgency[k]; return {k, label:u.label, sub:u.sub, meta:fx(u.mult)};
+      })},
+      {id:'ext', type:'num', inline:true, title:'Внешние расходы, $', unit:'$', min:0, max:P.ext.max, step:P.ext.step, money:true,
+        hint:`Разово, отдельной строкой. ${p.extHint || ''}`},
+      {id:'support', type:'one', grid:true, title:'Поддержка после запуска', opts:[
+        {k:'none', label:'Не нужна', sub:'без обслуживания', meta:'—'}
+      ].concat(Object.keys(T).map(k => ({k, label:T[k].name, sub:T[k].short, title:T[k].desc, meta:usd(T[k].price) + '/мес', rec:k === p.support})))}
+    ];
   }
 
   /* ---------------- расчёт ---------------- */
@@ -673,9 +754,6 @@
         if(ni) ints.push({n:ni, name:`${lcFirst(q.short)} +${ni}`});
       }
     });
-    // общие
-    const custom = p.designH && c.design === 'custom';
-    if(custom){ items.push({t:'Уникальный дизайн', h:p.designH}); incl.push('Уникальный дизайн под бренд'); }
     const U = P.urgency[c.urg] || P.urgency.normal;
     const ext = Math.max(0, +c.ext || 0);
 
@@ -704,8 +782,8 @@
   }
 
   /* ---------------- разметка ---------------- */
-  let root, card, view, prog, foot, estEl, bBack, bNext, bCopy, bReset;
-  let isOpen = false, built = false, lastFocus = null, closeT = 0, hAnim = null, swapT = 0, advT = 0, copyT = 0;
+  let root, card, view, top, foot, estEl, bBack, bNext, bCopy, bReset;
+  let isOpen = false, built = false, lastFocus = null, closeT = 0, hAnim = null, swapT = 0, advT = 0;
   let shownEst = 0, lockSaved = null;
 
   function build(){
@@ -716,21 +794,23 @@
     root.innerHTML = `
       <div class="nc-back" data-nc-close></div>
       <div class="nc-card" role="dialog" aria-modal="true" aria-label="Калькулятор стоимости проекта">
-        <div class="nc-head"><div class="nc-kicker">Nexus AI · калькулятор</div>
-          <button type="button" class="nc-ib" data-nc-close aria-label="Закрыть">${I_X}</button></div>
-        <nav class="nc-prog" aria-label="Шаги">${STEPS.map((s, i) =>
-          `<button type="button" class="nc-ps" data-step="${i}"><span class="nc-bar"><i></i></span><span class="nc-pl"><b>0${i + 1}</b>${s}</span></button>`).join('')}</nav>
+        <div class="nc-top">
+          <div class="nc-head"><div class="nc-kicker">Nexus AI · калькулятор</div>
+            <button type="button" class="nc-ib" data-nc-close aria-label="Закрыть">${I_X}</button></div>
+          <nav class="nc-prog" aria-label="Шаги">${STEPS.map((s, i) =>
+            `<button type="button" class="nc-ps" data-step="${i}"><span class="nc-bar"><i></i></span><span class="nc-pl"><b>0${i + 1}</b>${s}</span></button>`).join('')}</nav>
+        </div>
         <div class="nc-view"></div>
         <div class="nc-foot">
           <div class="nc-est" aria-live="polite"></div>
-          <button type="button" class="nc-btn nc-ghost nc-back-b" data-act="back">${I_BACK}<span class="w">Назад</span></button>
+          <button type="button" class="nc-btn nc-ghost nc-back-b" data-act="back" aria-label="Назад">${I_BACK}<span class="w">Назад</span></button>
           <button type="button" class="nc-btn nc-ghost nc-reset" data-act="reset" hidden><span class="w">Посчитать заново</span><span class="nw">Заново</span></button>
           <button type="button" class="nc-btn nc-primary nc-copy" data-act="copy" hidden><span class="a">Скопировать смету</span><span class="b" aria-hidden="true">Скопировано ✓</span></button>
-          <button type="button" class="nc-btn nc-primary" data-act="next"><span class="w">Далее</span>${I_NEXT}</button>
+          <button type="button" class="nc-btn nc-primary nc-next" data-act="next"><span class="w">Далее</span><span class="nw">Далее</span>${I_NEXT}</button>
         </div>
       </div>`;
     document.body.appendChild(root);
-    card = root.querySelector('.nc-card'); view = root.querySelector('.nc-view'); prog = root.querySelector('.nc-prog');
+    card = root.querySelector('.nc-card'); view = root.querySelector('.nc-view'); top = root.querySelector('.nc-top');
     foot = root.querySelector('.nc-foot'); estEl = root.querySelector('.nc-est');
     bBack = foot.querySelector('[data-act="back"]'); bNext = foot.querySelector('[data-act="next"]');
     bCopy = foot.querySelector('[data-act="copy"]'); bReset = foot.querySelector('[data-act="reset"]');
@@ -738,44 +818,84 @@
     root.addEventListener('input', onInput);
     root.addEventListener('change', onChange);
     root.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.matches('.nc-num input')){ e.preventDefault(); e.target.blur(); } });
+    view.addEventListener('scroll', updScroll, {passive:true});
+    // высота шапки и низа → отступы тела окна
+    if(window.ResizeObserver){
+      const ro = new ResizeObserver(() => { measureChrome(); updScroll(); });
+      ro.observe(top); ro.observe(foot);
+    }
+  }
+
+  function measureChrome(){
+    card.style.setProperty('--nc-th', top.offsetHeight + 'px');
+    card.style.setProperty('--nc-fh', foot.offsetHeight + 'px');
+  }
+  // плашки шапки/низа видны, только когда контент уходит под них
+  function updScroll(){
+    if(!view) return;
+    const st = view.scrollTop, rest = view.scrollHeight - view.clientHeight - st;
+    card.classList.toggle('top-on', st > 4);
+    card.classList.toggle('bot-on', rest > 4);
   }
 
   function optHTML(q, o, on, scope){
     const many = q.type === 'many';
     const meta = o.meta || (o.h ? `+${dec(o.h)} ч` : '');
-    return `<button type="button" class="nc-opt${o.rec ? ' has-rec' : ''}" data-scope="${scope}" data-q="${q.id}" data-k="${o.k}" aria-pressed="${on}">
+    return `<button type="button" class="nc-opt" data-scope="${scope}" data-q="${q.id}" data-k="${o.k}" aria-pressed="${on}"${o.title ? ` title="${esc(o.title)}"` : ''}>
       ${many ? `<span class="nc-cb">${I_CHECK}</span>` : ''}
       <span class="t"><span class="l">${esc(o.label)}</span>${o.sub ? `<span class="s">${esc(o.sub)}</span>` : ''}${meta ? `<span class="m">${esc(meta)}</span>` : ''}</span>
       ${o.rec ? '<em class="nc-rec">рекомендуем</em>' : ''}</button>`;
   }
   function numMeta(q, v){
-    if(q.money) return v ? `+${usd(v)} к цене` : 'не учитываются';
+    if(q.money) return '';
     const extra = Math.max(0, v - q.free);
     return extra && q.h ? `+${dec(extra * q.h)} ч` : 'в базе';
   }
+  function numHTML(q, v, scope, tid){
+    return `<div class="nc-num" data-scope="${scope}" data-q="${q.id}">
+      <button type="button" data-d="-1" aria-label="Меньше" ${v <= q.min ? 'disabled' : ''}>−</button>
+      <input type="text" inputmode="numeric" value="${v}" aria-labelledby="${tid}"${q.money ? ' class="wide"' : ''}>
+      <button type="button" data-d="1" aria-label="Больше" ${v >= q.max ? 'disabled' : ''}>+</button></div>`;
+  }
   function qHTML(q, v, scope, i, hidden){
-    const tag = q.type === 'many' ? 'несколько' : '';
     const tid = `nc-q-${scope}-${q.id}`;
+    const cls = `nc-q${i === 0 ? ' first' : ''}`;
+    if(q.inline){
+      return `<div class="${cls} nc-inl" data-qid="${q.id}"><div class="nc-il"><div class="nc-qt" id="${tid}">${esc(q.title)}</div>
+        ${q.hint ? `<span class="nc-hint">${esc(q.hint)}</span>` : ''}</div>${numHTML(q, v, scope, tid)}</div>`;
+    }
     let body;
     if(q.type === 'num'){
-      body = `<div class="nc-nrow"><div class="nc-num" data-scope="${scope}" data-q="${q.id}">
-          <button type="button" data-d="-1" aria-label="Меньше" ${v <= q.min ? 'disabled' : ''}>−</button>
-          <input type="text" inputmode="numeric" value="${v}" aria-labelledby="${tid}"${q.money ? ' class="wide"' : ''}>
-          <button type="button" data-d="1" aria-label="Больше" ${v >= q.max ? 'disabled' : ''}>+</button></div>
+      body = `<div class="nc-nrow">${numHTML(q, v, scope, tid)}
         <span class="u">${esc(q.unit || '')}</span><span class="m">${esc(numMeta(q, v))}</span></div>`;
     } else {
-      body = `<div class="nc-opts" role="group" aria-labelledby="${tid}">${q.opts.map(o =>
+      body = `<div class="nc-opts${q.grid ? ' g4' : ''}" role="group" aria-labelledby="${tid}">${q.opts.map(o =>
         optHTML(q, o, q.type === 'many' ? v.includes(o.k) : v === o.k, scope)).join('')}</div>`;
     }
-    return `<div class="nc-q${i === 0 ? ' first' : ''}" data-qid="${q.id}"${hidden ? ' hidden' : ''}>
-      <div class="nc-qh"><div class="nc-qt" id="${tid}">${esc(q.title)}</div>${tag ? `<span class="nc-qm">${tag}</span>` : ''}</div>
+    return `<div class="${cls}" data-qid="${q.id}"${hidden ? ' hidden' : ''}>
+      <div class="nc-qh"><div class="nc-qt" id="${tid}">${esc(q.title)}</div>${q.type === 'many' ? '<span class="nc-qm">несколько</span>' : ''}</div>
       ${body}${q.hint ? `<span class="nc-hint">${esc(q.hint)}</span>` : ''}</div>`;
   }
 
+  function askHTML(pk){
+    const off = askOff(pk);
+    let n = 0;
+    return `<h2 class="nc-h" tabindex="-1">Спросите клиента</h2>
+      <p class="nc-sub">Отправьте в Telegram — по ответам заполните расчёт</p>
+      <div class="nc-asks" role="group" aria-label="Вопросы клиенту">${askList(pk).map((t, i) => {
+        const on = !off.includes(i);
+        return `<button type="button" class="nc-ask" data-ask="${i}" aria-pressed="${on}"><span class="nc-cb">${I_CHECK}</span>
+          <span class="n">${on ? ++n + '.' : ''}</span><span class="tx">${esc(t)}</span></button>`;
+      }).join('')}</div>
+      <div class="nc-ask-acts"><span class="nc-hint nc-ask-cnt">${askCount(pk)}</span>
+        <button type="button" class="nc-btn nc-ghost nc-copy" data-act="copyq"${n ? '' : ' disabled'}><span class="a">Скопировать вопросы</span><span class="b" aria-hidden="true">Скопировано ✓</span></button></div>`;
+  }
+  function askCount(pk){ const all = askList(pk).length; return `Выбрано ${all - askOff(pk).length} из ${all}`; }
+
   function paneHTML(step){
-    if(step === 0){
+    if(step === ST.prod){
       return `<h2 class="nc-h" tabindex="-1">Что хочет клиент?</h2>
-        <p class="nc-sub">Выберите продукт — дальше несколько вопросов, и смета готова</p>
+        <p class="nc-sub">Выберите продукт — дальше вопросы клиенту и расчёт</p>
         <div class="nc-prods" role="group" aria-label="Продукт">${ORDER.map(k => {
           const p = P.products[k];
           return `<button type="button" class="nc-prod" data-prod="${k}" aria-pressed="${S.product === k}">
@@ -783,16 +903,17 @@
         }).join('')}</div>`;
     }
     const pk = S.product, p = P.products[pk];
-    if(step === 1){
+    if(step === ST.ask) return askHTML(pk);
+    if(step === ST.task){
       const a = initAns(pk);
       let n = 0;
       return `<h2 class="nc-h" tabindex="-1">${esc(p.name)}</h2>
-        <p class="nc-sub">Каждый ответ сразу меняет цену и срок — смотрите внизу</p>
+        <p class="nc-sub">Заполните по ответам клиента — цена и срок меняются сразу, смотрите внизу</p>
         ${p.qs.map(q => { const vis = isVisible(q, a); return qHTML(q, a[q.id], 'p', vis ? n++ : 1, !vis); }).join('')}`;
     }
-    if(step === 2){
+    if(step === ST.cond){
       return `<h2 class="nc-h" tabindex="-1">Сроки и условия</h2>
-        <p class="nc-sub">Срочность, дизайн, внешние расходы и поддержка</p>
+        <p class="nc-sub">Срочность, внешние расходы и поддержка</p>
         ${commonQs(pk).map((q, i) => qHTML(q, S.common[q.id], 'c', i, false)).join('')}`;
     }
     return resultHTML(estimate(pk));
@@ -802,7 +923,7 @@
     const C = P.complexity[E.lvl];
     const rows = [];
     const row = (t, v, cls = '', note = '') => rows.push(`<div class="nc-row ${cls}"><span>${esc(t)}</span><span class="v">${esc(v)}</span>${note ? `<small>${esc(note)}</small>` : ''}</div>`);
-    row(`База · ${E.base.label}`, `${dec(E.base.h)} ч`);
+    row(`База · ${E.base.label}`, `${dec(E.base.h)} ч`, '', 'Дизайн и анимации включены');
     E.items.forEach(x => row(x.t, `+${dec(x.h)} ч`, '', x.note || ''));
     row(`Всего работы · ${dec(E.hours)} ч × ${usd(P.rate)}`, usd(E.cost), 'sub');
     row(`Сложность: ${C.label} проект`, fx(C.mult), 'mul',
@@ -836,7 +957,7 @@
       <p class="nc-fine">Ориентир. Точная цена — после разбора задачи.</p>`;
   }
 
-  /* ---------------- смета для клиента (Telegram) ---------------- */
+  /* ---------------- тексты для клиента (Telegram) ---------------- */
   function quoteText(E){
     const L = [];
     L.push(`Смета — ${E.p.name}`, '');
@@ -852,10 +973,16 @@
     L.push('', 'Ориентир. Точная цена — после разбора задачи.', 'Nexus AI · nexusnova.app');
     return plain(L.join('\n'));
   }
+  function askText(pk){
+    const off = askOff(pk);
+    const list = askList(pk).filter((_, i) => !off.includes(i));
+    return ['Здравствуйте! Чтобы точно посчитать стоимость и срок, ответьте, пожалуйста, на несколько вопросов:', '']
+      .concat(list.map((t, i) => `${i + 1}. ${t}`), ['', 'Nexus AI · nexusnova.app']).join('\n');
+  }
 
   /* ---------------- анимации ---------------- */
   // высота окна плавно подстраивается под новый контент (FLIP по высоте)
-  function morph(mutate, done){
+  function morph(mutate){
     const h0 = card.getBoundingClientRect().height;
     if(hAnim){ hAnim.cancel(); hAnim = null; }
     mutate();
@@ -863,7 +990,7 @@
     if(REDUCE.matches || !card.animate || Math.abs(h1 - h0) < 2 || !isOpen) return;
     card.classList.add('nc-morph');
     const a = hAnim = card.animate([{height:h0 + 'px'}, {height:h1 + 'px'}], {duration:260, easing:EASE});
-    const end = () => { if(hAnim === a) hAnim = null; card.classList.remove('nc-morph'); };
+    const end = () => { if(hAnim === a) hAnim = null; card.classList.remove('nc-morph'); updScroll(); };
     a.onfinish = end; a.oncancel = end;
   }
 
@@ -900,7 +1027,7 @@
         {duration:240, delay:50, easing:EASE, fill:'backwards'});
     }
     // старую панель убираем по таймеру: в фоновой вкладке onfinish может не прийти
-    swapT = setTimeout(() => old.remove(), 220);
+    swapT = setTimeout(() => { old.remove(); updScroll(); }, 220);
     afterRender(pane, true);
     return pane;
   }
@@ -921,34 +1048,39 @@
 
   /* ---------------- обновление UI ---------------- */
   function afterRender(pane, animated){
-    if(S.step === 3){
+    if(S.step === ST.fin){
       const big = pane.querySelector('.nc-big');
       const to = +big.dataset.count;
       tween(big, animated ? Math.round(to * 0.6) : to, to, 700, usd);
     }
     updateChrome();
+    updScroll();
   }
 
   function updateChrome(){
     const s = S.step;
-    prog.querySelectorAll('.nc-ps').forEach((b, i) => {
+    top.querySelectorAll('.nc-ps').forEach((b, i) => {
       b.classList.toggle('cur', i === s); b.classList.toggle('done', i < s);
       b.disabled = i > 0 && !S.product;
       if(i === s) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
     });
-    bBack.hidden = s === 0;
-    const fin = s === 3;
+    bBack.hidden = s === ST.prod;
+    const fin = s === ST.fin;
     foot.classList.toggle('fin', fin);
     bNext.hidden = fin; bCopy.hidden = !fin; bReset.hidden = !fin;
-    bNext.disabled = s === 0 && !S.product;
-    bNext.querySelector('.w').textContent = s === 2 ? 'Посчитать' : 'Далее';
+    bNext.disabled = s === ST.prod && !S.product;
+    const lab = s === ST.ask ? ['Клиент ответил → заполнить', 'Заполнить →'] : s === ST.cond ? ['Посчитать', 'Посчитать'] : ['Далее', 'Далее'];
+    bNext.querySelector('.w').textContent = lab[0];
+    bNext.querySelector('.nw').textContent = lab[1];
+    bNext.querySelector('svg').style.display = s === ST.ask ? 'none' : '';
     estEl.hidden = fin;
     updateEst();
+    measureChrome();
   }
 
   // живая оценка внизу окна
   function updateEst(){
-    if(S.step === 3) return;
+    if(S.step === ST.fin) return;
     if(!S.product){ estEl.innerHTML = '<span class="e">Выберите продукт</span>'; shownEst = 0; return; }
     const E = estimate(S.product);
     let v = estEl.querySelector('.v');
@@ -959,7 +1091,7 @@
   }
 
   function go(step){
-    step = Math.max(0, Math.min(3, step));
+    step = Math.max(0, Math.min(ST.fin, step));
     if(step > 0 && !S.product) return;
     if(step === S.step) return;
     const dir = step > S.step ? 1 : -1;
@@ -975,7 +1107,21 @@
     updateChrome();
     // короткая пауза: видно, что карточка выбрана, потом — следующий шаг
     clearTimeout(advT);
-    advT = setTimeout(() => { if(isOpen && S.step === 0) go(1); }, REDUCE.matches ? 60 : 200);
+    advT = setTimeout(() => { if(isOpen && S.step === ST.prod) go(ST.ask); }, REDUCE.matches ? 60 : 200);
+  }
+
+  function toggleAsk(btn){
+    const pk = S.product, off = askOff(pk), i = +btn.dataset.ask, at = off.indexOf(i);
+    if(at >= 0) off.splice(at, 1); else off.push(i);
+    const pane = btn.closest('.nc-pane');
+    let n = 0;
+    pane.querySelectorAll('.nc-ask').forEach(b => {
+      const on = !off.includes(+b.dataset.ask);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.querySelector('.n').textContent = on ? ++n + '.' : '';
+    });
+    pane.querySelector('.nc-ask-cnt').textContent = askCount(pk);
+    pane.querySelector('[data-act="copyq"]').disabled = !n;
   }
 
   function getQ(scope, id){
@@ -1017,7 +1163,7 @@
   // вопросы, зависящие от других ответов, появляются/скрываются плавно
   function syncVisibility(){
     const pane = view.querySelector('.nc-pane:not(.out)');
-    if(!pane || S.step !== 1) return;
+    if(!pane || S.step !== ST.task) return;
     const p = P.products[S.product], a = S.ans[S.product], shown = [], changes = [];
     p.qs.forEach(q => {
       const el = pane.querySelector(`.nc-q[data-qid="${q.id}"]`);
@@ -1032,6 +1178,7 @@
       pane.querySelectorAll('.nc-q').forEach(el => { if(el.hidden) return; el.classList.toggle('first', first); first = false; });
     });
     shown.forEach(el => fadeIn(el, 6));
+    updScroll();
   }
 
   /* ---------------- события ---------------- */
@@ -1039,6 +1186,7 @@
     const t = e.target;
     if(t.closest('[data-nc-close]')){ close(); return; }
     const prod = t.closest('.nc-prod'); if(prod){ pickProduct(prod.dataset.prod); return; }
+    const ask = t.closest('.nc-ask'); if(ask){ toggleAsk(ask); return; }
     const opt = t.closest('.nc-opt'); if(opt){ setOpt(opt); return; }
     const d = t.closest('.nc-num button'); if(d){
       const box = d.closest('.nc-num'), q = getQ(box.dataset.scope, box.dataset.q);
@@ -1051,7 +1199,8 @@
     if(a === 'next') go(S.step + 1);
     else if(a === 'back') go(S.step - 1);
     else if(a === 'reset') reset();
-    else if(a === 'copy') copy();
+    else if(a === 'copy') copyText(bCopy, quoteText(estimate(S.product)));
+    else if(a === 'copyq') copyText(act, askText(S.product));
   }
   function onInput(e){
     const inp = e.target.closest('.nc-num input'); if(!inp) return;
@@ -1065,15 +1214,15 @@
   }
 
   function reset(){
-    S.product = null; S.ans = {}; S.common = {urg:'normal', design:'ready', support:'none', ext:P.ext.def};
+    S.product = null; S.ans = {}; S.askOff = {}; S.common = freshCommon();
     shownEst = 0;
-    S.step = 0;
+    S.step = ST.prod;
     const pane = swap(-1, true);
     const h = pane.querySelector('.nc-h'); if(h) h.focus({preventScroll:true});
   }
 
-  async function copy(){
-    const txt = quoteText(estimate(S.product));
+  // копирование: Clipboard API, запасной путь — execCommand; кнопка показывает «Скопировано ✓»
+  async function copyText(btn, txt){
     let ok = false;
     try { if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(txt); ok = true; } } catch(_){}
     if(!ok){
@@ -1081,18 +1230,13 @@
       ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
       card.appendChild(ta); ta.select();
       try { ok = document.execCommand('copy'); } catch(_){}
-      ta.remove(); bCopy.focus({preventScroll:true});
+      ta.remove(); btn.focus({preventScroll:true});
     }
     if(!ok) return;
-    bCopy.classList.add('done');
-    bCopy.querySelector('.a').setAttribute('aria-hidden', 'true');
-    bCopy.querySelector('.b').removeAttribute('aria-hidden');
-    clearTimeout(copyT);
-    copyT = setTimeout(() => {
-      bCopy.classList.remove('done');
-      bCopy.querySelector('.a').removeAttribute('aria-hidden');
-      bCopy.querySelector('.b').setAttribute('aria-hidden', 'true');
-    }, 1800);
+    const a = btn.querySelector('.a'), b = btn.querySelector('.b');
+    btn.classList.add('done'); a.setAttribute('aria-hidden', 'true'); b.removeAttribute('aria-hidden');
+    clearTimeout(btn._ct);
+    btn._ct = setTimeout(() => { btn.classList.remove('done'); a.removeAttribute('aria-hidden'); b.setAttribute('aria-hidden', 'true'); }, 1800);
   }
 
   // фокус не уходит из окна; Esc закрывает
@@ -1135,6 +1279,7 @@
     lock();
     const wasHidden = root.hidden;
     root.hidden = false;
+    measureChrome();
     if(wasHidden) swap(0, false); else updateChrome();
     void root.offsetWidth;
     root.classList.add('is-open');

@@ -610,7 +610,16 @@
   .copy .b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transform:translateY(6px); filter:blur(2px);}
   .copy.done .a{opacity:0; transform:translateY(-6px); filter:blur(2px);}
   .copy.done .b{opacity:1; transform:none; filter:none;}
-  .copy.dim{opacity:.6;}
+  .copy[disabled]{opacity:.45; cursor:not-allowed; box-shadow:none; transform:none;}
+  .fmt-row{display:flex; align-items:center; flex-wrap:wrap; gap:10px 14px;}
+  .step{display:inline-flex; align-items:center; gap:6px; transition:opacity .15s ease;}
+  .step.off{opacity:.35; pointer-events:none;}
+  .step-l{font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--muted-2); margin-right:2px;}
+  .step .ib{width:30px; height:30px; border-radius:9px; font-size:16px; line-height:1;}
+  .step b{min-width:2ch; text-align:center; font-size:15px; font-weight:600;}
+  .camp-line{display:flex; align-items:center; flex-wrap:wrap; gap:4px 8px; font-size:13px; color:var(--muted); margin:2px 0 14px;}
+  .camp-line code{font-family:'Space Mono',monospace; font-size:12px; color:#fff; background:rgba(79,140,255,0.1); border:1px solid rgba(121,168,255,0.25); padding:2px 8px; border-radius:7px; word-break:break-all;}
+  .link-sm{margin:0; padding:2px 4px; font-size:12px;}
   .recent{margin-top:22px;}
   .recent-h{font-family:'Space Mono',monospace; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--muted-2); margin-bottom:10px;}
   .rl{display:flex; flex-direction:column; gap:8px;}
@@ -949,14 +958,24 @@
       <div><div class="kicker">Nexus AI · реклама</div><h2 id="utm-title">Ссылка для рекламы</h2><p class="sheet-sub">С метками UTM — в статистике будет видно, какая реклама приводит клиентов</p></div>
       <button type="button" class="ib x" data-close aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
+    <div class="fld"><div class="lbl">Готовые посты</div><div class="opts" id="utm-tpl" role="group" aria-label="Готовые посты"></div>
+      <span class="hint">Один клик — и все поля ниже заполнены</span></div>
     <div class="fld"><div class="lbl">Площадка</div><div class="opts" id="utm-src" role="group" aria-label="Площадка"></div>
-      <input class="inp" id="utm-src-custom" placeholder="Своя площадка, например habr" autocomplete="off" hidden></div>
-    <label class="fld"><span class="lbl">Название кампании <i>обязательно</i></span>
-      <input class="inp" id="utm-camp" placeholder="Например: CRM тест сентябрь" autocomplete="off" maxlength="80">
-      <span class="hint">В ссылке: <code id="utm-camp-slug">—</code></span></label>
-    <label class="fld"><span class="lbl">Вариант объявления <i>необязательно</i></span>
-      <input class="inp" id="utm-content" placeholder="video1, photo2" autocomplete="off" maxlength="60"></label>
-    <div class="fld"><div class="lbl">Куда ведёт</div><div class="opts" id="utm-dest" role="group" aria-label="Куда ведёт"></div></div>
+      <input class="inp" id="utm-src-custom" placeholder="Своя площадка, например habr" autocomplete="off" hidden>
+      <span class="hint">Где будет объявление</span></div>
+    <div class="fld"><div class="lbl">Что рекламируем</div><div class="opts" id="utm-what" role="group" aria-label="Что рекламируем"></div>
+      <input class="inp" id="utm-what-custom" placeholder="Например: чат-бот для салона" autocomplete="off" maxlength="60" hidden>
+      <span class="hint">Что в нём предлагаем — так увидите, какая услуга продаёт лучше</span></div>
+    <div class="fld"><div class="lbl">Формат объявления</div>
+      <div class="fmt-row"><div class="opts" id="utm-fmt" role="group" aria-label="Формат объявления"></div>
+        <div class="step" id="utm-step" role="group" aria-label="Номер варианта"><span class="step-l">вариант</span>
+          <button type="button" class="ib" id="utm-n-dec" aria-label="Меньше">−</button><b id="utm-n" aria-live="polite">1</b><button type="button" class="ib" id="utm-n-inc" aria-label="Больше">+</button></div></div>
+      <span class="hint">Видео или картинка — чтобы сравнить, что работает</span></div>
+    <div class="fld"><div class="lbl">Куда ведёт</div><div class="opts" id="utm-dest" role="group" aria-label="Куда ведёт"></div>
+      <span class="hint">На какую часть сайта попадёт человек</span></div>
+    <div class="camp-line">Кампания в статистике: <code id="utm-camp-slug">—</code> <button type="button" class="link link-sm" id="utm-camp-edit">изменить</button></div>
+    <div class="fld" id="utm-camp-f" hidden><input class="inp" id="utm-camp" placeholder="Своё название кампании" autocomplete="off" maxlength="80" aria-label="Название кампании">
+      <span class="hint">Латиница, цифры и «_» — кириллицу и пробелы переведём сами</span></div>
     <div class="utm-out">
       <div class="utm-url" id="utm-url"></div>
       <div class="utm-acts"><span class="hint" id="utm-note">source · medium · campaign · content</span>
@@ -2276,6 +2295,7 @@
     document.addEventListener('animationend', e => { if(e.target.classList && e.target.classList.contains('shake-x')) e.target.classList.remove('shake-x'); });
     // чипы-варианты: один выбран, как радиокнопки
     function opts(box, list, onPick, selKey){
+      box._list = list;
       box.innerHTML = list.map((o, i) => `<button type="button" class="opt" data-i="${i}" aria-pressed="${o.k === selKey}">${esc(o.label)}</button>`).join('');
       box.onclick = e => {
         const b = e.target.closest('.opt'); if(!b) return;
@@ -2322,33 +2342,101 @@
     const I_OK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
     const I_DEL = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
 
-    let uPlat = PLATFORMS[0], uDest = DESTS[0];
-    const uCamp = $('#utm-camp'), uCont = $('#utm-content'), uCustom = $('#utm-src-custom'), uNote = $('#utm-note'), uCopy = $('#utm-copy');
-    opts($('#utm-src'), PLATFORMS, p => {
-      uPlat = p; uCustom.hidden = p.k !== 'other';
-      if(p.k === 'other') uCustom.focus();
-      utmPreview();
-    }, uPlat.k);
-    opts($('#utm-dest'), DESTS, d => { uDest = d; utmPreview(); }, '');
-    [uCamp, uCont, uCustom].forEach(n => n.addEventListener('input', utmPreview));
+    // готовые посты: один клик заполняет всё (кампания и вариант — ровно как в шаблоне)
+    const TPLS = [
+      {k:'A', label:'Пост A · Автоворонка (видео)', plat:'telegram', what:'voronka', fmt:'video', content:'video15', campaign:'tg_arbitrage_voronka', dest:'portfolio'},
+      {k:'B', label:'Пост B · Расширение для CRM (картинка)', plat:'telegram', what:'crm_ext', fmt:'img', content:'img1', campaign:'tg_sales_crm_ext', dest:'portfolio'},
+      {k:'C', label:'Пост C · Telegram-бот (картинка)', plat:'telegram', what:'bot', fmt:'img', content:'img1', campaign:'tg_business_bot', dest:'pricing'}
+    ];
+    const WHATS = [
+      {k:'voronka', label:'Автоворонка Chatterfy'}, {k:'crm_ext', label:'Расширение для CRM'}, {k:'bot', label:'Telegram-бот'},
+      {k:'miniapp', label:'Mini App'}, {k:'site', label:'Сайт / лендинг'}, {k:'dashboard', label:'Дашборд'}, {k:'crm', label:'CRM'},
+      {k:'all', label:'Всё сразу'}, {k:'custom', label:'Свой вариант'}
+    ];
+    const FMTS = [{k:'video', label:'Видео'}, {k:'img', label:'Картинка'}, {k:'text', label:'Текст'}, {k:'none', label:'Не важно'}];
+    const SHORT = {telegram:'tg', telegram_ads:'tgads', yandex:'ya', vk:'vk', instagram:'ig', facebook:'fb', google:'g', tiktok:'tt', other:'other'};
+    const U = {tpl:null, plat:PLATFORMS[0], what:null, fmt:FMTS[3], n:1, dest:DESTS[0], camp:null, campFrom:null, content:null};
+    const uCamp = $('#utm-camp'), uCustom = $('#utm-src-custom'), uWhatCustom = $('#utm-what-custom'), uNote = $('#utm-note'), uCopy = $('#utm-copy');
+    const tplBox = $('#utm-tpl'), srcBox = $('#utm-src'), whatBox = $('#utm-what'), fmtBox = $('#utm-fmt'), destBox = $('#utm-dest');
+    const press = (box, k) => box.querySelectorAll('.opt').forEach((b, i) => b.setAttribute('aria-pressed', box._list[i].k === k ? 'true' : 'false'));
+    const ddmm = () => { const d = new Date(); return String(d.getDate()).padStart(2, '0') + String(d.getMonth() + 1).padStart(2, '0'); };
+    const tplUrl = t => SITE + `?utm_source=${t.plat}&utm_medium=post&utm_campaign=${t.campaign}&utm_content=${t.content}` + (t.dest ? '#' + t.dest : '');
 
+    opts(tplBox, TPLS, t => {
+      U.tpl = t;
+      U.plat = PLATFORMS.find(p => p.k === t.plat); press(srcBox, U.plat.k); uCustom.hidden = true;
+      U.what = WHATS.find(w => w.k === t.what); press(whatBox, U.what.k); uWhatCustom.hidden = true;
+      U.fmt = FMTS.find(f => f.k === t.fmt); press(fmtBox, U.fmt.k);
+      U.n = +(t.content.match(/\d+$/) || [1])[0];
+      U.dest = DESTS.find(d => d.k === t.dest); press(destBox, U.dest.k);
+      U.camp = t.campaign; U.campFrom = 'tpl'; U.content = t.content;
+      $('#utm-camp-f').hidden = true; $('#utm-camp-edit').textContent = 'изменить';
+      utmPreview();
+    }, null);
+    opts(srcBox, PLATFORMS, p => {
+      U.plat = p; uCustom.hidden = p.k !== 'other';
+      if(p.k === 'other') uCustom.focus();
+      if(U.campFrom === 'tpl'){ U.camp = null; U.campFrom = null; }
+      utmPreview();
+    }, U.plat.k);
+    opts(whatBox, WHATS, w => {
+      U.what = w; uWhatCustom.hidden = w.k !== 'custom';
+      if(w.k === 'custom') uWhatCustom.focus();
+      if(U.campFrom === 'tpl'){ U.camp = null; U.campFrom = null; }
+      utmPreview();
+    }, null);
+    opts(fmtBox, FMTS, f => { U.fmt = f; U.content = null; if(U.n > 9) U.n = 1; utmPreview(); }, U.fmt.k);
+    opts(destBox, DESTS, d => { U.dest = d; utmPreview(); }, '');
+    // номер варианта 1–9: video1, img2…
+    const setN = d => { U.n = Math.max(1, Math.min(9, (U.n > 9 ? 1 : U.n) + d)); U.content = null; utmPreview(); };
+    $('#utm-n-dec').addEventListener('click', () => setN(-1));
+    $('#utm-n-inc').addEventListener('click', () => setN(1));
+    uCustom.addEventListener('input', utmPreview);
+    uWhatCustom.addEventListener('input', () => { if(U.campFrom === 'tpl'){ U.camp = null; U.campFrom = null; } utmPreview(); });
+    // «изменить» — ручная правка названия кампании; «авто» — вернуть автосборку
+    $('#utm-camp-edit').addEventListener('click', () => {
+      const f = $('#utm-camp-f');
+      if(f.hidden){
+        f.hidden = false; uCamp.value = utmBuild().camp; U.camp = uCamp.value || null; U.campFrom = U.camp ? 'manual' : null;
+        $('#utm-camp-edit').textContent = 'авто'; uCamp.focus(); uCamp.select();
+      } else {
+        f.hidden = true; U.camp = null; U.campFrom = null; $('#utm-camp-edit').textContent = 'изменить';
+      }
+      utmPreview();
+    });
+    uCamp.addEventListener('input', () => { U.camp = slug(uCamp.value) || null; U.campFrom = U.camp ? 'manual' : null; utmPreview(); });
+
+    function autoCamp(){
+      if(!U.what) return '';
+      const w = U.what.k === 'custom' ? slug(uWhatCustom.value) : U.what.k;
+      return w ? `${w}_${SHORT[U.plat.k] || 'other'}_${ddmm()}` : '';
+    }
     function utmBuild(){
-      const src = uPlat.k === 'other' ? slug(uCustom.value) : uPlat.source;
-      const camp = slug(uCamp.value), cont = slug(uCont.value);
-      const q = [['utm_source', src], ['utm_medium', uPlat.medium], ['utm_campaign', camp]];
+      const src = U.plat.k === 'other' ? slug(uCustom.value) : U.plat.source;
+      const camp = U.camp || autoCamp();
+      const cont = U.content != null ? U.content : (U.fmt && U.fmt.k !== 'none' ? U.fmt.k + U.n : '');
+      const q = [['utm_source', src], ['utm_medium', U.plat.medium], ['utm_campaign', camp]];
       if(cont) q.push(['utm_content', cont]);
       // якорь — строго после меток, иначе метки не дойдут до сервера
-      const url = SITE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v || '')).join('&') + (uDest.k ? '#' + uDest.k : '');
+      const url = SITE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v || '')).join('&') + (U.dest.k ? '#' + U.dest.k : '');
       return {src, camp, ok: !!src && !!camp, q, url};
     }
     function utmPreview(){
       const b = utmBuild();
+      // шаблон остаётся выбранным, пока ссылка совпадает с ним
+      if(U.tpl && b.url !== tplUrl(U.tpl)){ U.tpl = null; press(tplBox, null); }
       $('#utm-camp-slug').textContent = b.camp || '—';
+      const noStep = !U.fmt || U.fmt.k === 'none';
+      $('#utm-step').classList.toggle('off', noStep);
+      $('#utm-n').textContent = U.content != null ? (U.content.match(/\d+$/) || ['—'])[0] : U.n;
       $('#utm-url').innerHTML = `<span class="u-b">${esc(SITE)}</span>?` +
         b.q.map(([k, v]) => `<span class="u-k">${k}</span>=` + (v ? `<span class="u-v">${esc(v)}</span>` : '<span class="u-ph">…</span>')).join('&amp;') +
-        (uDest.k ? `<span class="u-k">#${uDest.k}</span>` : '');
-      uCopy.classList.toggle('dim', !b.ok);
-      if(b.ok && uNote.classList.contains('warn')){ uNote.classList.remove('warn'); uNote.textContent = 'source · medium · campaign · content'; }
+        (U.dest.k ? `<span class="u-k">#${U.dest.k}</span>` : '');
+      uCopy.disabled = !b.ok;
+      uNote.classList.toggle('warn', !b.ok);
+      uNote.textContent = b.ok ? 'source · medium · campaign · content'
+        : !b.src ? 'Укажите свою площадку'
+        : U.what && U.what.k === 'custom' ? 'Напишите, что рекламируем' : 'Выберите, что рекламируем';
     }
     async function copyText(t){
       try{ await navigator.clipboard.writeText(t); return true; }
@@ -2362,11 +2450,7 @@
     }
     uCopy.addEventListener('click', async () => {
       const b = utmBuild();
-      if(!b.ok){
-        const f = !b.camp ? uCamp : uCustom;
-        uNote.textContent = !b.camp ? 'Укажите название кампании' : 'Укажите площадку'; uNote.classList.add('warn');
-        shakeEl(f); f.focus(); return;
-      }
+      if(!b.ok){ shakeEl(!b.src ? uCustom : whatBox); return; }
       const ok = await copyText(b.url);
       uCopy.focus({preventScroll:true});
       if(!ok){ uNote.textContent = 'Не удалось скопировать — выделите ссылку вручную'; uNote.classList.add('warn'); return; }
@@ -2412,7 +2496,7 @@
     });
     const utmModal = Modal($('#utm-modal'), {
       onOpen: () => { uCopy.classList.remove('done'); utmPreview(); renderRecent(); },
-      focus: () => uCamp.focus()
+      focus: () => { const f = tplBox.querySelector('.opt'); f && f.focus(); }
     });
 
     // ================= ДЕНЬГИ =================
@@ -2503,8 +2587,7 @@
       const emptyBox = $('#money-empty'), main = $('#money-main');
       if(isEmpty){
         main.hidden = true; emptyBox.hidden = false;
-        emptyBox.innerHTML = empty('Добавьте первую продажу — и здесь появится окупаемость рекламы',
-          '<button type="button" class="btn-primary btn-sm" data-money="sale">+ Продажа</button>');
+        emptyBox.innerHTML = empty('Добавьте первую продажу кнопкой «+ Продажа» — и здесь появится окупаемость рекламы');
         return;
       }
       emptyBox.hidden = true; main.hidden = false;
