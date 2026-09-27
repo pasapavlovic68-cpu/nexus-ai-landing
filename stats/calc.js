@@ -398,6 +398,7 @@
   const I_BACK = svg('<path d="M15 18l-6-6 6-6"/>', 16, 2);
   const I_NEXT = svg('<path d="M9 18l6-6-6-6"/>', 16, 2);
   const I_CHECK = svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 12, 3);
+  const I_IMG = svg('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 8"/>', 16, 2);
 
   /* ---------------- стили ---------------- */
   const CSS = `
@@ -608,6 +609,12 @@
   .nc-btn .nw{display:none;}
   .nc-foot.fin .nc-back-b{margin-right:auto;}
   /* «Скопировать» → «Скопировано ✓»: короткий blur-кроссфейд подписей */
+  .nc-photo .a{display:inline-flex; align-items:center; gap:8px;}
+  /* на шаге «Смета» 4 кнопки: «Назад» — иконкой, «Заново» и «Фото» — короткими словами, чтобы всё влезало */
+  .nc-foot.fin .nc-back-b .w{display:none;}
+  .nc-foot.fin .nc-back-b{padding-left:14px; padding-right:14px;}
+  .nc-foot.fin .nc-reset .w{display:none;}
+  .nc-foot.fin .nc-reset .nw{display:inline;}
   .nc-copy .a,.nc-copy .b{transition:opacity .2s ease, transform .2s var(--nc-out), filter .2s ease;}
   .nc-copy .b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transform:translateY(6px); filter:blur(2px);}
   .nc-copy.done .a{opacity:0; transform:translateY(-6px); filter:blur(2px);}
@@ -654,6 +661,8 @@
     .nc-btn .w{display:none;}
     .nc-btn .nw{display:inline;}
     .nc-foot.fin .nc-copy{flex:1;}
+    .nc-foot.fin .nc-photo{flex:0 0 auto; padding:11px 13px;}
+    .nc-photo .w{display:none;}
   }
   @media (max-width:360px){ .nc-prods{grid-template-columns:minmax(0,1fr);} .nc-prod{flex-direction:row; align-items:center;} }
 
@@ -784,7 +793,7 @@
   }
 
   /* ---------------- разметка ---------------- */
-  let root, card, view, top, foot, estEl, bBack, bNext, bCopy, bReset;
+  let root, card, view, top, foot, estEl, bBack, bNext, bCopy, bReset, bPhoto;
   let isOpen = false, built = false, lastFocus = null, closeT = 0, hAnim = null, swapT = 0, advT = 0;
   let shownEst = 0, lockSaved = null;
 
@@ -807,6 +816,7 @@
           <div class="nc-est" aria-live="polite"></div>
           <button type="button" class="nc-btn nc-ghost nc-back-b" data-act="back" aria-label="Назад">${I_BACK}<span class="w">Назад</span></button>
           <button type="button" class="nc-btn nc-ghost nc-reset" data-act="reset" hidden><span class="w">Посчитать заново</span><span class="nw">Заново</span></button>
+          <button type="button" class="nc-btn nc-ghost nc-copy nc-photo" data-act="photo" hidden aria-label="Сохранить смету как фото"><span class="a">${I_IMG}<span class="w">Фото</span></span><span class="b" aria-hidden="true">Готово ✓</span></button>
           <button type="button" class="nc-btn nc-primary nc-copy" data-act="copy" hidden><span class="a">Скопировать смету</span><span class="b" aria-hidden="true">Скопировано ✓</span></button>
           <button type="button" class="nc-btn nc-primary nc-next" data-act="next"><span class="w">Далее</span><span class="nw">Далее</span>${I_NEXT}</button>
         </div>
@@ -815,7 +825,7 @@
     card = root.querySelector('.nc-card'); view = root.querySelector('.nc-view'); top = root.querySelector('.nc-top');
     foot = root.querySelector('.nc-foot'); estEl = root.querySelector('.nc-est');
     bBack = foot.querySelector('[data-act="back"]'); bNext = foot.querySelector('[data-act="next"]');
-    bCopy = foot.querySelector('[data-act="copy"]'); bReset = foot.querySelector('[data-act="reset"]');
+    bCopy = foot.querySelector('[data-act="copy"]'); bReset = foot.querySelector('[data-act="reset"]'); bPhoto = foot.querySelector('[data-act="photo"]');
     root.addEventListener('click', onClick);
     root.addEventListener('input', onInput);
     root.addEventListener('change', onChange);
@@ -1073,7 +1083,7 @@
     bBack.hidden = s === ST.prod;
     const fin = s === ST.fin;
     foot.classList.toggle('fin', fin);
-    bNext.hidden = fin; bCopy.hidden = !fin; bReset.hidden = !fin;
+    bNext.hidden = fin; bCopy.hidden = !fin; bReset.hidden = !fin; bPhoto.hidden = !fin;
     bNext.disabled = s === ST.prod && !S.product;
     const lab = s === ST.ask ? ['Клиент ответил → заполнить', 'Заполнить →'] : s === ST.cond ? ['Посчитать', 'Посчитать'] : ['Далее', 'Далее'];
     bNext.querySelector('.w').textContent = lab[0];
@@ -1206,6 +1216,7 @@
     else if(a === 'back') go(S.step - 1);
     else if(a === 'reset') reset();
     else if(a === 'copy') copyText(bCopy, quoteText(estimate(S.product)));
+    else if(a === 'photo') savePhoto(bPhoto, estimate(S.product));
     else if(a === 'copyq') copyText(act, askText(S.product));
   }
   function onInput(e){
@@ -1243,6 +1254,142 @@
     btn.classList.add('done'); a.setAttribute('aria-hidden', 'true'); b.removeAttribute('aria-hidden');
     clearTimeout(btn._ct);
     btn._ct = setTimeout(() => { btn.classList.remove('done'); a.removeAttribute('aria-hidden'); b.setAttribute('aria-hidden', 'true'); }, 1800);
+  }
+
+  /* ---------------- смета картинкой (canvas, в стиле дашборда) ---------------- */
+  // рисуем клиентскую смету (как в тексте для Telegram, без часов и маржи) и отдаём PNG:
+  // на телефоне — системное «Поделиться» (сразу в Telegram), на компьютере — скачивание файла
+  async function savePhoto(btn, E){
+    try{ await Promise.all(['800 64px Sora','700 30px Sora','400 28px Sora','300 26px Sora','400 22px "Space Mono"'].map(f => document.fonts.load(f))); }catch(_){}
+    const W = 1080, PAD = 76, S2 = 2;                      // 1080px шириной, рисуем в 2× для чёткости
+    const cv = document.createElement('canvas');
+    cv.width = W * S2; cv.height = 2600 * S2;
+    const c = cv.getContext('2d'); c.scale(S2, S2);
+    const BLUE = '#4f8cff', BLUE2 = '#79a8ff', TXT = '#eef0f6', MUT = '#8b90a6';
+    const font = (w, px, fam = 'Sora') => `${w} ${px}px ${fam === 'mono' ? '"Space Mono", monospace' : 'Sora, sans-serif'}`;
+    const grad = (x0, y0, x1, y1, stops) => { const g = c.createLinearGradient(x0, y0, x1, y1); stops.forEach(([o, col]) => g.addColorStop(o, col)); return g; };
+    const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect ? c.roundRect(x, y, w, h, r) : c.rect(x, y, w, h); };
+    const wrap = (text, maxW) => { const out = []; let line = '';
+      for(const word of String(text).split(' ')){ const t = line ? line + ' ' + word : word;
+        if(c.measureText(t).width > maxW && line){ out.push(line); line = word; } else line = t; }
+      if(line) out.push(line); return out; };
+    const spaced = (txt, x, y, sp) => { for(const ch of txt){ c.fillText(ch, x, y); x += c.measureText(ch).width + sp; } };
+
+    // --- содержимое: те же данные, что в тексте сметы
+    const incl = [E.base.copy || E.base.label, ...E.incl];
+    if(E.urgK !== 'normal') incl.push(`Срочность: ${E.U.label.toLowerCase()} (${E.U.sub})`);
+
+    let y = PAD;
+    const draw = () => {
+      // логотип Nexus AI (как в шапке сайта)
+      const lx = PAD, ly = y, k = 0.46;
+      c.save(); c.translate(lx, ly); c.scale(k, k);
+      c.strokeStyle = 'rgba(79,140,255,.6)'; c.lineWidth = 3;
+      [[26.4,28.08],[75.01,33.33],[29.9,73.44],[73.44,70.1]].forEach(([ex, ey]) => { c.beginPath(); c.moveTo(50,50); c.lineTo(ex,ey); c.stroke(); });
+      c.fillStyle = BLUE; [[22,24],[80,30],[26,78],[78,74]].forEach(([nx, ny]) => { c.beginPath(); c.arc(nx,ny,6,0,Math.PI*2); c.fill(); });
+      c.fillStyle = BLUE2; c.beginPath(); c.arc(50,50,10,0,Math.PI*2); c.fill();
+      c.restore();
+      c.font = font(700, 30); c.textBaseline = 'middle';
+      let bx = lx + 58; const by = ly + 23;
+      for(const [t, col] of [['Ne', TXT], ['x', BLUE], ['us AI', TXT]]){ c.fillStyle = col; c.fillText(t, bx, by); bx += c.measureText(t).width; }
+      c.font = font(400, 20, 'mono'); c.fillStyle = MUT; c.textAlign = 'right';
+      c.fillText(new Date().toLocaleDateString('ru-RU'), W - PAD, by); c.textAlign = 'left';
+      y += 110;
+
+      // заголовок
+      c.textBaseline = 'alphabetic';
+      c.font = font(400, 21, 'mono'); c.fillStyle = BLUE2; spaced('СМЕТА ПРОЕКТА', PAD, y, 3.5);
+      y += 70;
+      c.font = font(800, 64);
+      for(const l of wrap(E.p.name, W - PAD * 2)){ c.fillStyle = grad(0, y - 60, 0, y + 10, [[0,'#ffffff'],[1,'#b9c2e0']]); c.fillText(l, PAD, y); y += 74; }
+      y += 16;
+
+      // карточка цены
+      const cardH = 250, cw = W - PAD * 2;
+      c.save(); rr(PAD, y, cw, cardH, 28);
+      c.fillStyle = grad(PAD, y, PAD + cw, y + cardH, [[0,'rgba(79,140,255,.16)'],[1,'rgba(30,79,208,.05)']]); c.fill();
+      c.strokeStyle = 'rgba(121,168,255,.35)'; c.lineWidth = 1.5; c.stroke(); c.restore();
+      c.font = font(400, 19, 'mono'); c.fillStyle = BLUE2; spaced('РЕКОМЕНДУЕМАЯ СТОИМОСТЬ', PAD + 36, y + 52, 2.5);
+      c.font = font(800, 104);
+      c.shadowColor = 'rgba(79,140,255,.45)'; c.shadowBlur = 30;
+      c.fillStyle = grad(PAD, y + 70, PAD + 520, y + 170, [[0,'#a9c8ff'],[1,BLUE]]); c.fillText(usd(E.rec), PAD + 32, y + 162);
+      c.shadowBlur = 0;
+      // чипы: вилка и срок
+      let cx = PAD + 36; const cy = y + 190;
+      const chip = t => { c.font = font(400, 21, 'mono'); const w = c.measureText(t).width + 40;
+        c.save(); rr(cx, cy, w, 40, 20); c.fillStyle = 'rgba(79,140,255,.1)'; c.fill(); c.strokeStyle = 'rgba(121,168,255,.3)'; c.lineWidth = 1; c.stroke(); c.restore();
+        c.fillStyle = BLUE2; c.textBaseline = 'middle'; c.fillText(t, cx + 20, cy + 21); c.textBaseline = 'alphabetic'; cx += w + 12; };
+      if(E.lo !== E.hi) chip(`вилка ${usd(E.lo)} – ${usd(E.hi)}`);
+      chip(`срок ${E.dFrom}–${E.dTo} раб. ${plural(E.dTo, 'день', 'дня', 'дней')}`);
+      y += cardH + 70;
+
+      // что входит
+      c.font = font(700, 30); c.fillStyle = TXT; c.fillText('Что входит', PAD, y); y += 52;
+      c.font = font(400, 27);
+      for(const it of incl){
+        const lines = wrap(it, W - PAD * 2 - 40);
+        c.fillStyle = BLUE; c.shadowColor = 'rgba(79,140,255,.9)'; c.shadowBlur = 12;
+        c.beginPath(); c.arc(PAD + 7, y - 9, 6, 0, Math.PI * 2); c.fill(); c.shadowBlur = 0;
+        c.fillStyle = '#dfe3f0';
+        lines.forEach((l, i) => { c.fillText(l, PAD + 36, y); y += i < lines.length - 1 ? 38 : 0; });
+        y += 50;
+      }
+      if(E.ext){
+        c.font = font(300, 24); c.fillStyle = MUT;
+        wrap(`В стоимость входят внешние расходы (хостинг, API, лицензии): ${usd(E.ext)}`, W - PAD * 2).forEach(l => { c.fillText(l, PAD, y); y += 34; });
+        y += 16;
+      }
+
+      // поддержка — только если выбрана
+      if(E.sup){
+        y += 6;
+        c.font = font(300, 22); const dl = wrap(`${E.sup.desc}. Сверх пакета — ${usd(P.support.overHour)}/ч`, W - PAD * 2 - 72);
+        const h = 104 + dl.length * 32;
+        c.save(); rr(PAD, y, W - PAD * 2, h, 24); c.fillStyle = 'rgba(255,255,255,.04)'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.1)'; c.lineWidth = 1.5; c.stroke(); c.restore();
+        c.font = font(600, 27); c.fillStyle = TXT; c.fillText(`Поддержка после запуска · ${E.sup.name}`, PAD + 36, y + 54);
+        c.textAlign = 'right'; c.fillStyle = BLUE2; c.fillText(`${usd(E.sup.price)}/мес`, W - PAD - 36, y + 54); c.textAlign = 'left';
+        c.font = font(300, 22); c.fillStyle = MUT; dl.forEach((l, i) => c.fillText(l, PAD + 36, y + 92 + i * 32));
+        y += h + 40;
+      } else y += 10;
+
+      // подвал
+      c.strokeStyle = 'rgba(255,255,255,.09)'; c.lineWidth = 1; c.beginPath(); c.moveTo(PAD, y); c.lineTo(W - PAD, y); c.stroke();
+      y += 50;
+      c.font = font(300, 22); c.fillStyle = MUT; c.fillText('Ориентир. Точная цена — после разбора задачи.', PAD, y);
+      y += 46;
+      c.font = font(400, 22, 'mono'); c.fillStyle = BLUE2; c.fillText('nexusnova.app', PAD, y);
+      c.textAlign = 'right'; c.fillStyle = TXT; c.fillText('Telegram @Ppasha69', W - PAD, y); c.textAlign = 'left';
+      y += PAD - 10;
+    };
+
+    // 1-й проход — узнать высоту, 2-й — нарисовать на фоне нужного размера
+    draw(); const H = Math.ceil(y);
+    cv.height = H * S2; c.setTransform(S2, 0, 0, S2, 0, 0); y = PAD;
+    c.fillStyle = '#05060a'; c.fillRect(0, 0, W, H);
+    const glow = (x, yy, r, col) => { const g = c.createRadialGradient(x, yy, 0, x, yy, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(5,6,10,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); };
+    glow(W * .12, H * .06, 820, 'rgba(79,140,255,.20)');
+    glow(W * .95, H * .92, 900, 'rgba(30,79,208,.20)');
+    c.strokeStyle = 'rgba(255,255,255,.03)'; c.lineWidth = 1;
+    for(let gx = 0; gx <= W; gx += 48){ c.beginPath(); c.moveTo(gx + .5, 0); c.lineTo(gx + .5, H); c.stroke(); }
+    for(let gy = 0; gy <= H; gy += 48){ c.beginPath(); c.moveTo(0, gy + .5); c.lineTo(W, gy + .5); c.stroke(); }
+    draw();
+
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    if(!blob) return;
+    const name = `smeta-nexus-${E.pk}-${new Date().toISOString().slice(0, 10)}.png`;
+    const file = new File([blob], name, { type:'image/png' });
+    let done = false;
+    if(matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({ files:[file] })){
+      try{ await navigator.share({ files:[file], title:'Смета · Nexus AI' }); done = true; }catch(e){ if(e && e.name === 'AbortError') return; }
+    }
+    if(!done){
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+    const A = btn.querySelector('.a'), B = btn.querySelector('.b');
+    btn.classList.add('done'); A.setAttribute('aria-hidden', 'true'); B.removeAttribute('aria-hidden');
+    clearTimeout(btn._ct);
+    btn._ct = setTimeout(() => { btn.classList.remove('done'); A.removeAttribute('aria-hidden'); B.setAttribute('aria-hidden', 'true'); }, 1800);
   }
 
   // фокус не уходит из окна; Esc закрывает
