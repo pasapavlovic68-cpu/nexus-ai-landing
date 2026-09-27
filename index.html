@@ -1345,6 +1345,8 @@
     btn.addEventListener('click', ()=> setOpen(!works.classList.contains('open')));
     // «Работы» в меню и «Смотреть работы» на первом экране — сразу раскрывают список
     document.querySelectorAll('a[href="#portfolio"]').forEach(a=> a.addEventListener('click', ()=> setOpen(true)));
+    // пришли по ссылке …#portfolio (например, из рекламного поста) — работы сразу раскрыты
+    if(location.hash === '#portfolio') setOpen(true);
 
     // проверка раз в кадр при прокрутке: блок целиком ушёл с экрана — сворачиваем
     let ticking = false;
