@@ -961,7 +961,7 @@
         <div class="nc-lab">Рекомендуемая</div>
         <div class="nc-big" data-count="${E.rec}">${usd(E.rec)}</div>
         <div class="nc-facts">
-          <div class="nc-fact"><div class="nc-lab">Вилка</div><b>${E.lo === E.hi ? usd(E.lo) : usd(E.lo) + ' — ' + usd(E.hi)}</b></div>
+          <div class="nc-fact" title="Только для вас — клиенту в смете и на фото не показывается"><div class="nc-lab">Для торга · не для клиента</div><b>${E.lo === E.hi ? usd(E.lo) : usd(E.lo) + ' — ' + usd(E.hi)}</b></div>
           <div class="nc-fact"><div class="nc-lab">Срок</div><b>${daysTxt(E.dFrom, E.dTo)}</b></div>
           <div class="nc-fact"><div class="nc-lab">Проект</div><b>${C.label}</b></div>
         </div>
@@ -982,9 +982,9 @@
     E.incl.forEach(t => L.push(`• ${t}`));
     if(E.urgK !== 'normal') L.push(`• Срочность: ${E.U.label.toLowerCase()} (${E.U.sub})`);
     L.push('');
-    L.push(`Стоимость: ${usd(E.rec)}` + (E.lo !== E.hi ? ` (вилка ${usd(E.lo)} – ${usd(E.hi)})` : ''));
+    L.push(`Стоимость: ${usd(E.rec)}`);
     if(E.ext) L.push(`В том числе внешние расходы (хостинг, API, лицензии): ${usd(E.ext)}`);
-    L.push(`Срок: ${E.dFrom}–${E.dTo} рабочих ${plural(E.dTo, 'день', 'дня', 'дней')}`);
+    L.push(`Срок: ${E.dTo} рабочих ${plural(E.dTo, 'день', 'дня', 'дней')}`);
     if(E.sup) L.push(`Поддержка после запуска: «${E.sup.name}» — ${usd(E.sup.price)} в месяц (${E.sup.desc}; сверх пакета ${usd(P.support.overHour)}/ч)`);
     L.push('', 'Ориентир. Точная цена — после разбора задачи.', 'Nexus AI · nexusnova.app');
     return plain(L.join('\n'));
@@ -1314,13 +1314,12 @@
       c.shadowColor = 'rgba(79,140,255,.45)'; c.shadowBlur = 30;
       c.fillStyle = grad(PAD, y + 70, PAD + 520, y + 170, [[0,'#a9c8ff'],[1,BLUE]]); c.fillText(usd(E.rec), PAD + 32, y + 162);
       c.shadowBlur = 0;
-      // чипы: вилка и срок
+      // чип срока — одним числом (верхняя граница), вилку клиенту не показываем
       let cx = PAD + 36; const cy = y + 190;
       const chip = t => { c.font = font(400, 21, 'mono'); const w = c.measureText(t).width + 40;
         c.save(); rr(cx, cy, w, 40, 20); c.fillStyle = 'rgba(79,140,255,.1)'; c.fill(); c.strokeStyle = 'rgba(121,168,255,.3)'; c.lineWidth = 1; c.stroke(); c.restore();
         c.fillStyle = BLUE2; c.textBaseline = 'middle'; c.fillText(t, cx + 20, cy + 21); c.textBaseline = 'alphabetic'; cx += w + 12; };
-      if(E.lo !== E.hi) chip(`вилка ${usd(E.lo)} – ${usd(E.hi)}`);
-      chip(`срок ${E.dFrom}–${E.dTo} раб. ${plural(E.dTo, 'день', 'дня', 'дней')}`);
+      chip(`срок ${E.dTo} раб. ${plural(E.dTo, 'день', 'дня', 'дней')}`);
       y += cardH + 70;
 
       // что входит
