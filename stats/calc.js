@@ -1102,7 +1102,11 @@
     let v = estEl.querySelector('.v');
     if(!v){ estEl.innerHTML = '<span class="v"></span><span class="s"></span>'; v = estEl.querySelector('.v'); }
     estEl.querySelector('.s').textContent = `${daysTxt(E.dFrom, E.dTo)} · ${P.complexity[E.lvl].label} проект`;
-    tween(v, shownEst || E.rec, E.rec, 320, n => '≈ ' + usd(n));
+    // поддержка — ежемесячно, в цену проекта не входит, но видна сразу: «≈ $450 + $80/мес»
+    const sup = E.sup ? ` + ${usd(E.sup.price)}/мес` : '';
+    const fmt = n => '≈ ' + usd(n) + sup;
+    if(shownEst === E.rec) v.textContent = fmt(E.rec);
+    else tween(v, shownEst || E.rec, E.rec, 320, fmt);
     shownEst = E.rec;
   }
 
