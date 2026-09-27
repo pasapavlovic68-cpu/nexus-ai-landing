@@ -629,6 +629,45 @@
   .rl-m{font-size:11.5px; color:var(--muted); font-weight:300; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .rl-empty{font-size:12.5px; color:var(--muted-2); font-weight:300; padding:10px 0;}
 
+  /* ---------- короткие ссылки ---------- */
+  .pfx-inp{position:relative; display:flex; align-items:center;}
+  .pfx-inp .pfx{position:absolute; left:14px; font-family:'Space Mono',monospace; font-size:14px; color:var(--muted-2); pointer-events:none;}
+  .pfx-inp .inp{padding-left:136px; font-family:'Space Mono',monospace; font-size:15px;}
+  .pfx-inp.bad .inp{border-color:rgba(224,128,140,.55); box-shadow:0 0 0 4px rgba(224,128,140,.12);}
+  #sl-slug-hint.ok{color:var(--up);} #sl-slug-hint.warn{color:var(--down);}
+  #sl-var-btn{display:block; margin:-4px 0 14px;}
+  .sl-prev{margin:6px 0 4px; padding:18px 16px; border-radius:16px; text-align:center; word-break:break-all;
+    font-family:'Space Mono',monospace; font-size:clamp(18px,4.6vw,24px); line-height:1.3;
+    background:rgba(79,140,255,0.06); border:1px solid rgba(121,168,255,0.25);
+    transition:border-color .25s ease, box-shadow .25s ease, background-color .25s ease;}
+  .sl-prev .sl-host{color:var(--muted);} .sl-prev b{color:#fff; font-weight:400;}
+  .sl-prev.ok{border-color:rgba(121,168,255,.7); background:rgba(79,140,255,0.12); box-shadow:0 0 0 4px rgba(79,140,255,.14), 0 10px 34px rgba(79,140,255,.25);}
+  .login-card #sl-go{width:100%; margin-left:0;}
+  .sub-h{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:14.5px; font-weight:600; margin:0 0 12px;}
+  .short-sub{margin-bottom:26px;}
+  .sl{display:flex; flex-direction:column; gap:8px;}
+  .sl-row{display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:14px; padding:10px 12px; border-radius:14px;
+    background:var(--glass-2); border:1px solid var(--border); transition:opacity .18s ease, transform .18s var(--ease-out);}
+  .sl-row.gone{opacity:0; transform:translateX(8px);}
+  .sl-row.fresh{animation:slFresh 1.4s ease-out;}
+  @keyframes slFresh{from{background-color:rgba(79,140,255,.16); border-color:rgba(121,168,255,.5);}}
+  .sl-main{min-width:0;}
+  .sl-u{font-family:'Space Mono',monospace; font-size:13.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sl-u b{color:#fff; font-weight:400;}
+  .sl-m{font-size:12px; color:var(--muted); font-weight:300; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sl-st{display:flex; gap:16px;}
+  .sl-st div{text-align:right; min-width:52px;}
+  .sl-st b{display:block; font-size:15px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .sl-st span{display:block; font-family:'Space Mono',monospace; font-size:9.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted-2); white-space:nowrap;}
+  .sl-x{display:flex; gap:6px; justify-content:flex-end;}
+  .sl-x .ib{width:30px; height:30px; border-radius:9px;}
+  @media (hover:hover) and (pointer:fine){ .sl-x .ib.del:hover{color:var(--down); border-color:rgba(224,128,140,.4); background:rgba(224,128,140,.08);} }
+  @media(max-width:640px){
+    .sl-row{grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"m x" "s s"; gap:8px 10px;}
+    .sl-main{grid-area:m;} .sl-x{grid-area:x;} .sl-st{grid-area:s; justify-content:flex-start;} .sl-st div{text-align:left;}
+    .pfx-inp .pfx{font-size:13px;} .pfx-inp .inp{padding-left:126px; font-size:14px;}
+  }
+
   /* ---------- ДЕНЬГИ ---------- */
   .card-acts{display:flex; gap:8px; flex-wrap:wrap;}
   .card-h > .btn-sm svg{flex:none;}
@@ -842,7 +881,12 @@
   <!-- КАМПАНИИ -->
   <section class="card" style="--i:9">
     <div class="card-h"><div><h2>Рекламные кампании</h2><p>По меткам utm_source и utm_campaign</p></div>
-      <button type="button" class="btn-ghost btn-sm" data-utm><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>Создать ссылку для рекламы</button></div>
+      <div class="card-acts">
+        <button type="button" class="btn-primary btn-sm" data-short><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>Короткая ссылка</button>
+        <button type="button" class="btn-ghost btn-sm" data-utm>Создать ссылку для рекламы</button>
+      </div></div>
+    <div class="short-sub"><h3 class="sub-h">Короткие ссылки <span class="chip" id="sl-cnt">0</span></h3><div class="sl" id="short-links"></div></div>
+    <h3 class="sub-h">Кампании по меткам</h3>
     <div class="tbl cmp-tbl" id="campaigns"></div>
   </section>
 
@@ -983,6 +1027,31 @@
     </div>
     <div class="recent"><div class="recent-h">Недавние ссылки</div><div class="rl" id="utm-recent"></div></div>
   </div>
+</div>
+
+<!-- короткая ссылка nexusnova.app/слово -->
+<div class="modal" id="short-modal" hidden>
+  <div class="modal-back" data-close></div>
+  <form class="modal-card login-card sheet" id="short-form" role="dialog" aria-modal="true" aria-labelledby="sl-title" novalidate>
+    <div class="sheet-h">
+      <div><div class="kicker">Nexus AI · реклама</div><h2 id="sl-title">Короткая ссылка</h2><p class="sheet-sub">Красивый адрес для рассылок — переходы по нему видны в статистике</p></div>
+      <button type="button" class="ib x" data-close aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="fld"><label class="lbl" for="sl-slug">Адрес</label>
+      <div class="pfx-inp" id="sl-slug-f"><span class="pfx" aria-hidden="true">nexusnova.app/</span><input class="inp" id="sl-slug" placeholder="tg" autocomplete="off" spellcheck="false" autocapitalize="off" maxlength="40" aria-describedby="sl-slug-hint"></div>
+      <span class="hint" id="sl-slug-hint">латиница, цифры и дефис</span></div>
+    <div class="fld"><div class="lbl">Откуда придут люди</div><div class="opts" id="sl-src" role="group" aria-label="Откуда придут люди"></div>
+      <input class="inp" id="sl-src-custom" placeholder="Своя площадка, например habr" autocomplete="off" hidden>
+      <span class="hint">По этой метке увидите, откуда пришёл человек</span></div>
+    <div class="fld"><div class="lbl">Куда ведёт</div><div class="opts" id="sl-dest" role="group" aria-label="Куда ведёт"></div></div>
+    <button type="button" class="link link-sm" id="sl-var-btn">+ вариант</button>
+    <div class="fld" id="sl-var-f" hidden><label class="lbl" for="sl-var">Вариант <i>необязательно</i></label>
+      <input class="inp" id="sl-var" placeholder="например: post1" autocomplete="off" maxlength="40">
+      <span class="hint">Если отправляете разные тексты — чтобы сравнить, какой работает</span></div>
+    <div class="sl-prev" id="sl-prev"><span class="sl-host">nexusnova.app/</span><b id="sl-prev-slug">…</b></div>
+    <p class="login-err" id="sl-err" role="alert" aria-live="assertive"></p>
+    <button class="btn-primary copy" type="submit" id="sl-go"><span class="a">Создать</span><span class="b" aria-hidden="true">Скопировано ✓</span></button>
+  </form>
 </div>
 
 <!-- продажа / расход на рекламу -->
@@ -1696,7 +1765,7 @@
           tween(r.querySelector('.l'), it.leads, fmtInt);
           r.querySelector('.cv').textContent = it.visits ? fmtDec(it.leads / it.visits * 100) + '%' : '—';
         },
-        empty('Кампаний пока нет', '<button type="button" class="btn-ghost btn-sm" data-utm>Создать ссылку для рекламы</button>'));
+        empty('Кампаний пока нет', '<div class="card-acts" style="justify-content:center"><button type="button" class="btn-primary btn-sm" data-short>Короткая ссылка</button><button type="button" class="btn-ghost btn-sm" data-utm>Создать ссылку для рекламы</button></div>'));
     }
 
     // ---------- глубина прокрутки ----------
@@ -1864,7 +1933,7 @@
       reset('#depth', '<div class="sk" style="height:230px"></div>'); $('#depth').className = '';
       reset('#videos', rows(2)); reset('#sections', rows(6)); reset('#devices', rows(3));
       reset('#countries', rows(5)); reset('#faq', rows(5)); reset('#feed', rows(6));
-      reset('#roi', rows(3)); reset('#byprod', rows(3)); reset('#ledger', rows(4));
+      reset('#roi', rows(3)); reset('#byprod', rows(3)); reset('#ledger', rows(4)); reset('#short-links', rows(2)); links = null;
       $('#money-empty').hidden = true; $('#money-main').hidden = false; money = null;
       document.querySelectorAll('#money-kpi .mt').forEach(t => {
         const v = t.querySelector('.mt-v'); cancelAnimationFrame(v._raf); clearTimeout(v._to); v._v = null; v.textContent = '0'; v.className = 'mt-v';
@@ -1918,6 +1987,7 @@
       try{
         const tz = new Date().getTimezoneOffset();
         const moneyP = fetchMoney(ctrl.signal).catch(e => ({err:e}));   // деньги грузим параллельно со статистикой
+        const linksP = fetchLinks(ctrl.signal).catch(e => ({err:e}));
         const res = await fetch(`/api/stats?days=${days}&tz=${tz}`, {credentials:'same-origin', cache:'no-store', signal:ctrl.signal});
         if(res.status === 401){ showLogin(); return; }
         if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -1932,6 +2002,12 @@
         if(mr.auth === false){ showLogin(); return; }
         if(mr.err){ if(mr.err.name !== 'AbortError') moneyFail(); }
         else renderMoney(normMoney(mr.json));
+        const lr = await linksP;
+        if(ctrl !== inflight) return;
+        if(lr.auth === false){ showLogin(); return; }
+        if(!lr.err) links = arr(lr.json && lr.json.links).filter(l => l && l.slug);
+        else if(!links) links = [];
+        renderLinks();
         lastOk = Date.now(); setStatus('ok');
       }catch(err){
         if(err && err.name === 'AbortError') return;
@@ -2550,6 +2626,7 @@
         const r = await fetchMoney();
         if(r.auth === false){ showLogin(); return; }
         renderMoney(normMoney(r.json));
+        renderLinks();
       }catch(e){ moneyFail(); }
     }
     function moneyFail(){
@@ -2771,9 +2848,192 @@
       finally{ mfSave.disabled = false; mfSave.textContent = label; }
     });
 
+    // ================= КОРОТКИЕ ССЫЛКИ nexusnova.app/слово =================
+    const SL_SRC = [
+      {k:'rassylka', label:'Рассылка', source:'rassylka', medium:'message'},
+      {k:'telegram', label:'Telegram-канал', source:'telegram', medium:'post'},
+      {k:'instagram', label:'Instagram', source:'instagram', medium:'bio'},
+      {k:'other', label:'Другое', source:null, medium:'other'}
+    ];
+    const SL_DEST = [{k:'/', label:'Главная'}, {k:'/#portfolio', label:'Работы'}, {k:'/#pricing', label:'Цены'}, {k:'/#funnels', label:'Автоворонки'}];
+    const SL_RESERVED = ['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme'];
+    const SHORT_HOST = 'nexusnova.app/';
+    let links = null;
+    // «Моя Рассылка» → moya-rassylka: латиница, цифры и дефис
+    function shortSlug(s){
+      return [...String(s || '').toLowerCase()].map(c => TR[c] != null ? TR[c] : c).join('')
+        .replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-{2,}/g, '-').replace(/^-+/, '').slice(0, 32);
+    }
+    function slugProblem(s){
+      if(!s) return 'латиница, цифры и дефис';
+      if(s.length < 2) return 'минимум 2 символа';
+      if(/-$/.test(s)) return 'без дефиса в конце';
+      if(SL_RESERVED.includes(s)) return 'этот адрес занят сайтом — выберите другой';
+      if(links && links.some(l => l.slug === s)) return 'такая ссылка уже есть';
+      return '';
+    }
+    const destLabel = t => (SL_DEST.find(d => d.k === t) || {}).label || t || '—';
+    const slSrcLabel = s => (SL_SRC.find(x => x.source === s) || {}).label || srcName(s);
+
+    async function fetchLinks(signal){
+      const res = await fetch('/api/links', {credentials:'same-origin', cache:'no-store', signal});
+      if(res.status === 401) return {auth:false};
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      return {json: await res.json()};
+    }
+    async function refreshLinks(){
+      try{
+        const r = await fetchLinks();
+        if(r.auth === false){ showLogin(); return; }
+        links = arr(r.json && r.json.links).filter(l => l && l.slug);
+      }catch(e){ if(!links) links = []; }
+      renderLinks();
+    }
+    // визиты и клики по ссылке = статистика кампании с именем slug за выбранный период
+    function linkStats(slugName){
+      const find = list => (list || []).find(c => c && c.campaign === slugName);
+      const c = find(data && data.campaigns) || find(money && money.byCampaign);
+      return {visits: c ? num(c.visits) : 0, leads: c ? num(c.leads) : 0};
+    }
+    function renderLinks(fresh){
+      const box = $('#short-links'); if(!box) return;
+      if(links == null) return;
+      const items = links.slice().sort((a, b) => num(b.created) - num(a.created));
+      $('#sl-cnt').textContent = fmtInt(items.length);
+      keyed(box, items, l => l.slug,
+        () => el(`<div class="sl-row"><div class="sl-main"><div class="sl-u"></div><div class="sl-m"></div></div>
+          <div class="sl-st"><div><b class="h"></b><span>открытий</span></div><div><b class="v"></b><span>визитов</span></div><div><b class="l"></b><span>кликов TG</span></div></div>
+          <div class="sl-x"><button type="button" class="ib cp" aria-label="Скопировать ссылку">${I_COPY}</button><button type="button" class="ib del" aria-label="Удалить ссылку">${I_DEL}</button></div></div>`),
+        (r, l) => {
+          r._link = l;
+          r.querySelector('.sl-u').innerHTML = esc(SHORT_HOST) + '<b>' + esc(l.slug) + '</b>';
+          const meta = ['→ ' + destLabel(l.target), slSrcLabel(l.source), l.content ? 'вариант ' + l.content : ''].filter(Boolean).join(' · ');
+          r.querySelector('.sl-m').textContent = meta; r.querySelector('.sl-m').title = meta;
+          const st = linkStats(l.slug);
+          tween(r.querySelector('.h'), num(l.hits), fmtInt);
+          tween(r.querySelector('.v'), st.visits, fmtInt);
+          tween(r.querySelector('.l'), st.leads, fmtInt);
+          if(fresh && l.slug === fresh && !REDUCE){ r.classList.remove('fresh'); void r.offsetWidth; r.classList.add('fresh'); }
+        },
+        empty('Коротких ссылок пока нет — создайте первую, например nexusnova.app/tg'));
+    }
+    // копирование и удаление (инлайн «Удалить? Да / Нет», как в журнале)
+    $('#short-links').addEventListener('click', async e => {
+      const row = e.target.closest('.sl-row'); if(!row) return;
+      const x = row.querySelector('.sl-x'), l = row._link;
+      const restore = () => { x.innerHTML = `<button type="button" class="ib cp" aria-label="Скопировать ссылку">${I_COPY}</button><button type="button" class="ib del" aria-label="Удалить ссылку">${I_DEL}</button>`; };
+      const cp = e.target.closest('.cp');
+      if(cp){
+        if(await copyText('https://' + SHORT_HOST + l.slug)){
+          cp.classList.add('ok'); cp.innerHTML = I_OK;
+          setTimeout(() => { cp.classList.remove('ok'); cp.innerHTML = I_COPY; }, 1400);
+          toast('Ссылка скопирована');
+        }
+      } else if(e.target.closest('.del')){
+        x.innerHTML = '<span class="cf"><span>Удалить?</span><button type="button" class="cf-y">Да</button><button type="button" class="cf-n">Нет</button></span>';
+        x.querySelector('.cf-n').focus({preventScroll:true});
+      } else if(e.target.closest('.cf-n')){
+        restore(); x.querySelector('.del').focus({preventScroll:true});
+      } else if(e.target.closest('.cf-y')){
+        const y = e.target.closest('.cf-y'); y.disabled = true; y.textContent = '…';
+        let res = null;
+        try{ res = await fetch('/api/links?slug=' + encodeURIComponent(l.slug), {method:'DELETE', credentials:'same-origin'}); }catch(err){}
+        if(res && res.status === 401){ showLogin(); return; }
+        if(res && res.ok){
+          row.classList.add('gone');
+          setTimeout(() => { links = (links || []).filter(k => k.slug !== l.slug); renderLinks(); }, REDUCE ? 0 : 180);
+          toast('Ссылка удалена');
+        } else { restore(); toast('Не удалось удалить', true); }
+      }
+    });
+
+    // ---------- модалка «Короткая ссылка» ----------
+    const slSlug = $('#sl-slug'), slHint = $('#sl-slug-hint'), slField = $('#sl-slug-f'), slGo = $('#sl-go'), slErr = $('#sl-err'), slPrev = $('#sl-prev');
+    const S = {src:SL_SRC[0], dest:SL_DEST[0], created:null};
+    const slMsg = t => { slErr.textContent = t || ''; slErr.classList.toggle('on', !!t); };
+    opts($('#sl-src'), SL_SRC, s => { S.src = s; $('#sl-src-custom').hidden = s.k !== 'other'; if(s.k === 'other') $('#sl-src-custom').focus(); slDirty(); }, SL_SRC[0].k);
+    opts($('#sl-dest'), SL_DEST, d => { S.dest = d; slDirty(); }, '/');
+    $('#sl-var-btn').addEventListener('click', () => { $('#sl-var-f').hidden = false; $('#sl-var-btn').hidden = true; $('#sl-var').focus(); });
+    $('#sl-src-custom').addEventListener('input', slDirty);
+    $('#sl-var').addEventListener('input', slDirty);
+    // адрес приводится к виду на лету: кириллица → латиница, пробелы → дефис
+    slSlug.addEventListener('input', () => {
+      const v = shortSlug(slSlug.value);
+      if(v !== slSlug.value) slSlug.value = v;
+      slDirty();
+    });
+    // любое изменение после создания — снова режим «Создать»
+    function slDirty(){
+      if(S.created){ S.created = null; slPrev.classList.remove('ok'); swapText(slGo.querySelector('.a'), 'Создать'); slGo.classList.remove('done'); }
+      slMsg(''); slField.classList.remove('bad');
+      slCheck();
+    }
+    function slCheck(){
+      const v = slSlug.value, p = slugProblem(v);
+      $('#sl-prev-slug').textContent = v || '…';
+      slHint.textContent = p || '✓ адрес подходит';
+      slHint.classList.toggle('ok', !p);
+      slHint.classList.toggle('warn', !!p && !!v);
+      return !p;
+    }
+    function openShort(){
+      S.src = SL_SRC[0]; S.dest = SL_DEST[0]; S.created = null;
+      slSlug.value = ''; $('#sl-src-custom').value = ''; $('#sl-src-custom').hidden = true; $('#sl-var').value = '';
+      $('#sl-var-f').hidden = true; $('#sl-var-btn').hidden = false;
+      press($('#sl-src'), SL_SRC[0].k); press($('#sl-dest'), '/');
+      slPrev.classList.remove('ok'); slGo.classList.remove('done'); slGo.querySelector('.a').textContent = 'Создать';
+      slMsg(''); slField.classList.remove('bad'); slCheck();
+      shortModal.open();
+    }
+    const shortModal = Modal($('#short-modal'), {focus: () => slSlug.focus()});
+
+    $('#short-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      if(slGo.disabled) return;
+      // ссылка уже создана — кнопка копирует
+      if(S.created){
+        const ok = await copyText('https://' + SHORT_HOST + S.created.slug);
+        if(ok){ slGo.classList.add('done'); clearTimeout(slGo._t); slGo._t = setTimeout(() => slGo.classList.remove('done'), 1600); }
+        else slMsg('Не удалось скопировать — выделите адрес вручную');
+        return;
+      }
+      const bad = (msg, n) => { slMsg(msg); shakeEl(n); };
+      // ошибки адреса — только под полем, с лёгкой тряской
+      const slugBad = t => { slField.classList.add('bad'); slHint.textContent = t; slHint.classList.add('warn'); slHint.classList.remove('ok'); shakeEl(slField); slSlug.focus(); };
+      if(!slCheck()) return slugBad(slSlug.value ? slHint.textContent : 'Придумайте адрес, например tg');
+      let source = S.src.source;
+      if(S.src.k === 'other'){ source = slug($('#sl-src-custom').value); if(!source) return bad('Напишите, откуда придут люди', $('#sl-src-custom')); }
+      const content = slug($('#sl-var').value) || null;
+      const label = slGo.querySelector('.a').textContent;
+      slGo.disabled = true; slGo.querySelector('.a').textContent = 'Создаю…'; slMsg('');
+      try{
+        const res = await postJSON('/api/links', {slug:slSlug.value, target:S.dest.k, source, medium:S.src.medium, content});
+        const j = await readJSON(res);
+        if(res.ok && j && j.link){
+          S.created = j.link;
+          links = [j.link, ...(links || []).filter(l => l.slug !== j.link.slug)];
+          renderLinks(j.link.slug);
+          slGo.querySelector('.a').textContent = 'Скопировать';
+          slPrev.classList.add('ok');
+          slHint.textContent = '✓ ссылка создана — скопируйте и вставьте в рассылку'; slHint.classList.add('ok'); slHint.classList.remove('warn');
+          toast('Ссылка создана');
+        } else if(res.status === 401){ shortModal.close(true); showLogin(); return; }
+        else {
+          slGo.querySelector('.a').textContent = label;
+          const map = {slug:'Адрес: латиница, цифры и дефис, от 2 до 32 символов', reserved:'Этот адрес занят сайтом — выберите другой',
+            taken:'Такая ссылка уже есть — выберите другое слово', target:'Выберите, куда ведёт ссылка', source:'Укажите, откуда придут люди'};
+          const err = j && j.error;
+          if(err === 'slug' || err === 'reserved' || err === 'taken') slugBad(map[err]);
+          else bad(map[err] || 'Сервер не ответил, попробуйте ещё раз', slGo);
+        }
+      }catch(err){ slGo.querySelector('.a').textContent = label; slMsg('Нет связи с сервером'); }
+      finally{ slGo.disabled = false; }
+    });
+
     // кнопки-открывашки могут появиться динамически (пустые состояния) — слушаем делегированно
     document.addEventListener('click', e => {
       const u = e.target.closest('[data-utm]'); if(u){ utmModal.open(); return; }
+      if(e.target.closest('[data-short]')){ openShort(); return; }
       const m = e.target.closest('[data-money]'); if(m) openMoney(m.dataset.money);
     });
 
