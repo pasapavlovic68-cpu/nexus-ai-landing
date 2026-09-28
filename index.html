@@ -513,8 +513,9 @@
   .contact p{color:var(--muted); margin-bottom:36px; font-weight:300; font-size:18px;}
   .contact-card{
     background:var(--glass); border:1px solid var(--border); border-radius:24px; padding:48px 40px;
-    max-width:560px; margin:0 auto; backdrop-filter:blur(16px);
+    max-width:720px; margin:0 auto; backdrop-filter:blur(16px);
   }
+  .contact-card > p:not(.tg-note){max-width:540px; margin-left:auto; margin-right:auto;}
   /* кнопка Telegram с иконкой-самолётиком */
   .tg-btn{display:inline-flex; align-items:center; justify-content:center; gap:12px; font-size:17px; padding:16px 38px;}
   .tg-btn svg{flex-shrink:0; position:relative; z-index:1; filter:drop-shadow(0 1px 4px rgba(5,6,10,0.3));}
