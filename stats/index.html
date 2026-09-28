@@ -1305,7 +1305,7 @@
 
     // ---------- словари: человеческие подписи ----------
     const CLICKS = {
-      tg_nav:'Шапка · Обсудить', tg_hero:'Первый экран · Обсудить проект', tg_contact:'Контакты · Написать в Telegram',
+      tg_nav:'Шапка · Обсудить', tg_hero:'Первый экран · Обсудить проект', tg_contact:'Контакты · Написать в Telegram', wa_contact:'Контакты · WhatsApp (EN)',
       tg_funnels:'Автоворонки · Заказать воронку', tg_price_ext:'Тариф · Chrome-расширения', tg_price_tg:'Тариф · Боты и Mini Apps',
       tg_price_site:'Тариф · Сайты', tg_price_dash:'Тариф · Дашборды', tg_price_auto:'Тариф · Интеграции',
       work_voronka:'Работа · Воронка ИИ', work_omnix:'Работа · Omnix', work_okk:'Работа · Nexus ОКК', work_kc:'Работа · Nexus КЦ', work_dept:'Работа · Dept'
@@ -1900,7 +1900,7 @@
       const added = [];
       keyed(box, items, e => [e.ts, e.type, e.name, e.value, e.country, e.device].join('|'),
         e => {
-          const lead = e.type === 'click' && /^tg_/.test(e.name || '');
+          const lead = e.type === 'click' && /^(tg|wa|work)_/.test(e.name || '');
           const icon = lead ? IC.tg : (IC[e.type] || IC.click);
           const r = el(`<div class="fd${lead ? ' is-lead' : ''}"><div class="fd-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg></div><div style="min-width:0"><div class="fd-t"></div><div class="fd-m"></div></div><span class="fd-time"></span></div>`);
           r._ts = num(e.ts);
