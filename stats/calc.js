@@ -378,6 +378,115 @@
   };
   const askList = pk => ASK[pk].q.concat(ASK[pk].tail.map(k => ASK_TAIL[k]));
 
+  /* ---------------- английский для клиента (рынок «США и Европа») ----------------
+     Интерфейс калькулятора остаётся русским; на английском уходит только то, что видит клиент:
+     вопросы, текст сметы и фото. Ключ — русская строка из PRICING / ASK. */
+  const EN = {
+    // поддержка
+    'Старт':'Start', 'Бизнес':'Business', 'Про':'Pro',
+    'мониторинг, бэкапы, домен и SSL, до 1 ч правок, реакция 1 рабочий день':'monitoring, backups, domain and SSL, up to 1 h of changes, response within 1 business day',
+    'мониторинг, бэкапы, до 4 ч правок в месяц, реакция до 4 часов':'monitoring, backups, up to 4 h of changes a month, response within 4 hours',
+    'до 10 ч правок, реакция до 1 часа, приоритет, ежемесячный отчёт':'up to 10 h of changes, response within 1 hour, priority queue, monthly report',
+    // сайт
+    'Лендинг / сайт':'Landing page / website', 'Лендинг':'Landing page',
+    'Лендинг: уникальный дизайн, анимации, адаптив под телефон, домен и публикация':'Landing page: custom design, animations, mobile-friendly layout, domain setup and launch',
+    'Многостраничный сайт':'Multi-page website',
+    'Многостраничный сайт: уникальный дизайн, анимации, адаптив, домен и публикация':'Multi-page website: custom design, animations, mobile-friendly layout, domain setup and launch',
+    'Страниц':'Pages', 'Вторая языковая версия':'Second language version', 'Три и больше языков':'Three or more languages',
+    'Заявки в Telegram':'Leads sent to Telegram', 'Передача в CRM':'Leads sent to your CRM', 'Онлайн-оплата':'Online payments',
+    'Квиз / калькулятор':'Quiz / calculator', 'Админ-панель: вы сами меняете тексты и фото':'Admin panel: edit texts and photos yourself',
+    'Тексты под ключ':'Copywriting included', 'SEO-база и аналитика':'SEO basics and analytics',
+    // бот
+    'Telegram-бот':'Telegram bot', 'Бот: меню, приём заявок, ответы по кнопкам, оформление сообщений':'Bot: menu, lead capture, button-based answers, styled messages',
+    'Сценариев / команд':'Scenarios / commands', 'Оплата в Telegram Stars':'Payments in Telegram Stars', 'Приём оплаты: эквайринг':'Card / crypto payments',
+    'Заявки — в чат менеджеру':'Leads go to your manager in chat', 'Выгрузка в Google Таблицу':'Export to Google Sheets',
+    'Интеграция с CRM':'CRM integration', 'ИИ-ответы по базе знаний':'AI answers from your knowledge base', 'ИИ-агент с действиями':'AI agent that takes actions',
+    'Веб-админка':'Web admin panel', 'Рассылки по сегментам':'Segmented broadcasts', 'Мультиязычность':'Multiple languages', 'Постбэки в трекер':'Postbacks to your tracker',
+    // Mini App
+    'Telegram Mini App':'Telegram Mini App',
+    'Mini App: вход через Telegram, уникальный дизайн и анимации, 1 сценарий, до 5 экранов':'Mini App: Telegram login, custom design and animations, 1 user flow, up to 5 screens',
+    'Экранов':'Screens', 'Сценариев':'User flows', 'Бот-компаньон':'Companion bot', 'Админ-панель':'Admin panel', 'Уведомления через бота':'Notifications via the bot',
+    // расширение
+    'Chrome-расширение для CRM':'Chrome extension for your CRM', 'Расширение Chrome, работает прямо в интерфейсе CRM':'Chrome extension that works right inside your CRM',
+    'Работа в вашей CRM (amoCRM, Bitrix24, HubSpot и др.)':'Works in your CRM (HubSpot, Salesforce, Pipedrive and others)', 'Адаптация под вашу CRM':'Adapted to your custom CRM',
+    'Интеграция с CRM без API — через её интерфейс':'CRM integration without an API — through its interface',
+    'Автоподстановка данных':'Data autofill', 'Звонок в один клик':'One-click calling', 'Шаблоны сообщений':'Message templates', 'Массовые действия':'Bulk actions',
+    'Сбор данных со страницы':'Data capture from the page', 'Очередь и дедупликация':'Queue with duplicate protection', 'Панель в интерфейсе CRM':'Panel inside your CRM',
+    'Интеграция с CRM / сервером':'Integration with your CRM / server', 'ИИ-подсказки и резюме':'AI suggestions and summaries',
+    // дашборд
+    'Дашборд / аналитика':'Dashboard / analytics', 'Дашборд: метрики и воронка на одном экране, уникальный дизайн':'Dashboard: metrics and funnel on one screen, custom design',
+    'Источников данных':'Data sources', 'ИИ-контроль качества диалогов':'AI quality control for conversations', 'Роли и права доступа':'Roles and access rights',
+    'Данные в реальном времени':'Real-time data', 'Экспорт CSV / Excel':'CSV / Excel export', 'Отчёты в Telegram':'Reports in Telegram',
+    // интеграции
+    'Интеграции и автоматизация':'Integrations and automation', 'Постбэки в трекер (Keitaro / Binom)':'Tracker postbacks (Keitaro / Binom)',
+    'Настройка постбэков в трекер (Keitaro / Binom)':'Postback setup for your tracker (Keitaro / Binom)', 'Интеграция систем':'System integration',
+    'Интеграция систем и автоматический обмен данными':'System integration with automatic data sync', 'Источников':'Sources',
+    'Алерты об ошибках в Telegram':'Error alerts in Telegram', 'Систем':'Systems', 'Подключение систем без API':'Connecting systems without an API',
+    'Регулярная синхронизация по расписанию':'Scheduled data sync', 'Двусторонняя синхронизация в реальном времени':'Two-way real-time sync',
+    'Сверка данных и отчёт о расхождениях':'Data reconciliation with a mismatch report', 'Логи и алерты в Telegram':'Logs and alerts in Telegram',
+    // воронка
+    'Автоворонка Chatterfy':'Chatterfy sales funnel', 'Автоворонка в Chatterfy под ключ, с оформлением сообщений':'Turnkey Chatterfy funnel with styled messages',
+    'Воронка: регистрация (Reg)':'Funnel: sign-up (Reg)', 'Воронка: регистрация → первый депозит (Reg → FD)':'Funnel: sign-up → first deposit (Reg → FD)',
+    'Воронка: регистрация → первый → повторные депозиты (Reg → FD → RD)':'Funnel: sign-up → first → repeat deposits (Reg → FD → RD)',
+    'Цепочек дожима':'Follow-up sequences', 'ГЕО / языков':'GEOs / languages', 'A/B-тесты':'A/B tests', 'ИИ-ответы в диалогах':'AI replies in conversations',
+    // CRM
+    'CRM под ключ':'Custom CRM', 'CRM: клиенты, карточки, задачи, роли и доступы, уникальный дизайн':'CRM: clients, client cards, tasks, roles and access, custom design',
+    'Модуль: чаты мессенджеров':'Module: messenger chats', 'Модуль: сделки и воронка':'Module: deals and pipeline', 'Модуль: оплаты и зарплаты':'Module: payments and payroll',
+    'Модуль: аналитика':'Module: analytics', 'Модуль: Mini App':'Module: Mini App', 'Модуль: ИИ-подсказки':'Module: AI suggestions',
+    'До 10 сотрудников':'Up to 10 users', '10–50 сотрудников':'10–50 users', '50–200 сотрудников':'50–200 users', '200+ сотрудников':'200+ users',
+    'Внешних интеграций':'External integrations', 'Подключение внешних систем без API':'Connecting external systems without an API',
+    'Перенос данных из старой системы':'Data migration from your old system'
+  };
+  const ASK_EN = {
+    tail:{
+      users:'Who will use it — you, your team or your customers? Roughly how many people?',
+      refs:'Are there any examples or references you like? Feel free to send links or screenshots.',
+      deadline:'When do you need it launched?',
+      budget:'Do you have a budget in mind? That helps us suggest the right option right away.'
+    },
+    site:['Tell us briefly about your business: what do you do, and what should the website achieve?',
+      'Do you need a one-page landing page or a multi-page website? If multi-page, which sections?',
+      'Which languages should the website be in?',
+      'Where should leads from the website go — Telegram or a CRM (which one)? Do you need online payments?',
+      'Would you like to edit texts and photos yourself, or should we handle updates?',
+      'Do you already have copy, a logo and brand guidelines?'],
+    bot:['Tell us about your business: what should the bot do — which requests should it take, which questions should it answer?',
+      'Do you need payments right inside the bot — Telegram Stars, cards or crypto?',
+      'Where should leads go: to a manager in chat, a Google Sheet or a CRM (which one)?',
+      'Do you need AI answers based on your knowledge base — like a live consultant?',
+      'Do you need broadcasts, multiple languages or a web admin panel to manage the bot?'],
+    miniapp:['Tell us about your business: what should users do in the app — book, order, check their account?',
+      'Roughly how many screens and sections do you have in mind?',
+      'Do you need payments inside the app?',
+      'What should the app connect to: a CRM, a bot, a Google Sheet or a tracker?'],
+    ext:['Tell us about the task: what routine work does your team currently do by hand in the CRM?',
+      'Which CRM do you use? Please send a screenshot of the main working screen.',
+      'Does your CRM have an open API, or do you have access to one?',
+      'Which actions should we automate: data autofill, calls, templates, bulk actions, a queue without duplicates?',
+      'Where should the data go — a Google Sheet, back into the CRM or to your server?'],
+    dash:['Tell us about your business: which decisions do you want to make from the dashboard?',
+      'Where does the data come from — CRM, ads, spreadsheets, messengers? How many sources in total?',
+      'Which metrics and reports matter most to see every day?',
+      'Do you need AI review of your team’s conversations — scores and a team leaderboard?',
+      'Do you need roles and access, real-time updates, exports or reports in Telegram?'],
+    integr:['Tell us about the task: what data is currently moved by hand, and how much time does it take?',
+      'Which systems need to be connected, and what should flow between them?',
+      'Do these systems have an API, or do you have access to one?',
+      'How often should data update: on a schedule or instantly, in real time?',
+      'Do you need tracker postbacks (Keitaro, Binom), data reconciliation or error alerts?'],
+    funnel:['Tell us about the product: what are we promoting, in which GEOs and languages?',
+      'Which stages should the funnel cover: sign-up, first deposit, repeat deposits?',
+      'How many follow-up sequences and messages do you have in mind?',
+      'Which traffic source and tracker do you use?',
+      'Do you need A/B tests for messages or AI replies in conversations?'],
+    crm:['Tell us about your business: which processes should the CRM handle — leads, deals, chats, payments, payroll?',
+      'How many people will work in the system, and what are their roles?',
+      'Which messengers and services do you use — what needs to be connected (telephony, payments, tracker)?',
+      'Do you need to migrate data from an old system? Which one?',
+      'Do you need analytics, AI suggestions for your team or a Mini App for staff?']
+  };
+  const askListEn = pk => ASK_EN[pk].concat(ASK[pk].tail.map(k => ASK_EN.tail[k]));
+
   // порядок продуктов на первом шаге
   const ORDER = ['site','bot','miniapp','ext','dash','integr','funnel','crm'];
   const STEPS = ['Продукт','Вопросы','Задача','Условия','Смета'];
@@ -724,6 +833,11 @@
   // первая буква строчная, но аббревиатуры (CRM, ИИ, ГЕО) не трогаем
   const lcFirst = s => s.length > 1 && s[1] === s[1].toLowerCase() ? s[0].toLowerCase() + s.slice(1) : s;
   const plain = s => s.replace(/[  ]/g, ' ');
+  // язык клиента: рынок «США и Европа» → вопросы, смета и фото на английском
+  const isEn = () => S.market === 'us';
+  const tr = s => (isEn() && s && EN[s]) || s;
+  const usdC = n => isEn() ? '$' + Math.round(n).toLocaleString('en-US') : usd(n);
+  const enDays = n => `${n} business day${n === 1 ? '' : 's'}`;
 
   // «от $X» — самый низкий минимум продукта (с учётом вариантов формата)
   function fromPrice(p){
@@ -778,7 +892,7 @@
 
     const take = (o, q) => {
       if(o.base){ base = o.base; return; }
-      if(!o.none) incl.push(o.copy || o.row || (q.type === 'many' ? o.label : `${q.title}: ${o.label}`));
+      if(!o.none) incl.push(tr(o.copy) || tr(o.row) || (q.type === 'many' ? tr(o.label) : `${tr(q.title)}: ${tr(o.label)}`));
       if(o.h) items.push({t:o.row || o.label, h:o.h});
       if(o.w){ w += o.w; why.push(lcFirst(o.row || o.label)); }
       if(o.int) ints.push({n:o.int, name:o.intName || o.label});
@@ -792,7 +906,7 @@
       else if(q.type === 'many') q.opts.forEach(o => { if(v.includes(o.k)) take(o, q); });
       else {
         const extra = Math.max(0, v - q.free);
-        incl.push(`${q.short}: ${v}`);
+        incl.push(`${tr(q.short)}: ${v}`);
         if(extra && q.h) items.push({t:`${q.short}: ${v}`, note:`${q.free} в базе, +${dec(q.h)} ч за каждый сверх`, h:extra * q.h});
         let wn = 0; (q.wAt || []).forEach(([at, ww]) => { if(v >= at) wn = ww; });
         if(wn){ w += wn; why.push(`${lcFirst(q.short)}: ${v}`); }
@@ -928,7 +1042,7 @@
     const off = askOff(pk);
     let n = 0;
     return `<h2 class="nc-h" tabindex="-1">Спросите клиента</h2>
-      <p class="nc-sub">Отправьте в Telegram — по ответам заполните расчёт</p>
+      <p class="nc-sub">Отправьте в Telegram — по ответам заполните расчёт${isEn() ? '. Клиенту вопросы уйдут на английском' : ''}</p>
       <div class="nc-asks" role="group" aria-label="Вопросы клиенту">${askList(pk).map((t, i) => {
         const on = !off.includes(i);
         return `<button type="button" class="nc-ask" data-ask="${i}" aria-pressed="${on}"><span class="nc-cb">${I_CHECK}</span>
@@ -993,7 +1107,7 @@
 
     const T = E.sup;
     return `<h2 class="nc-h" tabindex="-1">Смета · ${esc(E.p.name)}</h2>
-      <p class="nc-sub">Ответы можно поменять — нажмите на любой шаг сверху</p>
+      <p class="nc-sub">${isEn() ? 'Рынок США и Европа — смета и фото для клиента на английском. ' : ''}Ответы можно поменять — нажмите на любой шаг сверху</p>
       <div class="nc-hero">
         <div class="nc-lab">Рекомендуемая</div>
         <div class="nc-big" data-count="${E.rec}">${usd(E.rec)}</div>
@@ -1013,6 +1127,18 @@
   /* ---------------- тексты для клиента (Telegram) ---------------- */
   function quoteText(E){
     const L = [];
+    if(isEn()){
+      L.push(`Estimate — ${tr(E.p.name)}`, '', 'What\u2019s included:');
+      L.push(`• ${tr(E.base.copy || E.base.label)}`);
+      E.incl.forEach(t => L.push(`• ${t}`));
+      if(E.urgK !== 'normal') L.push('• Priority launch — we work on an expedited schedule');
+      L.push('', `Price: ${usdC(E.rec)}`);
+      if(E.ext) L.push(`Includes third-party costs (hosting, APIs, licenses): ${usdC(E.ext)}`);
+      L.push(`Timeline: ${enDays(E.dTo)}`);
+      if(E.sup) L.push(`Post-launch support: “${tr(E.sup.name)}” — ${usdC(E.sup.price)}/month (${tr(E.sup.desc)}; extra hours ${usdC(P.support.overHour)}/h)`);
+      L.push('', 'Nexus AI · nexusnova.app/en · Telegram @Ppasha69');
+      return plain(L.join('\n'));
+    }
     L.push(`Смета — ${E.p.name}`, '');
     L.push('Что входит:');
     L.push(`• ${E.base.copy || E.base.label}`);
@@ -1028,7 +1154,9 @@
   }
   function askText(pk){
     const off = askOff(pk);
-    const list = askList(pk).filter((_, i) => !off.includes(i));
+    const list = (isEn() ? askListEn(pk) : askList(pk)).filter((_, i) => !off.includes(i));
+    if(isEn()) return ['Hi! To give you an accurate price and timeline, could you please answer a few questions?', '']
+      .concat(list.map((t, i) => `${i + 1}. ${t}`), ['', 'Nexus AI · nexusnova.app/en']).join('\n');
     return ['Здравствуйте! Чтобы точно посчитать стоимость и срок, ответьте, пожалуйста, на несколько вопросов:', '']
       .concat(list.map((t, i) => `${i + 1}. ${t}`), ['', 'Nexus AI · nexusnova.app']).join('\n');
   }
@@ -1326,8 +1454,9 @@
     const spaced = (txt, x, y, sp) => { for(const ch of txt){ c.fillText(ch, x, y); x += c.measureText(ch).width + sp; } };
 
     // --- содержимое: те же данные, что в тексте сметы
-    const incl = [E.base.copy || E.base.label, ...E.incl];
-    if(E.urgK !== 'normal') incl.push('Приоритетный запуск — работаем в ускоренном режиме');
+    const en = isEn();
+    const incl = [tr(E.base.copy || E.base.label), ...E.incl];
+    if(E.urgK !== 'normal') incl.push(en ? 'Priority launch — we work on an expedited schedule' : 'Приоритетный запуск — работаем в ускоренном режиме');
 
     let y = PAD;
     const draw = () => {
@@ -1343,15 +1472,15 @@
       let bx = lx + 58; const by = ly + 23;
       for(const [t, col] of [['Ne', TXT], ['x', BLUE], ['us AI', TXT]]){ c.fillStyle = col; c.fillText(t, bx, by); bx += c.measureText(t).width; }
       c.font = font(400, 20, 'mono'); c.fillStyle = MUT; c.textAlign = 'right';
-      c.fillText(new Date().toLocaleDateString('ru-RU'), W - PAD, by); c.textAlign = 'left';
+      c.fillText(new Date().toLocaleDateString(en ? 'en-US' : 'ru-RU', en ? {month:'short', day:'numeric', year:'numeric'} : undefined), W - PAD, by); c.textAlign = 'left';
       y += 110;
 
       // заголовок
       c.textBaseline = 'alphabetic';
-      c.font = font(400, 21, 'mono'); c.fillStyle = BLUE2; spaced('СМЕТА ПРОЕКТА', PAD, y, 3.5);
+      c.font = font(400, 21, 'mono'); c.fillStyle = BLUE2; spaced(en ? 'PROJECT ESTIMATE' : 'СМЕТА ПРОЕКТА', PAD, y, 3.5);
       y += 70;
       c.font = font(800, 64);
-      for(const l of wrap(E.p.name, W - PAD * 2)){ c.fillStyle = grad(0, y - 60, 0, y + 10, [[0,'#ffffff'],[1,'#b9c2e0']]); c.fillText(l, PAD, y); y += 74; }
+      for(const l of wrap(tr(E.p.name), W - PAD * 2)){ c.fillStyle = grad(0, y - 60, 0, y + 10, [[0,'#ffffff'],[1,'#b9c2e0']]); c.fillText(l, PAD, y); y += 74; }
       y += 16;
 
       // карточка цены
@@ -1359,21 +1488,21 @@
       c.save(); rr(PAD, y, cw, cardH, 28);
       c.fillStyle = grad(PAD, y, PAD + cw, y + cardH, [[0,'rgba(79,140,255,.16)'],[1,'rgba(30,79,208,.05)']]); c.fill();
       c.strokeStyle = 'rgba(121,168,255,.35)'; c.lineWidth = 1.5; c.stroke(); c.restore();
-      c.font = font(400, 19, 'mono'); c.fillStyle = BLUE2; spaced('СТОИМОСТЬ', PAD + 36, y + 52, 2.5);
+      c.font = font(400, 19, 'mono'); c.fillStyle = BLUE2; spaced(en ? 'PRICE' : 'СТОИМОСТЬ', PAD + 36, y + 52, 2.5);
       c.font = font(800, 104);
       c.shadowColor = 'rgba(79,140,255,.45)'; c.shadowBlur = 30;
-      c.fillStyle = grad(PAD, y + 70, PAD + 520, y + 170, [[0,'#a9c8ff'],[1,BLUE]]); c.fillText(usd(E.rec), PAD + 32, y + 162);
+      c.fillStyle = grad(PAD, y + 70, PAD + 520, y + 170, [[0,'#a9c8ff'],[1,BLUE]]); c.fillText(usdC(E.rec), PAD + 32, y + 162);
       c.shadowBlur = 0;
       // чип срока — одним числом (верхняя граница), вилку клиенту не показываем
       let cx = PAD + 36; const cy = y + 190;
       const chip = t => { c.font = font(400, 21, 'mono'); const w = c.measureText(t).width + 40;
         c.save(); rr(cx, cy, w, 40, 20); c.fillStyle = 'rgba(79,140,255,.1)'; c.fill(); c.strokeStyle = 'rgba(121,168,255,.3)'; c.lineWidth = 1; c.stroke(); c.restore();
         c.fillStyle = BLUE2; c.textBaseline = 'middle'; c.fillText(t, cx + 20, cy + 21); c.textBaseline = 'alphabetic'; cx += w + 12; };
-      chip(`срок ${E.dTo} раб. ${plural(E.dTo, 'день', 'дня', 'дней')}`);
+      chip(en ? `timeline ${enDays(E.dTo)}` : `срок ${E.dTo} раб. ${plural(E.dTo, 'день', 'дня', 'дней')}`);
       y += cardH + 70;
 
       // что входит
-      c.font = font(700, 30); c.fillStyle = TXT; c.fillText('Что входит', PAD, y); y += 52;
+      c.font = font(700, 30); c.fillStyle = TXT; c.fillText(en ? 'What\u2019s included' : 'Что входит', PAD, y); y += 52;
       c.font = font(400, 27);
       for(const it of incl){
         const lines = wrap(it, W - PAD * 2 - 40);
@@ -1385,18 +1514,18 @@
       }
       if(E.ext){
         c.font = font(300, 24); c.fillStyle = MUT;
-        wrap(`В стоимость входят внешние расходы (хостинг, API, лицензии): ${usd(E.ext)}`, W - PAD * 2).forEach(l => { c.fillText(l, PAD, y); y += 34; });
+        wrap(en ? `The price includes third-party costs (hosting, APIs, licenses): ${usdC(E.ext)}` : `В стоимость входят внешние расходы (хостинг, API, лицензии): ${usd(E.ext)}`, W - PAD * 2).forEach(l => { c.fillText(l, PAD, y); y += 34; });
         y += 16;
       }
 
       // поддержка — только если выбрана
       if(E.sup){
         y += 6;
-        c.font = font(300, 22); const dl = wrap(`${E.sup.desc}. Сверх пакета — ${usd(P.support.overHour)}/ч`, W - PAD * 2 - 72);
+        c.font = font(300, 22); const dl = wrap(en ? `${tr(E.sup.desc)}. Extra hours — ${usdC(P.support.overHour)}/h` : `${E.sup.desc}. Сверх пакета — ${usd(P.support.overHour)}/ч`, W - PAD * 2 - 72);
         const h = 104 + dl.length * 32;
         c.save(); rr(PAD, y, W - PAD * 2, h, 24); c.fillStyle = 'rgba(255,255,255,.04)'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.1)'; c.lineWidth = 1.5; c.stroke(); c.restore();
-        c.font = font(600, 27); c.fillStyle = TXT; c.fillText(`Поддержка после запуска · ${E.sup.name}`, PAD + 36, y + 54);
-        c.textAlign = 'right'; c.fillStyle = BLUE2; c.fillText(`${usd(E.sup.price)}/мес`, W - PAD - 36, y + 54); c.textAlign = 'left';
+        c.font = font(600, 27); c.fillStyle = TXT; c.fillText(en ? `Post-launch support · ${tr(E.sup.name)}` : `Поддержка после запуска · ${E.sup.name}`, PAD + 36, y + 54);
+        c.textAlign = 'right'; c.fillStyle = BLUE2; c.fillText(en ? `${usdC(E.sup.price)}/mo` : `${usd(E.sup.price)}/мес`, W - PAD - 36, y + 54); c.textAlign = 'left';
         c.font = font(300, 22); c.fillStyle = MUT; dl.forEach((l, i) => c.fillText(l, PAD + 36, y + 92 + i * 32));
         y += h + 40;
       } else y += 10;
@@ -1404,7 +1533,7 @@
       // подвал
       c.strokeStyle = 'rgba(255,255,255,.09)'; c.lineWidth = 1; c.beginPath(); c.moveTo(PAD, y); c.lineTo(W - PAD, y); c.stroke();
       y += 56;
-      c.font = font(400, 22, 'mono'); c.fillStyle = BLUE2; c.fillText('nexusnova.app', PAD, y);
+      c.font = font(400, 22, 'mono'); c.fillStyle = BLUE2; c.fillText(en ? 'nexusnova.app/en' : 'nexusnova.app', PAD, y);
       c.textAlign = 'right'; c.fillStyle = TXT; c.fillText('Telegram @Ppasha69', W - PAD, y); c.textAlign = 'left';
       y += PAD - 10;
     };
@@ -1423,11 +1552,11 @@
 
     const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
     if(!blob) return;
-    const name = `smeta-nexus-${E.pk}-${new Date().toISOString().slice(0, 10)}.png`;
+    const name = `${en ? 'estimate' : 'smeta'}-nexus-${E.pk}-${new Date().toISOString().slice(0, 10)}.png`;
     const file = new File([blob], name, { type:'image/png' });
     let done = false;
     if(matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({ files:[file] })){
-      try{ await navigator.share({ files:[file], title:'Смета · Nexus AI' }); done = true; }catch(e){ if(e && e.name === 'AbortError') return; }
+      try{ await navigator.share({ files:[file], title:en ? 'Estimate · Nexus AI' : 'Смета · Nexus AI' }); done = true; }catch(e){ if(e && e.name === 'AbortError') return; }
     }
     if(!done){
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
