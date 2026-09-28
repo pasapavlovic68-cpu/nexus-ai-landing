@@ -2,3 +2,7 @@
 # дашборд и калькулятор меняются часто — браузер всегда проверяет свежую версию
 /stats/*
   Cache-Control: no-cache
+
+# шрифты не меняются — браузер может хранить их год
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
