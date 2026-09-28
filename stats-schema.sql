@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS sessions (
   lang         TEXT,
   dur          INTEGER NOT NULL DEFAULT 0,  -- активное время на странице, сек
   max_scroll   INTEGER NOT NULL DEFAULT 0,  -- 0 / 25 / 50 / 75 / 100
-  lead         INTEGER NOT NULL DEFAULT 0   -- 1 = нажал кнопку Telegram
+  lead         INTEGER NOT NULL DEFAULT 0,  -- 1 = нажал кнопку Telegram
+  human        INTEGER NOT NULL DEFAULT 0,  -- 1 = живой визит (Turnstile или действия человека)
+  net          TEXT                         -- сеть провайдера (cf.asOrganization)
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_first ON sessions(first_ts);
 
@@ -74,3 +76,7 @@ CREATE TABLE IF NOT EXISTS links (
   hits     INTEGER NOT NULL DEFAULT 0,
   created  INTEGER NOT NULL
 );
+
+-- миграция 2026-09-28 для уже созданной базы (выполнялась один раз):
+--   ALTER TABLE sessions ADD COLUMN human INTEGER NOT NULL DEFAULT 0;
+--   ALTER TABLE sessions ADD COLUMN net TEXT;

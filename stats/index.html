@@ -190,6 +190,9 @@
     background:linear-gradient(180deg,#fff,#aeb6d4); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .page-head h1 .accent{background:linear-gradient(135deg,var(--accent-bright),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .range{font-family:'Space Mono',monospace; font-size:12px; color:var(--muted); letter-spacing:.5px;}
+  .range-wrap{display:flex; flex-direction:column; align-items:flex-end; gap:4px;}
+  .range.bots{font-size:11px; color:var(--muted-2); opacity:.85; cursor:help;}
+  @media(max-width:720px){ .range-wrap{align-items:flex-start;} }
   @media(max-width:520px){ .page-head{padding:22px 0 18px;} .kicker{letter-spacing:3px; font-size:11px;} }
 
   /* ---------- сетки ---------- */
@@ -811,7 +814,7 @@
       <div class="kicker">Nexus AI · лендинг</div>
       <h1>Статистика <span class="accent" id="ph-period">за 7 дней</span></h1>
     </div>
-    <div class="range" id="ph-range">&nbsp;</div>
+    <div class="range-wrap"><div class="range" id="ph-range">&nbsp;</div><div class="range bots" id="ph-bots" hidden title="Роботы и сканеры: не прошли невидимую проверку Cloudflare и ничего не делали на странице. В цифрах статистики их нет."></div></div>
   </header>
 
   <!-- KPI -->
@@ -1430,6 +1433,7 @@
       });
       return {
         range: d.range && typeof d.range === 'object' ? d.range : {},
+        bots: num(k.bots),
         kpi: Object.assign(pick(k), {prev: pk ? pick(pk) : null}),
         daily: arr(d.daily).map(x => ({d:x && x.d, visits:num(x && x.visits), leads:num(x && x.leads)})),
         funnel: arr(d.funnel), clicks: arr(d.clicks), sources: arr(d.sources), campaigns: arr(d.campaigns),
@@ -1451,6 +1455,10 @@
           : fmtDay(f) + ' — ' + fmtDay(t) + ' ' + t.getFullYear();
       }
       $('#ph-range').textContent = txt;
+      // сколько визитов не засчитано: роботы и сканеры (без Turnstile и без действий человека)
+      const b = $('#ph-bots');
+      b.textContent = D.bots ? 'отсеяно роботов: ' + D.bots : '';
+      b.hidden = !D.bots;
     }
 
     // ---------- KPI ----------

@@ -1175,11 +1175,16 @@
       }
     }catch(e){ off = true; }
 
+    // невидимый Cloudflare Turnstile: подпись «это человек» — один раз за визит, посетитель ничего не видит
+    let tsToken = null;
     function flush(beacon){
       clearTimeout(timer);
-      if(!q.length || off) { q = []; return; }
-      const body = JSON.stringify(Object.assign({ sid, e:q.splice(0, 40) }, meta ? { m:meta } : {}));
+      if(off) { q = []; return; }
+      if(!q.length && !tsToken) return;
+      const extra = Object.assign({}, meta ? { m:meta } : {}, tsToken ? { ts:tsToken } : {});
+      const body = JSON.stringify(Object.assign({ sid, e:q.splice(0, 40) }, extra));
       meta = null;
+      if(tsToken){ tsToken = null; try{ localStorage.setItem('nexus_ts', sid); }catch(e){} }
       const blob = new Blob([body], { type:'text/plain' });
       if(!(beacon && navigator.sendBeacon && navigator.sendBeacon('/api/t', blob)))
         fetch('/api/t', { method:'POST', body, keepalive:true, headers:{ 'content-type':'text/plain' } }).catch(()=>{});
@@ -1195,6 +1200,27 @@
       } else since = Date.now();
     });
     addEventListener('pagehide', ()=> flush(true));
+
+    let tsDone = false;
+    try{ tsDone = localStorage.getItem('nexus_ts') === sid; }catch(e){}
+    if(!off && !tsDone){
+      window.__nxTs = function(){
+        try{
+          const box = document.createElement('div');
+          box.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;';
+          document.body.appendChild(box);
+          turnstile.render(box, {
+            sitekey: '0x4AAAAAAFG0FppL7gMa_wY-',
+            callback: t => { tsToken = t; clearTimeout(timer); timer = setTimeout(()=> flush(false), 300); },
+            'error-callback': () => {}
+          });
+        }catch(e){}
+      };
+      const sc = document.createElement('script');
+      sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__nxTs';
+      sc.async = true; sc.defer = true;
+      document.head.appendChild(sc);
+    }
 
     return function(t, n, v){
       if(off) return;

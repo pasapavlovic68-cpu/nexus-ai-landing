@@ -42,7 +42,7 @@ export async function onRequestGet({ request, env }){
     /* 2 */ S(`SELECT COALESCE(SUM(amount),0) AS s, COUNT(*) AS n FROM sales WHERE date BETWEEN ? AND ?`, r.pFromDate, r.pToDate),
     /* 3 */ S(`SELECT COALESCE(SUM(amount),0) AS s FROM spend WHERE date BETWEEN ? AND ?`, r.pFromDate, r.pToDate),
     /* 4 */ S(`SELECT COALESCE(utm_campaign,'—') AS campaign, MAX(utm_source) AS source, COUNT(*) AS visits, COALESCE(SUM(lead),0) AS leads
-               FROM sessions WHERE first_ts >= ? GROUP BY campaign`, r.from),
+               FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY campaign`, r.from),
     /* 5 */ S(`SELECT COALESCE(campaign,'—') AS campaign, MAX(source) AS source, COUNT(*) AS sales, SUM(amount) AS revenue
                FROM sales WHERE date BETWEEN ? AND ? GROUP BY campaign`, r.fromDate, r.toDate),
     /* 6 */ S(`SELECT campaign, MAX(source) AS source, SUM(amount) AS spend FROM spend WHERE date BETWEEN ? AND ? GROUP BY campaign`, r.fromDate, r.toDate),
