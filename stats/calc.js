@@ -476,6 +476,11 @@
 
   /* шаг 1: продукты */
   .nc-prods{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;}
+  .nc-mkt{display:flex; align-items:center; gap:6px; margin:-2px 0 14px; flex-wrap:wrap;}
+  .nc-mkt span{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted-2,#7a8098); margin-right:4px;}
+  .nc-mkt button{font:inherit; font-size:13px; font-weight:600; color:var(--muted,#8b90a6); background:rgba(255,255,255,.04); border:1px solid var(--border,rgba(255,255,255,.09)); border-radius:10px; padding:7px 13px; cursor:pointer; transition:color .2s, background .2s, border-color .2s;}
+  .nc-mkt button[aria-pressed="true"]{color:#fff; background:rgba(79,140,255,.18); border-color:rgba(121,168,255,.55);}
+  .nc-mkt button:focus-visible{outline:2px solid var(--accent2,#79a8ff); outline-offset:2px;}
   .nc-prod{display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:16px; cursor:pointer; text-align:left; min-width:0;
     background:var(--nc-glass2); border:1px solid var(--nc-border); -webkit-tap-highlight-color:transparent;
     transition:border-color .15s ease, background-color .15s ease, transform .15s var(--nc-out);}
@@ -679,6 +684,33 @@
   const REDUCE = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : {matches:false};
   const EASE = 'cubic-bezier(0.23,1,0.32,1)';
   const P = PRICING;
+
+  // рынок клиента: СНГ — базовые цены; США и Европа — ставка выше, минимумы и поддержка
+  // как на английском сайте nexusnova.app/en. Переключение подменяет значения в P на лету.
+  const MARKETS = {
+    cis: {label:'СНГ', rate:25, overHour:35},
+    us:  {label:'США и Европа', rate:40, overHour:60,
+          min:{150:250, 300:500, 400:700, 600:1000, 700:1200, 800:1500, 900:1500, 1000:1800, 1200:2000, 1500:2500, 2500:4000, 3500:6000},
+          support:{80:150, 200:350, 450:750}}
+  };
+  const BASE = JSON.parse(JSON.stringify({products:P.products, tiers:P.support.tiers}));
+  function applyMarket(m){
+    const M = MARKETS[m] || MARKETS.cis;
+    const mm = x => !M.min ? x : (M.min[x] || Math.ceil(x * 1.7 / 50) * 50);
+    P.rate = M.rate; P.support.overHour = M.overHour;
+    Object.keys(P.products).forEach(k => {
+      const p = P.products[k], b = BASE.products[k];
+      p.min = mm(b.min);
+      p.qs.forEach((q, qi) => (q.opts || []).forEach((o, oi) => {
+        const bo = b.qs[qi].opts[oi];
+        if(bo.min) o.min = mm(bo.min);
+        if(bo.base) o.base.min = mm(bo.base.min);
+      }));
+    });
+    Object.keys(P.support.tiers).forEach(k => {
+      const x = BASE.tiers[k].price; P.support.tiers[k].price = M.support ? M.support[x] : x;
+    });
+  }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const nf = n => Math.round(n).toLocaleString('ru-RU');
   const usd = n => '$' + nf(n);
@@ -703,7 +735,10 @@
 
   /* ---------------- состояние ---------------- */
   const freshCommon = () => ({urg:'normal', support:'none', ext:P.ext.def});
-  const S = {step:0, product:null, ans:{}, askOff:{}, common:freshCommon()};
+  let savedMarket = 'cis';
+  try{ savedMarket = localStorage.getItem('nexus_calc_market') === 'us' ? 'us' : 'cis'; }catch(_){}
+  const S = {step:0, product:null, ans:{}, askOff:{}, common:freshCommon(), market:savedMarket};
+  applyMarket(S.market);
   function initAns(pk){
     if(S.ans[pk]) return S.ans[pk];
     const a = {};
@@ -908,6 +943,8 @@
     if(step === ST.prod){
       return `<h2 class="nc-h" tabindex="-1">Что хочет клиент?</h2>
         <p class="nc-sub">Выберите продукт — дальше вопросы клиенту и расчёт</p>
+        <div class="nc-mkt" role="group" aria-label="Рынок клиента"><span>Рынок клиента</span>${Object.keys(MARKETS).map(k =>
+          `<button type="button" data-market="${k}" aria-pressed="${S.market === k}">${esc(MARKETS[k].label)}</button>`).join('')}</div>
         <div class="nc-prods" role="group" aria-label="Продукт">${ORDER.map(k => {
           const p = P.products[k];
           return `<button type="button" class="nc-prod" data-prod="${k}" aria-pressed="${S.product === k}">
@@ -1205,6 +1242,15 @@
   function onClick(e){
     const t = e.target;
     if(t.closest('[data-nc-close]')){ close(); return; }
+    const mk = t.closest('[data-market]');
+    if(mk){
+      if(mk.dataset.market !== S.market){
+        S.market = mk.dataset.market; applyMarket(S.market);
+        try{ localStorage.setItem('nexus_calc_market', S.market); }catch(_){}
+        swap(0, false); updateEst();
+      }
+      return;
+    }
     const prod = t.closest('.nc-prod'); if(prod){ pickProduct(prod.dataset.prod); return; }
     const ask = t.closest('.nc-ask'); if(ask){ toggleAsk(ask); return; }
     const opt = t.closest('.nc-opt'); if(opt){ setOpt(opt); return; }
