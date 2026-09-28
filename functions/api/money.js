@@ -6,7 +6,7 @@
 import { authed } from './stats.js';
 
 const PRODUCTS = ['Chrome-расширение','Telegram-бот / Mini App','Сайт / лендинг','Дашборд / аналитика',
-  'Интеграция / автоматизация','Автоворонка Chatterfy','CRM','Поддержка','Другое'];
+  'Интеграция / автоматизация','CRM','Поддержка','Другое'];
 const DAY = 864e5;
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {

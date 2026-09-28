@@ -50,7 +50,7 @@
     },
     // срок: 5–6 продуктивных часов в день + 30% на согласования
     days: {perDayMin:5, perDayMax:6, approvals:0.30},
-    // внешние расходы (хостинг, API ИИ, лицензии, Chatterfy) — разово, отдельной строкой
+    // внешние расходы (хостинг, API ИИ, лицензии) — разово, отдельной строкой
     ext: {def:0, step:10, max:20000},
     // поддержка после запуска — фиксированные тарифы в месяц
     support: {
@@ -252,29 +252,6 @@
         ]
       },
 
-      // автоворонка Chatterfy 10 ч, мин $400
-      funnel: {
-        name:'Автоворонка Chatterfy', icon:'funnel', hours:10, min:400, cx:[3,5],
-        copy:'Автоворонка в Chatterfy под ключ, с оформлением сообщений',
-        support:'business', extHint:'Chatterfy ≈ $3/день ≈ $90/мес',
-        qs:[
-          {id:'stages', type:'one', title:'Этапы воронки', def:'reg', opts:[
-            {k:'reg', label:'Reg', sub:'регистрация', copy:'Воронка: регистрация (Reg)'},
-            {k:'fd', label:'Reg → FD', sub:'+ первый депозит', h:4, row:'Этап FD', copy:'Воронка: регистрация → первый депозит (Reg → FD)'},
-            {k:'rd', label:'Reg → FD → RD', sub:'+ повторные депозиты', h:8, w:1, row:'Этапы FD и RD', copy:'Воронка: регистрация → первый → повторные депозиты (Reg → FD → RD)'}
-          ]},
-          {id:'chains', type:'num', title:'Цепочек дожима', short:'Цепочек дожима', unit:'шт.',
-            min:1, max:15, step:1, def:2, free:2, h:1.5, wAt:[[6,1]], hint:'2 — в базе, дальше +1,5 ч за цепочку'},
-          {id:'geo', type:'num', title:'ГЕО / языков', short:'ГЕО / языков', unit:'шт.',
-            min:1, max:15, step:1, def:1, free:1, h:2, wAt:[[4,1],[8,2]], hint:'Каждое следующее ГЕО: +2 ч на адаптацию'},
-          {id:'extra', type:'many', title:'Ещё', def:[], opts:[
-            {k:'ab', label:'A/B-тесты', sub:'сообщений и сценариев', h:4, w:1},
-            {k:'trk', label:'Постбэки в трекер', sub:'Keitaro / Binom', h:3, int:1, intName:'трекер'},
-            {k:'ai', label:'ИИ-ответы', sub:'GPT в диалогах', h:6, w:2, row:'ИИ-ответы в диалогах'}
-          ]}
-        ]
-      },
-
       // CRM MVP 90 ч, мин $3 500
       crm: {
         name:'CRM под ключ', icon:'crm', hours:90, min:3500, cx:[4,7],
@@ -361,13 +338,6 @@
       'Как часто обновлять данные: по расписанию или сразу, в реальном времени?',
       'Нужны ли постбэки в трекер (Keitaro, Binom), сверка данных или оповещения об ошибках?'
     ], tail:['deadline','budget']},
-    funnel:{q:[
-      'Расскажите о продукте: что продвигаем, в каких ГЕО и на каких языках общаемся с аудиторией?',
-      'Какие этапы нужно вести: регистрация, первый депозит, повторные депозиты?',
-      'Сколько цепочек дожима и сообщений вы видите?',
-      'Какой источник трафика и какой трекер используете?',
-      'Нужны ли A/B-тесты сообщений или ИИ-ответы в диалогах?'
-    ], tail:['refs','deadline','budget']},
     crm:{q:[
       'Расскажите о бизнесе: какие процессы нужно вести в CRM — заявки, сделки, чаты, оплаты, зарплаты?',
       'Сколько сотрудников будет работать в системе и какие у них роли?',
@@ -424,11 +394,6 @@
     'Алерты об ошибках в Telegram':'Error alerts in Telegram', 'Систем':'Systems', 'Подключение систем без API':'Connecting systems without an API',
     'Регулярная синхронизация по расписанию':'Scheduled data sync', 'Двусторонняя синхронизация в реальном времени':'Two-way real-time sync',
     'Сверка данных и отчёт о расхождениях':'Data reconciliation with a mismatch report', 'Логи и алерты в Telegram':'Logs and alerts in Telegram',
-    // воронка
-    'Автоворонка Chatterfy':'Chatterfy sales funnel', 'Автоворонка в Chatterfy под ключ, с оформлением сообщений':'Turnkey Chatterfy funnel with styled messages',
-    'Воронка: регистрация (Reg)':'Funnel: sign-up (Reg)', 'Воронка: регистрация → первый депозит (Reg → FD)':'Funnel: sign-up → first deposit (Reg → FD)',
-    'Воронка: регистрация → первый → повторные депозиты (Reg → FD → RD)':'Funnel: sign-up → first → repeat deposits (Reg → FD → RD)',
-    'Цепочек дожима':'Follow-up sequences', 'ГЕО / языков':'GEOs / languages', 'A/B-тесты':'A/B tests', 'ИИ-ответы в диалогах':'AI replies in conversations',
     // CRM
     'CRM под ключ':'Custom CRM', 'CRM: клиенты, карточки, задачи, роли и доступы, уникальный дизайн':'CRM: clients, client cards, tasks, roles and access, custom design',
     'Модуль: чаты мессенджеров':'Module: messenger chats', 'Модуль: сделки и воронка':'Module: deals and pipeline', 'Модуль: оплаты и зарплаты':'Module: payments and payroll',
@@ -474,11 +439,6 @@
       'Do these systems have an API, or do you have access to one?',
       'How often should data update: on a schedule or instantly, in real time?',
       'Do you need tracker postbacks (Keitaro, Binom), data reconciliation or error alerts?'],
-    funnel:['Tell us about the product: what are we promoting, in which GEOs and languages?',
-      'Which stages should the funnel cover: sign-up, first deposit, repeat deposits?',
-      'How many follow-up sequences and messages do you have in mind?',
-      'Which traffic source and tracker do you use?',
-      'Do you need A/B tests for messages or AI replies in conversations?'],
     crm:['Tell us about your business: which processes should the CRM handle — leads, deals, chats, payments, payroll?',
       'How many people will work in the system, and what are their roles?',
       'Which messengers and services do you use — what needs to be connected (telephony, payments, tracker)?',
@@ -488,7 +448,7 @@
   const askListEn = pk => ASK_EN[pk].concat(ASK[pk].tail.map(k => ASK_EN.tail[k]));
 
   // порядок продуктов на первом шаге
-  const ORDER = ['site','bot','miniapp','ext','dash','integr','funnel','crm'];
+  const ORDER = ['site','bot','miniapp','ext','dash','integr','crm'];
   const STEPS = ['Продукт','Вопросы','Задача','Условия','Смета'];
   const ST = {prod:0, ask:1, task:2, cond:3, fin:4};
 
@@ -499,7 +459,6 @@
     ext:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/>',
     dash:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     integr:'<circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M9 6h6M18 9v6M8.2 8.2l7.6 7.6"/>',
-    funnel:'<path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4z"/>',
     crm:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>'
   };
   const svg = (inner, s = 20, sw = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;

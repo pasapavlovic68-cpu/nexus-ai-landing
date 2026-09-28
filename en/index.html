@@ -169,7 +169,6 @@
     .hero p{margin-bottom:26px; font-size:15.5px}
     .hero-btns{gap:12px}
     .hero-btns > a{width:100%; max-width:340px; text-align:center}
-    .hero-btns .ch-btn{min-width:0}
   }
   .hero .mark{filter:drop-shadow(0 0 28px rgba(79,140,255,0.45));}
   /* знак + название в одну строку */
@@ -344,81 +343,6 @@
     .work-cap{padding:0 10px;}
   }
 
-
-  /* ---------- АВТОВОРОНКИ CHATTERFY ---------- */
-  .case-band{
-    background:linear-gradient(135deg,rgba(79,140,255,0.08),rgba(30,79,208,0.04));
-    border:1px solid var(--border); border-radius:24px; padding:40px 36px;
-    backdrop-filter:blur(14px); text-align:center; margin-bottom:var(--gap);
-  }
-  .case-band .big{
-    font-size:clamp(40px,7vw,64px); font-weight:800; letter-spacing:-2px; line-height:1.1;
-    background:linear-gradient(135deg,var(--accent-bright),var(--accent));
-    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-  }
-  .case-band .case-sub{color:var(--muted); font-size:14px; font-weight:300; max-width:520px; margin:10px auto 0;}
-  .case-metrics{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:22px;}
-  .case-metrics span{
-    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase;
-    color:var(--accent-bright); background:rgba(79,140,255,0.1); border:1px solid rgba(79,140,255,0.2);
-    padding:6px 14px; border-radius:20px;
-  }
-  .funnel-steps{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--gap); margin-bottom:var(--gap);}
-  @media(max-width:860px){ .funnel-steps{grid-template-columns:1fr} }
-  .funnel-step{
-    background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:28px 26px;
-    backdrop-filter:blur(14px); transition:transform .3s, border-color .3s;
-  }
-  .funnel-step:hover{transform:translateY(-6px); border-color:var(--border-hover)}
-  .funnel-step .num{font-family:'Space Mono',monospace; font-size:13px; color:var(--accent); margin-bottom:12px;}
-  .funnel-step h3{font-size:18px; font-weight:600; margin-bottom:10px;}
-  .funnel-step p{color:var(--muted); font-size:13.5px; font-weight:300;}
-  .funnel-incl{
-    background:var(--glass-2); border:1px solid var(--border); border-radius:20px; padding:26px 28px;
-    backdrop-filter:blur(14px); margin-bottom:var(--head); text-align:center;
-  }
-  .funnel-incl h3{font-size:15px; font-weight:600; margin-bottom:14px;}
-  .funnel-incl ul{list-style:none; display:inline-grid; grid-template-columns:repeat(2,auto); gap:8px 36px; text-align:left;}
-  @media(max-width:720px){ .funnel-incl ul{grid-template-columns:auto} }
-  .funnel-incl li{color:var(--muted); font-size:13.5px; font-weight:300; display:flex; gap:10px; align-items:flex-start;}
-  .funnel-incl li::before{content:'✓'; color:var(--accent); font-weight:600;}
-  .funnel-price{text-align:center; margin:0 auto var(--gap);}
-  .funnel-price-amount{font-size:clamp(30px,4vw,42px); font-weight:800; letter-spacing:-1px; line-height:1; background:linear-gradient(120deg,var(--accent2),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; display:inline-block;}
-  .funnel-price-note{color:var(--muted); font-size:14px; font-weight:300; max-width:520px; margin:12px auto 0; line-height:1.6;}
-  .funnel-cta{text-align:center;}
-
-  /* кнопка «Автоворонки Chatterfy» — прозрачная карточка с эквалайзером-волной внутри */
-  .ch-btn{
-    position:relative; overflow:hidden; background:rgba(79,140,255,0.04);
-    border:1px solid rgba(121,168,255,0.25); color:var(--txt);
-    padding:16px 32px; min-width:250px; height:56px; border-radius:14px;
-    font-weight:500; font-size:16px; cursor:pointer; backdrop-filter:blur(10px);
-    display:flex; align-items:center; justify-content:center; text-decoration:none;
-    transition:border-color .35s, box-shadow .35s, background .35s;
-  }
-  .ch-text{
-    display:inline-flex; align-items:center; gap:9px; position:relative; z-index:2;
-    transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .35s, color .35s, font-size .35s;
-  }
-  .ch-graph{
-    position:absolute; left:0; right:0; top:0; height:32px; padding:9px 22px 0;
-    display:flex; align-items:flex-end; justify-content:space-between;
-    opacity:0; transform:translateY(-10px);
-    transition:opacity .4s ease, transform .45s cubic-bezier(.2,.8,.2,1);
-    pointer-events:none; z-index:1;
-  }
-  .ch-graph .b{
-    flex:1; max-width:6px; margin:0 1.5px; border-radius:2px 2px 1px 1px;
-    background:linear-gradient(180deg,var(--accent2),var(--accent));
-    box-shadow:0 0 8px rgba(79,140,255,0.5); height:25%;
-  }
-  @media (hover:hover){
-    .ch-btn:hover{border-color:rgba(121,168,255,0.6); box-shadow:0 8px 34px rgba(79,140,255,0.28); background:rgba(79,140,255,0.07);}
-    .ch-btn:hover .ch-text{transform:translateY(13px); opacity:.85; color:var(--accent2); font-size:13px;}
-    .ch-btn:hover .ch-graph{opacity:1; transform:translateY(0);}
-    .ch-btn:hover .ch-graph .b{animation:chPulse 1s ease-in-out infinite;}
-    @keyframes chPulse{0%,100%{height:18%}50%{height:100%}}
-  }
 
   /* ---------- ПРОЦЕСС ---------- */
   .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--gap);}
@@ -611,7 +535,6 @@
       <a href="#results">Results</a>
       <a href="#services">Services</a>
       <a href="#portfolio">Work</a>
-      <a href="#funnels">Funnels</a>
       <a href="#process">Process</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -647,10 +570,6 @@
     <div class="hero-btns">
       <a href="https://wa.me/84398964897?text=Hi%21%20I%20found%20you%20on%20nexusnova.app%20and%20would%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener" class="btn-primary" data-track="tg_hero"><span class="t">Discuss your project</span></a>
       <a href="#portfolio" class="btn-ghost"><span class="t">See our work</span></a>
-      <a href="#funnels" class="ch-btn">
-        <span class="ch-graph" aria-hidden="true"><span class="b"></span><span class="b" style="animation-delay:-0.07s"></span><span class="b" style="animation-delay:-0.14s"></span><span class="b" style="animation-delay:-0.21s"></span><span class="b" style="animation-delay:-0.28s"></span><span class="b" style="animation-delay:-0.35s"></span><span class="b" style="animation-delay:-0.42s"></span><span class="b" style="animation-delay:-0.49s"></span><span class="b" style="animation-delay:-0.56s"></span><span class="b" style="animation-delay:-0.63s"></span><span class="b" style="animation-delay:-0.7s"></span><span class="b" style="animation-delay:-0.77s"></span><span class="b" style="animation-delay:-0.84s"></span><span class="b" style="animation-delay:-0.91s"></span><span class="b" style="animation-delay:-0.98s"></span><span class="b" style="animation-delay:-1.05s"></span><span class="b" style="animation-delay:-1.12s"></span><span class="b" style="animation-delay:-1.19s"></span><span class="b" style="animation-delay:-1.26s"></span><span class="b" style="animation-delay:-1.33s"></span><span class="b" style="animation-delay:-1.4s"></span><span class="b" style="animation-delay:-1.47s"></span><span class="b" style="animation-delay:-1.54s"></span><span class="b" style="animation-delay:-1.61s"></span></span>
-        <span class="ch-text"><span>Chatterfy funnels</span> <span class="arrow">→</span></span>
-      </a>
     </div>
     <ul class="hero-chips">
       <li>CRM integration without API</li><li>Keitaro &amp; Binom postbacks</li><li>Prototype first</li>
@@ -903,64 +822,6 @@
   </div>
 </section>
 
-<!-- АВТОВОРОНКИ CHATTERFY -->
-<section class="section" id="funnels">
-  <div class="container">
-    <div class="sec-head reveal">
-      <span class="tag">Auto-funnels</span>
-      <h2>Auto-funnels in Chatterfy</h2>
-      <p>We automate the client journey in messengers: registration → first deposit → repeat deposits. The funnel runs 24/7 with no manual handling.</p>
-    </div>
-
-    <div class="case-band reveal">
-      <div class="big">10% → 40%</div>
-      <p class="case-sub">Registration conversion growth after automating the funnel. BO niche, GEO: Colombia and Mexico, Facebook traffic.</p>
-      <div class="case-metrics">
-        <span>Runs 24/7</span>
-        <span>Reg → FD → RD</span>
-        <span>A/B test, May</span>
-      </div>
-    </div>
-
-    <div class="funnel-steps">
-      <div class="funnel-step reveal">
-        <div class="num">01</div>
-        <h3>Registration (Reg)</h3>
-        <p>Instant first reply, warm-up and segmentation by user actions in the first 15, 30 and 60 minutes.</p>
-      </div>
-      <div class="funnel-step reveal">
-        <div class="num">02</div>
-        <h3>First deposit (FD)</h3>
-        <p>Trigger- and timing-based message sequences that lead to the first deposit.</p>
-      </div>
-      <div class="funnel-step reveal">
-        <div class="num">03</div>
-        <h3>Repeat deposits (RD)</h3>
-        <p>Working your client base: we bring inactive clients back with personal messages — no spam.</p>
-      </div>
-    </div>
-
-    <div class="funnel-incl reveal">
-      <h3>What’s included</h3>
-      <ul>
-        <li>Tracker integration (Keitaro, Binom and others)</li>
-        <li>Correct postback delivery</li>
-        <li>A/B tests of messages and scenarios</li>
-        <li>Retention logic tailored to your GEO and offer</li>
-      </ul>
-    </div>
-
-    <div class="funnel-price reveal">
-      <div class="funnel-price-amount">from $700</div>
-      <div class="funnel-price-note">A turnkey funnel. The exact price depends on scenario complexity, traffic source and your goals.</div>
-    </div>
-
-    <div class="funnel-cta reveal">
-      <a href="https://t.me/+k1ShAmy4AIYxZGIy" target="_blank" rel="noopener" class="btn-primary" data-track="tg_funnels"><span class="t">Order a funnel</span></a>
-    </div>
-  </div>
-</section>
-
 <!-- ПРОЦЕСС -->
 <section class="section" id="process">
   <div class="container">
@@ -1080,7 +941,7 @@
         <a href="https://wa.me/84398964897?text=Hi%21%20I%20found%20you%20on%20nexusnova.app%20and%20would%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener" class="price-glow" data-track="tg_price_auto"><span class="pg-inner">Let's talk</span></a>
       </div>
     </div>
-    <p class="price-note reveal">Chatterfy auto-funnels — <b>from $700</b>, turnkey CRM — <b>from $6,000</b>. Post-launch support is optional — its cost depends on the project and is quoted separately.</p>
+    <p class="price-note reveal">Turnkey CRM — <b>from $6,000</b>. Post-launch support is optional — its cost depends on the project and is quoted separately.</p>
   </div>
 </section>
 
@@ -1110,7 +971,7 @@
       </details>
       <details class="faq-item reveal">
         <summary><span>How is the price calculated?</span><span class="faq-ic" aria-hidden="true"></span></summary>
-        <p>The prices on this site are ballpark figures: bots from $500, Mini Apps from $2,500, websites from $1,000, extensions from $1,200, dashboards from $1,500, postback setup from $250, auto-funnels from $700, CRM from $6,000. We quote the exact price after reviewing your task — it depends on scope, integrations and timeline.</p>
+        <p>The prices on this site are ballpark figures: bots from $500, Mini Apps from $2,500, websites from $1,000, extensions from $1,200, dashboards from $1,500, postback setup from $250 CRM from $6,000. We quote the exact price after reviewing your task — it depends on scope, integrations and timeline.</p>
       </details>
       <details class="faq-item reveal">
         <summary><span>Do you offer support after launch?</span><span class="faq-ic" aria-hidden="true"></span></summary>
@@ -1585,7 +1446,7 @@
     const io = new IntersectionObserver(es => es.forEach(e=>{
       if(e.isIntersecting && !seen.has(e.target.id)){ seen.add(e.target.id); track('section', e.target.id); io.unobserve(e.target); }
     }), {threshold:.25});
-    ['results','services','portfolio','funnels','process','pricing','faq','contact'].forEach(id=>{
+    ['results','services','portfolio','process','why','pricing','faq','contact'].forEach(id=>{
       const el = document.getElementById(id); if(el) io.observe(el);
     });
 

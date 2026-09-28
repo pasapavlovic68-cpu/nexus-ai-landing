@@ -1306,11 +1306,11 @@
     // ---------- словари: человеческие подписи ----------
     const CLICKS = {
       tg_nav:'Шапка · Обсудить', tg_hero:'Первый экран · Обсудить проект', tg_contact:'Контакты · Написать в Telegram', wa_contact:'Контакты · WhatsApp (EN)',
-      tg_funnels:'Автоворонки · Заказать воронку', tg_price_ext:'Тариф · Chrome-расширения', tg_price_tg:'Тариф · Боты и Mini Apps',
+      tg_price_ext:'Тариф · Chrome-расширения', tg_price_tg:'Тариф · Боты и Mini Apps',
       tg_price_site:'Тариф · Сайты', tg_price_dash:'Тариф · Дашборды', tg_price_auto:'Тариф · Интеграции',
       work_voronka:'Работа · Воронка ИИ', work_omnix:'Работа · Omnix', work_okk:'Работа · Nexus ОКК', work_kc:'Работа · Nexus КЦ', work_dept:'Работа · Dept'
     };
-    const SECTIONS = {results:'Результат', services:'Услуги', portfolio:'Работы', funnels:'Автоворонки', process:'Как работаем', why:'Почему мы', pricing:'Цены', faq:'Вопросы', contact:'Контакты'};
+    const SECTIONS = {results:'Результат', services:'Услуги', portfolio:'Работы', process:'Как работаем', why:'Почему мы', pricing:'Цены', faq:'Вопросы', contact:'Контакты'};
     const VIDEOS = {voronka:'Воронка ИИ', omnix:'Omnix CRM', okk:'Nexus ОКК', kc:'Nexus КЦ', dept:'Dept'};
     const FAQ = {q1:'CRM без API', q2:'Связка бота с сайтом и CRM', q3:'Трекеры', q4:'Сроки', q5:'Цена', q6:'Поддержка'};
     const DEVICES = {mobile:'Телефон', desktop:'Компьютер', tablet:'Планшет'};
@@ -2413,7 +2413,7 @@
     ];
     const SRC_NAMES = {telegram:'Telegram', telegram_ads:'Telegram Ads', yandex:'Яндекс Директ', vk:'VK Реклама', instagram:'Instagram', facebook:'Facebook', google:'Google', tiktok:'TikTok'};
     const srcName = s => s ? (SRC_NAMES[s] || s) : '—';
-    const DESTS = [{k:'', p:'', h:'', label:'Главная'}, {k:'portfolio', p:'', h:'portfolio', label:'Работы'}, {k:'pricing', p:'', h:'pricing', label:'Цены'}, {k:'funnels', p:'', h:'funnels', label:'Автоворонки'},
+    const DESTS = [{k:'', p:'', h:'', label:'Главная'}, {k:'portfolio', p:'', h:'portfolio', label:'Работы'}, {k:'pricing', p:'', h:'pricing', label:'Цены'},
       {k:'en', p:'en/', h:'', label:'EN · Главная'}, {k:'en-portfolio', p:'en/', h:'portfolio', label:'EN · Работы'}, {k:'en-pricing', p:'en/', h:'pricing', label:'EN · Цены'}];
     const SITE = 'https://nexusnova.app/';
     const TR = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya',і:'i',ї:'yi',є:'e',ґ:'g'};
@@ -2428,12 +2428,12 @@
 
     // готовые посты: один клик заполняет всё (кампания и вариант — ровно как в шаблоне)
     const TPLS = [
-      {k:'A', label:'Пост A · Автоворонка (видео)', plat:'telegram', what:'voronka', fmt:'video', content:'video15', campaign:'tg_arbitrage_voronka', dest:'portfolio'},
+      {k:'A', label:'Пост A · CRM Omnix (видео)', plat:'telegram', what:'crm', fmt:'video', content:'video15', campaign:'tg_sales_crm', dest:'portfolio'},
       {k:'B', label:'Пост B · Расширение для CRM (картинка)', plat:'telegram', what:'crm_ext', fmt:'img', content:'img1', campaign:'tg_sales_crm_ext', dest:'portfolio'},
       {k:'C', label:'Пост C · Telegram-бот (картинка)', plat:'telegram', what:'bot', fmt:'img', content:'img1', campaign:'tg_business_bot', dest:'pricing'}
     ];
     const WHATS = [
-      {k:'voronka', label:'Автоворонка Chatterfy'}, {k:'crm_ext', label:'Расширение для CRM'}, {k:'bot', label:'Telegram-бот'},
+      {k:'voronka', label:'Расширение «Воронка ИИ»'}, {k:'crm_ext', label:'Расширение для CRM'}, {k:'bot', label:'Telegram-бот'},
       {k:'miniapp', label:'Mini App'}, {k:'site', label:'Сайт / лендинг'}, {k:'dashboard', label:'Дашборд'}, {k:'crm', label:'CRM'},
       {k:'all', label:'Всё сразу'}, {k:'custom', label:'Свой вариант'}
     ];
@@ -2584,7 +2584,7 @@
     });
 
     // ================= ДЕНЬГИ =================
-    const PRODUCTS_DEF = ['Chrome-расширение','Telegram-бот / Mini App','Сайт / лендинг','Дашборд / аналитика','Интеграция / автоматизация','Автоворонка Chatterfy','CRM','Поддержка','Другое'];
+    const PRODUCTS_DEF = ['Chrome-расширение','Telegram-бот / Mini App','Сайт / лендинг','Дашборд / аналитика','Интеграция / автоматизация','CRM','Поддержка','Другое'];
     let money = null;
     // $1 234; для «цены клика» и «цены продажи» — с центами, если сумма маленькая
     function fmtMoney(n, cents){
@@ -2863,7 +2863,7 @@
       {k:'instagram', label:'Instagram', source:'instagram', medium:'bio'},
       {k:'other', label:'Другое', source:null, medium:'other'}
     ];
-    const SL_DEST = [{k:'/', label:'Главная'}, {k:'/#portfolio', label:'Работы'}, {k:'/#pricing', label:'Цены'}, {k:'/#funnels', label:'Автоворонки'},
+    const SL_DEST = [{k:'/', label:'Главная'}, {k:'/#portfolio', label:'Работы'}, {k:'/#pricing', label:'Цены'},
       {k:'/en/', label:'EN · Главная'}, {k:'/en/#portfolio', label:'EN · Работы'}, {k:'/en/#pricing', label:'EN · Цены'}];
     const SL_RESERVED = ['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme','en'];
     const SHORT_HOST = 'nexusnova.app/';
@@ -3067,6 +3067,6 @@
     load('first').then(()=>{ if(document.body.dataset.state === 'app') startTimer(); });
   })();
 </script>
-<script src="/stats/calc.js?v=13" defer></script>
+<script src="/stats/calc.js?v=14" defer></script>
 </body>
 </html>
