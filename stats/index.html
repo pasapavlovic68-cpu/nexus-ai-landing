@@ -2413,7 +2413,8 @@
     ];
     const SRC_NAMES = {telegram:'Telegram', telegram_ads:'Telegram Ads', yandex:'Яндекс Директ', vk:'VK Реклама', instagram:'Instagram', facebook:'Facebook', google:'Google', tiktok:'TikTok'};
     const srcName = s => s ? (SRC_NAMES[s] || s) : '—';
-    const DESTS = [{k:'', label:'Главная'}, {k:'portfolio', label:'Работы'}, {k:'pricing', label:'Цены'}, {k:'funnels', label:'Автоворонки'}];
+    const DESTS = [{k:'', p:'', h:'', label:'Главная'}, {k:'portfolio', p:'', h:'portfolio', label:'Работы'}, {k:'pricing', p:'', h:'pricing', label:'Цены'}, {k:'funnels', p:'', h:'funnels', label:'Автоворонки'},
+      {k:'en', p:'en/', h:'', label:'EN · Главная'}, {k:'en-portfolio', p:'en/', h:'portfolio', label:'EN · Работы'}, {k:'en-pricing', p:'en/', h:'pricing', label:'EN · Цены'}];
     const SITE = 'https://nexusnova.app/';
     const TR = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya',і:'i',ї:'yi',є:'e',ґ:'g'};
     // «CRM тест сентябрь» → crm_test_sentyabr: латиница, цифры и «_», нижний регистр
@@ -2501,7 +2502,7 @@
       const q = [['utm_source', src], ['utm_medium', U.plat.medium], ['utm_campaign', camp]];
       if(cont) q.push(['utm_content', cont]);
       // якорь — строго после меток, иначе метки не дойдут до сервера
-      const url = SITE + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v || '')).join('&') + (U.dest.k ? '#' + U.dest.k : '');
+      const url = SITE + U.dest.p + '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v || '')).join('&') + (U.dest.h ? '#' + U.dest.h : '');
       return {src, camp, ok: !!src && !!camp, q, url};
     }
     function utmPreview(){
@@ -2512,9 +2513,9 @@
       const noStep = !U.fmt || U.fmt.k === 'none';
       $('#utm-step').classList.toggle('off', noStep);
       $('#utm-n').textContent = U.content != null ? (U.content.match(/\d+$/) || ['—'])[0] : U.n;
-      $('#utm-url').innerHTML = `<span class="u-b">${esc(SITE)}</span>?` +
+      $('#utm-url').innerHTML = `<span class="u-b">${esc(SITE + U.dest.p)}</span>?` +
         b.q.map(([k, v]) => `<span class="u-k">${k}</span>=` + (v ? `<span class="u-v">${esc(v)}</span>` : '<span class="u-ph">…</span>')).join('&amp;') +
-        (U.dest.k ? `<span class="u-k">#${U.dest.k}</span>` : '');
+        (U.dest.h ? `<span class="u-k">#${U.dest.h}</span>` : '');
       uCopy.disabled = !b.ok;
       uNote.classList.toggle('warn', !b.ok);
       uNote.textContent = b.ok ? 'source · medium · campaign · content'
@@ -2862,7 +2863,8 @@
       {k:'instagram', label:'Instagram', source:'instagram', medium:'bio'},
       {k:'other', label:'Другое', source:null, medium:'other'}
     ];
-    const SL_DEST = [{k:'/', label:'Главная'}, {k:'/#portfolio', label:'Работы'}, {k:'/#pricing', label:'Цены'}, {k:'/#funnels', label:'Автоворонки'}];
+    const SL_DEST = [{k:'/', label:'Главная'}, {k:'/#portfolio', label:'Работы'}, {k:'/#pricing', label:'Цены'}, {k:'/#funnels', label:'Автоворонки'},
+      {k:'/en/', label:'EN · Главная'}, {k:'/en/#portfolio', label:'EN · Работы'}, {k:'/en/#pricing', label:'EN · Цены'}];
     const SL_RESERVED = ['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme','en'];
     const SHORT_HOST = 'nexusnova.app/';
     let links = null;
