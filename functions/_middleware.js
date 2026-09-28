@@ -1,6 +1,6 @@
 // Короткие ссылки: nexusnova.app/<slug> -> 302 на страницу лендинга с utm-метками (campaign = slug).
 // В базу смотрим только для путей из одного «слова» без точки — статике и API это не мешает.
-const RESERVED = new Set(['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme']);
+const RESERVED = new Set(['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme','en']);
 const BOT = /bot|crawl|spider|slurp|headless|preview|facebookexternalhit|telegram|whatsapp|vkshare/i;
 
 export async function onRequest(ctx){

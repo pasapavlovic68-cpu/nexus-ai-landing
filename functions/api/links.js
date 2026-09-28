@@ -2,7 +2,7 @@
 // Переадресацию nexusnova.app/<slug> делает functions/_middleware.js.
 import { authed } from './stats.js';
 
-const RESERVED = new Set(['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme']);
+const RESERVED = new Set(['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme','en']);
 const TARGETS = new Set(['/', '/#portfolio', '/#pricing', '/#funnels', '/#services', '/#faq']);
 const ORIGIN = 'https://nexusnova.app';
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'content-type':'application/json', 'cache-control':'no-store' } });
