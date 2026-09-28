@@ -319,6 +319,8 @@
   .work-title{font-size:clamp(30px,3.4vw,42px); font-weight:800; letter-spacing:-1.2px; line-height:1.05; margin-bottom:10px;
     background:linear-gradient(180deg,#fff,#c3cbe6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .work-title .accent{background:linear-gradient(135deg,var(--accent-bright),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+  .work-task{font-size:14px; font-weight:300; line-height:1.55; color:var(--muted); margin-bottom:10px;}
+  .work-task b{font-weight:600; color:var(--accent-bright);}
   .work-lead{font-size:17px; font-weight:500; line-height:1.45; margin-bottom:18px; color:var(--txt);}
   .work-points{list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:18px;}
   .work-points li{position:relative; padding-left:18px; color:var(--muted); font-size:14px; font-weight:300; line-height:1.5;}
@@ -427,19 +429,6 @@
   .step h4{font-size:16px; font-weight:600; margin-bottom:8px;}
   .step p{color:var(--muted); font-size:13px; font-weight:300;}
 
-  /* ---------- ЧЕСТНО ПРО ИИ ---------- */
-  .ai-band{
-    background:linear-gradient(135deg,rgba(79,140,255,0.08),rgba(30,79,208,0.04));
-    border:1px solid var(--border); border-radius:24px; padding:48px 40px; text-align:center;
-    backdrop-filter:blur(14px);
-  }
-  .ai-band h2{font-size:clamp(24px,4vw,36px); font-weight:700; letter-spacing:-1px; margin-bottom:16px;}
-  .ai-band p{color:var(--muted); max-width:640px; margin:0 auto; font-weight:300;}
-  .ai-band .chip{
-    display:inline-block; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:2px;
-    text-transform:uppercase; color:var(--accent-bright); background:rgba(79,140,255,0.1);
-    border:1px solid rgba(79,140,255,0.25); padding:8px 18px; border-radius:30px; margin-bottom:22px;
-  }
 
   /* ---------- ЦЕНЫ ---------- */
   /* 5 тарифов в одну строку: блок шире контейнера, строки карточек выровнены через subgrid
@@ -730,8 +719,8 @@
       </div>
       <div class="service reveal">
         <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
-        <h3>Dashboards and quality control</h3>
-        <p>Metrics, funnel and every conversation in one place. AI reviews agents’ chats against a rubric and assigns grades: Top, Stable, At risk, Weak.</p>
+        <h3>CRM and internal systems</h3>
+        <p>Your own CRM, tracking and dashboards built around your process: clients, staff, shifts, payments. AI reviews agents’ chats and ranks the team.</p>
       </div>
       <div class="service reveal">
         <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M9 6h6M18 9v6M8.2 8.2l7.6 7.6"/></svg></div>
@@ -777,6 +766,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">01</span>Chrome extension · Chatterfy</div>
         <h3 class="work-title"><span class="accent">AI</span> Funnel</h3>
+        <p class="work-task"><b>The problem:</b> Leads drop out of AI bot conversations in Chatterfy, and nobody can see at which step.</p>
         <p class="work-lead">See at which step of the AI bot conversation leads drop off — and why.</p>
         <ul class="work-points">
           <li><b>By stage.</b> How many got through, how many went silent and how many blocked the bot.</li>
@@ -805,6 +795,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">02</span>CRM · Telegram Mini App<span class="work-status">In development</span></div>
         <h3 class="work-title">Omni<span class="accent">x</span></h3>
+        <p class="work-task"><b>The problem:</b> Clients message on five apps, replies get lost, and revenue is tallied by hand.</p>
         <p class="work-lead">A CRM for teams that sell through messengers: all chats, clients and money in one window.</p>
         <ul class="work-points">
           <li><b>Chats.</b> Telegram, WhatsApp and Instagram in one window. AI suggests replies and translates messages.</li>
@@ -834,6 +825,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">03</span>Web service · AI quality control</div>
         <h3 class="work-title">Nexus <span class="accent">QC</span></h3>
+        <p class="work-task"><b>The problem:</b> Hundreds of chats a week — no way to check by hand which agents are losing leads.</p>
         <p class="work-lead">Quality control for sales teams in messengers: AI reads the chats and scores agents on its own.</p>
         <ul class="work-points">
           <li><b>Money.</b> Numbers by day and by person, a staff leaderboard and which campaign brings in deposits.</li>
@@ -862,6 +854,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">04</span>Chrome extension · call center</div>
         <h3 class="work-title">Nexus <span class="accent">CC</span></h3>
+        <p class="work-task"><b>The problem:</b> To hand a call to the call center, agents collect client data from the card by hand every time.</p>
         <p class="work-lead">Call requests in one click: client data is filled in from the CRM automatically.</p>
         <ul class="work-points">
           <li><b>Autofill.</b> Data is pulled straight from the client card in your CRM.</li>
@@ -890,6 +883,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">05</span>CRM extension + 2 Mini Apps<span class="work-status">Prototype</span></div>
         <h3 class="work-title">Dep<span class="accent">t</span></h3>
+        <p class="work-task"><b>The problem:</b> Conversions live in a spreadsheet, payroll in a calculator, and reconciling takes every month.</p>
         <p class="work-lead">A panel on top of your CRM plus two mini apps: conversions, turnover and payouts are calculated automatically.</p>
         <ul class="work-points">
           <li><b>In the client card.</b> Date, lead and deal ID are filled in automatically — one button, and the record is in the table.</li>
@@ -980,13 +974,35 @@
   </div>
 </section>
 
-<!-- ЧЕСТНО ПРО ИИ -->
-<section class="section">
+<!-- WHY US -->
+<section class="section" id="why">
   <div class="container">
-    <div class="ai-band reveal">
-      <span class="chip">AI, honestly</span>
-      <h2>AI speeds things up — people check the work</h2>
-      <p>AI takes over the routine parts of development, so you see a working prototype sooner. The logic, tests and final polish of every project are done and checked by hand.</p>
+    <div class="sec-head reveal">
+      <span class="tag">Why us</span>
+      <h2>Built around your process, not a template</h2>
+      <p>We build the tool around how your team already works — from design to launch.</p>
+    </div>
+    <div class="results">
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+        <h3>Talk to the builder</h3>
+        <p>You discuss the task with the person who builds it. No account managers, nothing lost in translation.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+        <h3>Fits how you work</h3>
+        <p>Your team doesn’t have to adapt to a template — the system follows your real process.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></div>
+        <h3>A prototype sooner</h3>
+        <p>AI handles routine development work, so you see a working version faster. Logic and tests are checked by hand.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></div>
+        <h3>No spec needed</h3>
+        <p>Describe how things work today and what gets in the way. We’ll propose the structure and the solution.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -1106,7 +1122,7 @@
   <div class="container">
     <div class="contact-card reveal">
       <h2>Tell us about your task</h2>
-      <p>Tell us what you want to automate or launch — we’ll propose a solution and give you a price and timeline.</p>
+      <p>Tell us what you want to automate or launch. No spec needed — we’ll propose a solution and give you a price and timeline.</p>
       <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="btn-primary tg-btn" data-track="tg_contact">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
           <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>

@@ -317,6 +317,8 @@
   .work-title{font-size:clamp(30px,3.4vw,42px); font-weight:800; letter-spacing:-1.2px; line-height:1.05; margin-bottom:10px;
     background:linear-gradient(180deg,#fff,#c3cbe6); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .work-title .accent{background:linear-gradient(135deg,var(--accent-bright),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+  .work-task{font-size:14px; font-weight:300; line-height:1.55; color:var(--muted); margin-bottom:10px;}
+  .work-task b{font-weight:600; color:var(--accent-bright);}
   .work-lead{font-size:17px; font-weight:500; line-height:1.45; margin-bottom:18px; color:var(--txt);}
   .work-points{list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:18px;}
   .work-points li{position:relative; padding-left:18px; color:var(--muted); font-size:14px; font-weight:300; line-height:1.5;}
@@ -425,19 +427,6 @@
   .step h4{font-size:16px; font-weight:600; margin-bottom:8px;}
   .step p{color:var(--muted); font-size:13px; font-weight:300;}
 
-  /* ---------- ЧЕСТНО ПРО ИИ ---------- */
-  .ai-band{
-    background:linear-gradient(135deg,rgba(79,140,255,0.08),rgba(30,79,208,0.04));
-    border:1px solid var(--border); border-radius:24px; padding:48px 40px; text-align:center;
-    backdrop-filter:blur(14px);
-  }
-  .ai-band h2{font-size:clamp(24px,4vw,36px); font-weight:700; letter-spacing:-1px; margin-bottom:16px;}
-  .ai-band p{color:var(--muted); max-width:640px; margin:0 auto; font-weight:300;}
-  .ai-band .chip{
-    display:inline-block; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:2px;
-    text-transform:uppercase; color:var(--accent-bright); background:rgba(79,140,255,0.1);
-    border:1px solid rgba(79,140,255,0.25); padding:8px 18px; border-radius:30px; margin-bottom:22px;
-  }
 
   /* ---------- ЦЕНЫ ---------- */
   /* 5 тарифов в одну строку: блок шире контейнера, строки карточек выровнены через subgrid
@@ -728,8 +717,8 @@
       </div>
       <div class="service reveal">
         <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
-        <h3>Дашборды и контроль качества</h3>
-        <p>Метрики, воронка и все диалоги в одном месте. ИИ проверяет диалоги операторов по рубрике и присваивает грейды: ТОП, Стабильный, Риск, Слабый.</p>
+        <h3>CRM и внутренние системы</h3>
+        <p>Своя CRM, учёт и дашборды под ваш процесс: клиенты, сотрудники, смены, оплаты. ИИ проверяет диалоги операторов и строит рейтинг команды.</p>
       </div>
       <div class="service reveal">
         <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M9 6h6M18 9v6M8.2 8.2l7.6 7.6"/></svg></div>
@@ -775,6 +764,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">01</span>Chrome-расширение · Chatterfy</div>
         <h3 class="work-title">Воронка <span class="accent">ИИ</span></h3>
+        <p class="work-task"><b>Задача:</b> Лиды уходят из диалогов с ИИ-ботом в Chatterfy, а на каком шаге — не видно.</p>
         <p class="work-lead">Видно, на каком шаге диалога с ИИ-ботом уходят лиды — и почему.</p>
         <ul class="work-points">
           <li><b>По этапам.</b> Сколько дошло, сколько замолчало и сколько закрыло бота.</li>
@@ -803,6 +793,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">02</span>CRM · Telegram Mini App<span class="work-status">В разработке</span></div>
         <h3 class="work-title">Omni<span class="accent">x</span></h3>
+        <p class="work-task"><b>Задача:</b> Клиенты пишут в пять мессенджеров, ответы теряются, а оборот считают вручную.</p>
         <p class="work-lead">CRM для команд, которые продают в мессенджерах: все чаты, клиенты и деньги — в одном окне.</p>
         <ul class="work-points">
           <li><b>Чаты.</b> Telegram, WhatsApp и Instagram в одном окне. ИИ подсказывает ответ и переводит сообщения.</li>
@@ -832,6 +823,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">03</span>Веб-сервис · ИИ-контроль качества</div>
         <h3 class="work-title">Nexus <span class="accent">ОКК</span></h3>
+        <p class="work-task"><b>Задача:</b> Сотни чатов в неделю — вручную не проверить, кто из операторов теряет клиентов.</p>
         <p class="work-lead">Контроль качества отдела продаж в мессенджерах: ИИ сам читает переписку и оценивает операторов.</p>
         <ul class="work-points">
           <li><b>Деньги.</b> Цифры по дням и по людям, рейтинг сотрудников и какая кампания приводит депозиты.</li>
@@ -860,6 +852,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">04</span>Chrome-расширение · колл-центр</div>
         <h3 class="work-title">Nexus <span class="accent">КЦ</span></h3>
+        <p class="work-task"><b>Задача:</b> Чтобы передать звонок в колл-центр, оператор каждый раз вручную собирает данные из карточки.</p>
         <p class="work-lead">Заявка на звонок в один клик: данные клиента подставляются из CRM сами.</p>
         <ul class="work-points">
           <li><b>Автозаполнение.</b> Данные берутся прямо из карточки клиента в CRM.</li>
@@ -888,6 +881,7 @@
       <div class="work-cap">
         <div class="work-kicker"><span class="work-num">05</span>Расширение для CRM + 2 Mini App<span class="work-status">Прототип</span></div>
         <h3 class="work-title">Dep<span class="accent">t</span></h3>
+        <p class="work-task"><b>Задача:</b> Конверсии ведутся в таблице, зарплаты — на калькуляторе, сверка — каждый месяц.</p>
         <p class="work-lead">Панель поверх CRM и два мини-аппа: конверсии, оборот и выплаты считаются сами.</p>
         <ul class="work-points">
           <li><b>В карточке клиента.</b> Дата, лид и ID сделки подставляются сами — одна кнопка, и запись в таблице.</li>
@@ -978,13 +972,35 @@
   </div>
 </section>
 
-<!-- ЧЕСТНО ПРО ИИ -->
-<section class="section">
+<!-- ПОЧЕМУ С НАМИ -->
+<section class="section" id="why">
   <div class="container">
-    <div class="ai-band reveal">
-      <span class="chip">Честно про ИИ</span>
-      <h2>ИИ ускоряет — люди проверяют</h2>
-      <p>ИИ берёт на себя рутину в разработке, поэтому рабочий прототип вы видите раньше. Логику, тесты и финальную доводку каждого проекта мы делаем и проверяем вручную.</p>
+    <div class="sec-head reveal">
+      <span class="tag">Почему с нами</span>
+      <h2>Под ваш процесс, а не под шаблон</h2>
+      <p>Собираем инструмент вокруг того, как уже работает ваша команда, — от дизайна до запуска.</p>
+    </div>
+    <div class="results">
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+        <h3>Напрямую с разработчиком</h3>
+        <p>Задачу обсуждаете с тем, кто её делает. Без менеджеров-посредников и испорченного телефона.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+        <h3>Под вашу работу</h3>
+        <p>Не заставляем команду перестраиваться под готовый шаблон — система повторяет ваш реальный процесс.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></div>
+        <h3>Прототип раньше</h3>
+        <p>ИИ берёт на себя рутину в разработке, поэтому рабочую версию вы видите быстрее. Логику и тесты проверяем вручную.</p>
+      </div>
+      <div class="result reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#79a8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></div>
+        <h3>ТЗ не нужно</h3>
+        <p>Опишите, как сейчас устроена работа и что мешает. Структуру и решение предложим сами.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -1104,7 +1120,7 @@
   <div class="container">
     <div class="contact-card reveal">
       <h2>Расскажите о задаче</h2>
-      <p>Напишите, что хотите автоматизировать или запустить, — предложим решение и назовём стоимость и сроки.</p>
+      <p>Напишите, что хотите автоматизировать или запустить. ТЗ не нужно — предложим решение и назовём стоимость и сроки.</p>
       <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="btn-primary tg-btn" data-track="tg_contact">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
           <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
