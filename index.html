@@ -340,8 +340,29 @@
   .work-demo:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px;}
   @media (hover:hover) and (pointer:fine){
     .work-demo:hover{border-color:rgba(121,168,255,0.6); background:rgba(79,140,255,0.12); box-shadow:0 10px 30px rgba(79,140,255,0.18);}
-    .work-demo:hover .wd-go{transform:translate(2px,-2px);}
+    .work-demo:hover .wd-go{transform:translateX(3px);}
   }
+  /* живое демо открывается поверх лендинга: затемнение, сверху только овальная кнопка закрытия, ниже окно с демо */
+  html.demo-open{overflow:hidden;}
+  .demo-ov{position:fixed; inset:0; z-index:200; display:flex; flex-direction:column; padding:0 12px 12px;
+    background:rgba(4,5,10,0.95); opacity:0; transition:opacity .22s ease-out;}
+  .demo-ov.is-in{opacity:1;}
+  .demo-ov-top{flex:none; height:54px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 6px;}
+  .demo-ov-title{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
+  .demo-ov-title b{font-weight:400; color:var(--accent-bright);}
+  .demo-ov-x{flex:none; display:inline-flex; align-items:center; gap:9px; height:36px; padding:0 14px 0 17px; border-radius:999px; cursor:pointer;
+    font:500 13.5px 'Sora',sans-serif; color:var(--txt); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    transition:transform .16s ease-out, background-color .2s ease-out, border-color .2s ease-out;}
+  .demo-ov-x:active{transform:scale(.97);}
+  .demo-ov-x:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px;}
+  @media (hover:hover) and (pointer:fine){ .demo-ov-x:hover{background:rgba(255,255,255,0.11); border-color:rgba(255,255,255,0.26);} }
+  .demo-ov-frame{flex:1; min-height:0; border-radius:22px; overflow:hidden; background:#05060a; border:1px solid rgba(121,168,255,0.22);
+    box-shadow:0 30px 90px rgba(0,0,0,0.6); transform:translateY(12px) scale(.985); transition:transform .32s cubic-bezier(.23,1,.32,1);}
+  .demo-ov.is-in .demo-ov-frame{transform:none;}
+  .demo-ov-frame iframe{display:block; width:100%; height:100%; border:0; background:#05060a;}
+  @media (max-width:640px){ .demo-ov{padding:0 6px 6px;} .demo-ov-top{height:48px;} .demo-ov-frame{border-radius:16px;} }
+  @media (prefers-reduced-motion:reduce){ .demo-ov,.demo-ov-frame{transition:none;} }
   .work-cta{display:inline-flex; align-items:center; gap:8px; color:var(--accent2); font-weight:600; font-size:15px; text-decoration:none;
     border-bottom:1px solid rgba(121,168,255,0.35); padding-bottom:2px; transition:color .2s, border-color .2s, gap .2s cubic-bezier(.2,.8,.2,1);}
   @media (hover:hover) and (pointer:fine){ .work-cta:hover{color:#fff; border-color:#fff; gap:12px;} }
@@ -799,7 +820,7 @@
         <a href="/demo/kc/" class="work-demo" target="_blank" rel="noopener">
           <span class="wd-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v3M3 9h3M5.2 5.2l2 2M12.5 12.5l8 3-3.4 1.6L15.5 20.5z"/></svg></span>
           <span class="wd-tx"><b>Открыть живое демо</b><small>Можно понажимать — все данные выдуманные</small></span>
-          <span class="wd-go" aria-hidden="true">↗</span>
+          <span class="wd-go" aria-hidden="true">→</span>
         </a>
         <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_kc">Обсудить расширение для CRM <span aria-hidden="true">→</span></a>
       </div>
@@ -833,7 +854,7 @@
         <a href="/demo/dept/" class="work-demo" target="_blank" rel="noopener">
           <span class="wd-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v3M3 9h3M5.2 5.2l2 2M12.5 12.5l8 3-3.4 1.6L15.5 20.5z"/></svg></span>
           <span class="wd-tx"><b>Открыть живое демо</b><small>Можно понажимать — все данные выдуманные</small></span>
-          <span class="wd-go" aria-hidden="true">↗</span>
+          <span class="wd-go" aria-hidden="true">→</span>
         </a>
         <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_dept">Обсудить похожий проект <span aria-hidden="true">→</span></a>
       </div>
@@ -1490,6 +1511,56 @@
       if(typeof window.gtag === 'function') gtag('event', 'generate_lead', {place});
     }catch(err){}
   });
+
+  // ---------- живое демо поверх лендинга ----------
+  // обычный клик открывает демо в окне поверх страницы; с Cmd/Ctrl/Shift или средней кнопкой — как ссылка, в новой вкладке
+  (function(){
+    let ov = null, opener = null;
+    const onKey = e => { if(e.key === 'Escape') shut(); };
+    function shut(fromHistory){
+      if(!ov) return;
+      const el = ov; ov = null;
+      try{ el.querySelector('iframe').contentWindow.postMessage({ nxDemo:'bye' }, location.origin); }catch(err){}
+      el.classList.remove('is-in');
+      document.documentElement.classList.remove('demo-open');
+      removeEventListener('keydown', onKey);
+      const back = opener;
+      setTimeout(()=>{ el.remove(); if(back) back.focus({ preventScroll:true }); }, 260);
+      if(!fromHistory && history.state && history.state.nxDemo) history.back();
+    }
+    function show(a){
+      if(ov) return;
+      opener = a;
+      const card = a.closest('.work-cap');
+      const name = card && card.querySelector('.work-title') ? card.querySelector('.work-title').textContent.trim() : '';
+      ov = document.createElement('div');
+      ov.className = 'demo-ov';
+      ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Живое демо' + (name ? ' · ' + name : ''));
+      ov.innerHTML = '<div class="demo-ov-top"><span class="demo-ov-title">Живое демо<b></b></span>' +
+        '<button type="button" class="demo-ov-x">Закрыть<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
+        '<div class="demo-ov-frame"><iframe></iframe></div>';
+      if(name) ov.querySelector('.demo-ov-title b').textContent = ' · ' + name;
+      const fr = ov.querySelector('iframe');
+      fr.title = 'Живое демо' + (name ? ' · ' + name : '');
+      fr.src = a.getAttribute('href');
+      ov.addEventListener('click', e => { if(e.target === ov || e.target.closest('.demo-ov-top') === e.target || e.target.closest('.demo-ov-x')) shut(); });
+      document.body.appendChild(ov);
+      document.documentElement.classList.add('demo-open');
+      ov.getBoundingClientRect();
+      ov.classList.add('is-in');
+      addEventListener('keydown', onKey);
+      history.pushState({ nxDemo:1 }, '');
+      ov.querySelector('.demo-ov-x').focus({ preventScroll:true });
+    }
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a.work-demo');
+      if(!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      show(a);
+    });
+    addEventListener('popstate', ()=> shut(true));
+    addEventListener('message', e => { if(e.origin === location.origin && e.data && e.data.nxDemo === 'close') shut(); });
+  })();
 
 </script>
 </body>

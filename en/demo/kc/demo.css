@@ -13,7 +13,8 @@
   --nx-bright: #79a8ff;
   --ok: #3ecf8e;
   --kc-k: 0.7;
-  --stage-h: clamp(672px, 78vh, 900px);
+  
+  --stage-h: clamp(500px, calc(100vh - 197px), 900px);
   --pad: 28px;
   --ui: 'Sora', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: 'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -66,7 +67,11 @@ body::before {
 .kc-wrap {
   max-width: 1500px;
   margin: 0 auto;
-  padding: 0 var(--pad) 124px;
+  padding: 0 var(--pad) 86px;
+}
+
+@supports (height: 100dvh) {
+  :root { --stage-h: clamp(500px, calc(100dvh - 197px), 900px); }
 }
 
 .kc-hint {

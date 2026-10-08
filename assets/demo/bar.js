@@ -3,12 +3,16 @@
      <script src="/assets/demo/bar.js" data-demo="dept" data-lang="ru" defer></script>
    Что делает: плавающая «пилюля» внизу — пометка «Демо-данные», кнопка заявки, ссылка назад на сайт;
    пишет события в ту же статистику, что и лендинг (/api/t): открытие демо, время в демо, клик по заявке.
-   Без cookie; визит общий с лендингом (localStorage nexus_visit, 30 минут). */
+   Без cookie; визит общий с лендингом (localStorage nexus_visit, 30 минут).
+   Если демо открыто поверх лендинга (во фрейме) — ссылки «На сайт» нет: окно закрывает сам лендинг. */
 (function(){
   'use strict';
   const me = document.currentScript || document.querySelector('script[data-demo]');
   const demo = (me && me.dataset.demo || 'demo').replace(/[^a-z0-9-]/gi, '').slice(0, 20);
   const en = (me && me.dataset.lang) === 'en';
+  let embed = false;
+  try{ embed = window.self !== window.top; }catch(e){ embed = true; }
+  if(embed) document.documentElement.classList.add('nx-embed');
 
   const NAMES = { dept:'Dept', kc: en ? 'Nexus CC' : 'Nexus КЦ', voronka: en ? 'AI Funnel' : 'Воронка ИИ', omnix:'Omnix', okk: en ? 'Nexus QC' : 'Nexus ОКК' };
   const name = NAMES[demo] || 'Nexus AI';
@@ -59,14 +63,20 @@
     }
     // активное время в демо (пока вкладка видна)
     let active = 0, since = document.visibilityState === 'visible' ? Date.now() : 0;
+    function sendTime(){
+      if(since){ active += Date.now() - since; since = 0; }
+      q.push({ t:'demo_time', n:demo, v:Math.round(active / 1000) });
+      flush(true);
+    }
     document.addEventListener('visibilitychange', ()=>{
-      if(document.visibilityState === 'hidden'){
-        if(since){ active += Date.now() - since; since = 0; }
-        q.push({ t:'demo_time', n:demo, v:Math.round(active / 1000) });
-        flush(true);
-      } else since = Date.now();
+      if(document.visibilityState === 'hidden') sendTime();
+      else since = Date.now();
     });
     addEventListener('pagehide', ()=> flush(true));
+    // лендинг закрывает окно с демо — успеваем отправить время
+    if(embed) addEventListener('message', e => {
+      if(e.origin === location.origin && e.data && e.data.nxDemo === 'bye') sendTime();
+    });
 
     return function(t, n, v, now){
       if(off) return;
@@ -137,15 +147,24 @@
       '<span class="nx-badge"><i class="nx-dot" aria-hidden="true"></i>' + T.badge + '</span>' +
       '<span class="nx-hint">' + T.hint + '</span>' +
       '<a class="nx-cta" href="' + CTA + '" target="_blank" rel="noopener" aria-label="' + T.cta + '"><span class="nx-l">' + T.cta + '</span><span class="nx-s">' + T.ctaS + '</span> <span aria-hidden="true">→</span></a>' +
-      '<a class="nx-back" href="' + BACK + '" aria-label="' + T.back + '"><span aria-hidden="true">←</span><span class="nx-bt"> ' + T.back + '</span></a>' +
+      (embed ? '' : '<a class="nx-back" href="' + BACK + '" aria-label="' + T.back + '"><span aria-hidden="true">←</span><span class="nx-bt"> ' + T.back + '</span></a>') +
       '<button type="button" class="nx-x" aria-label="' + T.hide + '" title="' + T.hide + '">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>' +
       '<button type="button" class="nx-open"><i class="nx-dot" aria-hidden="true"></i>' + T.show + '</button>';
     document.body.appendChild(bar);
     bar.querySelector('.nx-cta').addEventListener('click', ()=> track('click', 'demo_cta_' + demo, null, true));
-    bar.querySelector('.nx-back').addEventListener('click', ()=> track('demo_back', demo, null, true));
+    const back = bar.querySelector('.nx-back');
+    if(back) back.addEventListener('click', ()=> track('demo_back', demo, null, true));
     bar.querySelector('.nx-x').addEventListener('click', ()=> bar.classList.add('is-min'));
     bar.querySelector('.nx-open').addEventListener('click', ()=> bar.classList.remove('is-min'));
   }
   if(document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+
+  // во фрейме Esc не доходит до лендинга: если в демо ничего не в фокусе — просим лендинг закрыть окно
+  if(embed) addEventListener('keydown', e => {
+    if(e.key !== 'Escape' || e.defaultPrevented) return;
+    const a = document.activeElement;
+    if(a && a !== document.body && a !== document.documentElement) return;
+    try{ parent.postMessage({ nxDemo:'close' }, location.origin); }catch(err){}
+  });
 })();
