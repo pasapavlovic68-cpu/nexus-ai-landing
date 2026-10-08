@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Nexus CC — live demo · Nexus AI</title>
+<meta name="description" content="Interactive demo of the Nexus CC extension: a call request from the CRM to the call center in one click. All data is fictional.">
+<meta name="theme-color" content="#07090e">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/en/demo/kc/panel.css">
+<link rel="stylesheet" href="/en/demo/kc/demo.css">
+</head>
+<body>
+<header class="kc-hint">
+  <h1 class="kc-sr">Nexus CC — live extension demo</h1>
+  <div class="kc-hint__brand"><span class="kc-hint__logo" aria-hidden="true">N</span><span>Nexus CC</span><span class="kc-hint__tag">live demo</span></div>
+  <ol class="kc-steps">
+      <li class="kc-step" data-step="1"><span class="kc-step__in"><span class="kc-step__n">1</span><span>Open the Nexus CC panel</span></span></li>
+      <li class="kc-step" data-step="2"><span class="kc-step__in"><span class="kc-step__n">2</span><span>Check the details</span></span></li>
+      <li class="kc-step" data-step="3"><span class="kc-step__in"><span class="kc-step__n">3</span><span>Press “Send” — the call status comes back</span></span></li>
+  </ol>
+  <p class="kc-hint__mobile">The demo works best on a desktop</p>
+</header>
+
+<main class="crm" aria-label="CRM mockup with demo data">
+  <div class="crm-rail" aria-hidden="true">
+    <span class="crm-logo">T</span>
+    <span class="crm-rail__i is-on"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+    <span class="crm-rail__i"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.4c1.8.9 3 2.9 3 5.6"/></svg></span>
+    <span class="crm-rail__i"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+    <span class="crm-rail__i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>
+  </div>
+  <section class="crm-chats">
+    <div class="crm-chats__head"><span class="crm-brand">Talqo CRM</span><span class="crm-brand__tag">demo mockup</span></div>
+    <div class="crm-search" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Search chats</span></div>
+    <h2 class="crm-sect">Chats</h2>
+    <ul class="crm-chatlist" id="kc-chats"></ul>
+  </section>
+  <section class="crm-main">
+    <div class="crm-card">
+      <div class="crm-card__in">
+        <div class="crm-card__who">
+          <span class="crm-ava" id="kc-c-ava" aria-hidden="true"></span>
+          <div>
+            <h2 class="crm-card__name" id="kc-c-name"></h2>
+            <p class="crm-card__sub">Customer<i></i>online · <span id="kc-c-region"></span></p>
+          </div>
+        </div>
+        <dl class="crm-fields">
+          <div class="crm-field" data-f="phone"><dt>Phone</dt><dd class="is-data" id="kc-c-phone"></dd></div>
+          <div class="crm-field" data-f="chat"><dt>Chat ID</dt><dd class="is-data" id="kc-c-chat"></dd></div>
+          <div class="crm-field" data-f="geo"><dt>GEO</dt><dd id="kc-c-geo"></dd></div>
+          <div class="crm-field" data-f="tag"><dt>Tag</dt><dd><span class="crm-tag" id="kc-c-tag"></span></dd></div>
+          <div class="crm-field crm-field--wide is-empty" data-f="note"><dt>Note</dt><dd id="kc-c-note">—</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="crm-thread"><div class="crm-thread__in" id="kc-thread"></div></div>
+    <div class="crm-composer" aria-hidden="true"><span>Message…</span><span>↵</span></div>
+  </section>
+  <aside class="crm-aside">
+    <h2 class="crm-sect">Activity</h2>
+    <ul class="crm-act" id="kc-activity"></ul>
+  </aside>
+</main>
+
+<button type="button" class="kc-callout" id="kc-callout">Open the Nexus CC panel</button>
+
+<div id="nexus-kc-root" class="vcf-theme-dark">
+<button id="vcf-open" class="vcf-open-button" type="button" aria-label="Open call request form" title="Create call request">
+  <svg class="vcf-open-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
+  </svg>
+</button>
+<section id="vcf-panel" class="vcf-panel" aria-label="Nexus CC" hidden>
+  <div class="vcf-panel-header">
+    <strong class="vcf-brand">
+      <span class="vcf-brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 36 36" focusable="false">
+          <defs>
+            <linearGradient id="vcf-brand-bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2a2a2e"/>
+              <stop offset="100%" stop-color="#1c1c1f"/>
+            </linearGradient>
+          </defs>
+          <rect x="0.5" y="0.5" width="35" height="35" rx="9" ry="9" fill="url(#vcf-brand-bg)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          <text x="18" y="18" text-anchor="middle" dominant-baseline="central" font-family="'Sora', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="600" font-size="13.5" letter-spacing="0.27" fill="#f4f4f5">N</text>
+        </svg>
+      </span>
+      <span class="vcf-brand-text">Nexus CC</span>
+    </strong>
+    <div id="vcf-direction-switch" class="vcf-direction-switch" aria-label="Region">
+      <button type="button" class="vcf-direction-button" aria-haspopup="listbox" aria-expanded="false">
+        <span class="vcf-direction-value">Africa</span>
+        <span class="vcf-direction-arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="vcf-direction-menu" role="listbox" hidden>
+        <button type="button" class="vcf-direction-option" role="option" data-direction="africa" data-label="Africa" aria-selected="true">Africa</button>
+        <button type="button" class="vcf-direction-option" role="option" data-direction="latam" data-label="LatAm" aria-selected="false">LatAm</button>
+        <button type="button" class="vcf-direction-option" role="option" data-direction="arab" data-label="MENA" aria-selected="false">MENA</button>
+      </div>
+    </div>
+    <button id="vcf-history-button" class="vcf-history-button" type="button" aria-label="Call history" title="Call history">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><polyline points="12 7 12 12 15.5 14.5"/></svg>
+    </button>
+    <label class="vcf-notif-toggle-field" title="Notifications on/off">
+      <input id="vcf-notif-toggle" type="checkbox" aria-label="Notifications" checked>
+      <span class="vcf-notif-icon-on" aria-hidden="true">🔔</span>
+      <span class="vcf-notif-icon-off" aria-hidden="true">🔕</span>
+    </label>
+    <label class="vcf-theme-toggle-field" title="Toggle theme">
+      <input id="vcf-theme-toggle" type="checkbox" aria-label="Dark theme">
+      <span class="vcf-theme-icon-sun" aria-hidden="true">☀</span>
+      <span class="vcf-theme-icon-moon" aria-hidden="true">🌙</span>
+    </label>
+    <button id="vcf-close" class="vcf-close-button" type="button" aria-label="Close">×</button>
+  </div>
+  <div id="vcf-history-panel" class="vcf-history-panel">
+    <div class="vcf-history-header">
+      <span class="vcf-history-title">Call history</span>
+      <div id="vcf-history-direction-switch" class="vcf-direction-switch" aria-label="Region">
+        <button type="button" class="vcf-direction-button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="vcf-direction-value">Africa</span>
+          <span class="vcf-direction-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="vcf-direction-menu" role="listbox" hidden>
+          <button type="button" class="vcf-direction-option" role="option" data-direction="africa" data-label="Africa" aria-selected="true">Africa</button>
+          <button type="button" class="vcf-direction-option" role="option" data-direction="latam" data-label="LatAm" aria-selected="false">LatAm</button>
+          <button type="button" class="vcf-direction-option" role="option" data-direction="arab" data-label="MENA" aria-selected="false">MENA</button>
+        </div>
+      </div>
+      <button id="vcf-history-close" class="vcf-history-close" type="button" aria-label="Close history">×</button>
+    </div>
+    <div class="vcf-history-filter-wrap">
+      <input id="vcf-history-filter" class="vcf-history-filter" type="text" placeholder="Search by chat ID" autocomplete="off">
+      <div class="vcf-history-status-filters">
+        <button class="vcf-history-filter-chip vcf-history-filter-chip-active" type="button" data-status="">All</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Reached">Reached</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="No answer">No answer</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Busy">Busy</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Wrong number">Wrong number</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Declined">Declined</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Unavailable">Unavailable</button>
+      </div>
+    </div>
+    <div id="vcf-history-list" class="vcf-history-list">
+      <div class="vcf-history-empty">
+        <span class="vcf-history-empty-title">No notifications yet</span>
+        <span class="vcf-history-empty-desc">Call status updates will appear here</span>
+      </div>
+    </div>
+  </div>
+  <form id="vcf-form" class="vcf-form" novalidate>
+    <div class="vcf-size-row">
+      <span class="vcf-size-label">Panel size</span>
+      <div id="vcf-size-options" class="vcf-size-options" role="group" aria-label="Panel size">
+        <button type="button" class="vcf-size-btn" data-size="0.5" aria-pressed="false">50</button><button type="button" class="vcf-size-btn" data-size="0.6" aria-pressed="false">60</button><button type="button" class="vcf-size-btn" data-size="0.7" aria-pressed="false">70</button><button type="button" class="vcf-size-btn" data-size="0.8" aria-pressed="false">80</button><button type="button" class="vcf-size-btn" data-size="0.9" aria-pressed="false">90</button><button type="button" class="vcf-size-btn" data-size="1" aria-pressed="false">100</button>
+      </div>
+    </div>
+    <label class="vcf-field">
+      <span>Agent *</span>
+      <div class="vcf-dropdown vcf-employee-dropdown" data-placeholder="Select agent">
+        <input id="vcf-employee" type="hidden" value="">
+        <button class="vcf-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="vcf-dropdown-value">Select agent</span>
+          <span class="vcf-dropdown-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="vcf-dropdown-menu" role="listbox" hidden></div>
+      </div>
+    </label>
+
+    <label class="vcf-field">
+      <span>Lead name</span>
+      <input id="vcf-lead-name" type="text" autocomplete="off">
+    </label>
+
+    <label class="vcf-field">
+      <span>Phone *</span>
+      <input id="vcf-phone" type="tel" autocomplete="off">
+    </label>
+
+    <label class="vcf-field">
+      <span>Chat ID *</span>
+      <input id="vcf-chat-id" type="text" autocomplete="off">
+    </label>
+
+    <label class="vcf-field">
+      <span>GEO *</span>
+      
+<div class="vcf-dropdown" data-placeholder="Select GEO">
+  <input id="vcf-geo" type="hidden" value="">
+  <button class="vcf-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+    <span class="vcf-dropdown-value">Select GEO</span>
+    <span class="vcf-dropdown-arrow" aria-hidden="true">▾</span>
+  </button>
+  <div class="vcf-dropdown-menu" role="listbox" hidden>
+    
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="South Africa">
+      South Africa
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Nigeria">
+      Nigeria
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Ghana">
+      Ghana
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Kenya">
+      Kenya
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Uganda">
+      Uganda
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Cameroon">
+      Cameroon
+    </button>
+  
+  </div>
+</div>
+  
+    </label>
+
+    <label class="vcf-field">
+      <span>Stage *</span>
+      
+<div class="vcf-dropdown" data-placeholder="Select stage">
+  <input id="vcf-stage" type="hidden" value="">
+  <button class="vcf-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+    <span class="vcf-dropdown-value">Select stage</span>
+    <span class="vcf-dropdown-arrow" aria-hidden="true">▾</span>
+  </button>
+  <div class="vcf-dropdown-menu" role="listbox" hidden>
+    
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="New lead">
+      New lead
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Verification">
+      Verification
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Callback">
+      Callback
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Follow-up">
+      Follow-up
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Reminder">
+      Reminder
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Individual request">
+      Individual request
+    </button>
+  
+  </div>
+</div>
+  
+    </label>
+
+    <div class="vcf-field" style="align-items: flex-start;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label for="vcf-individual-request" style="cursor: default;">Individual request</label>
+        <div class="vcf-toggle-field" style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px;">
+          <span style="font-size: 12px; color: var(--vcf-muted-text); font-weight: normal; line-height: 1;">Template</span>
+          <label style="display: flex; align-items: center; cursor: pointer;">
+            <input id="vcf-smart-toggle" type="checkbox" style="position: absolute; opacity: 0; pointer-events: none;">
+            <span class="vcf-toggle vcf-toggle-small" aria-hidden="true" style="margin: 0;"></span>
+          </label>
+        </div>
+      </div>
+      <textarea id="vcf-individual-request" rows="3"></textarea>
+    </div>
+
+    <label class="vcf-field">
+      <span>Call source</span>
+      <input id="vcf-call-source" type="text" autocomplete="off">
+    </label>
+
+    <label class="vcf-toggle-field">
+      <span>Priority call</span>
+      <input id="vcf-priority-call" type="checkbox">
+      <span class="vcf-toggle" aria-hidden="true"></span>
+    </label>
+
+    <div id="vcf-duplicate-warning" class="vcf-duplicate-warning" hidden></div>
+
+    <div id="vcf-called-history" class="vcf-called-history" hidden></div>
+
+    <div id="vcf-status" class="vcf-status" role="status" aria-live="polite"></div>
+
+    <button id="vcf-submit" class="premium-submit-btn" type="submit"><span>Send</span></button>
+  </form>
+</section>
+</div>
+
+<script src="/en/demo/kc/demo.js" defer></script>
+<script src="/assets/demo/bar.js" data-demo="kc" data-lang="en" defer></script>
+</body>
+</html>

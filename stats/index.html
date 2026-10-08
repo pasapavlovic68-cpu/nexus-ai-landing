@@ -386,6 +386,8 @@
   .vid-h b{font-size:20px; font-weight:700; letter-spacing:-.5px; background:linear-gradient(135deg,var(--accent-bright),var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .vid-h small{font-family:'Space Mono',monospace; font-size:10px; color:var(--muted-2); margin-left:6px; text-transform:uppercase; letter-spacing:.6px;}
   .vid-st{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px;}
+  .vid-demo{margin-top:10px; padding-top:10px; border-top:1px solid var(--border); color:var(--muted); font-size:12.5px; font-weight:300;}
+  .vid-demo b{color:var(--txt); font-weight:600;}
   .vid-st div{min-width:0;}
   .vid-st b{display:block; font-size:15px; font-weight:600;}
   .vid-st span{display:block; font-family:'Space Mono',monospace; font-size:9.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -899,7 +901,7 @@
       <div id="depth"></div>
     </section>
     <section class="card" style="--i:11">
-      <div class="card-h"><h2>Видео</h2><span class="chip">досмотры</span></div>
+      <div class="card-h"><h2>Видео и демо</h2><span class="chip">досмотры</span></div>
       <div class="vids" id="videos"></div>
     </section>
     <section class="card" style="--i:12">
@@ -1793,10 +1795,11 @@
 
     // ---------- видео ----------
     function renderVideos(D){
-      const items = D.videos.map(v => ({key:String(v && v.name), name:VIDEOS[v && v.name] || (v && v.name) || '—', plays:num(v && v.plays), done:num(v && v.done), fs:num(v && v.fs)}));
+      const items = D.videos.map(v => ({key:String(v && v.name), name:VIDEOS[v && v.name] || (v && v.name) || '—', plays:num(v && v.plays), done:num(v && v.done), fs:num(v && v.fs), demo:num(v && v.demo), demoUse:num(v && v.demoUse), demoCta:num(v && v.demoCta)}));
       keyed($('#videos'), items, it => it.key,
         () => el(`<div class="vid"><div class="vid-h"><span></span><div><b></b><small>досмотр</small></div></div><div class="track"><i></i></div>
-          <div class="vid-st"><div><b class="p"></b><span>запуски</span></div><div><b class="d"></b><span>досмотры</span></div><div><b class="f"></b><span>весь экран</span></div></div></div>`),
+          <div class="vid-st"><div><b class="p"></b><span>запуски</span></div><div><b class="d"></b><span>досмотры</span></div><div><b class="f"></b><span>весь экран</span></div></div>
+          <div class="vid-demo" hidden>Демо: <b class="do"></b> открыли · <b class="du"></b> понажимали · <b class="dc"></b> заявок</div></div>`),
         (r, it, i, fresh, later) => {
           r.querySelector('.vid-h span').textContent = it.name;
           const rate = it.plays ? it.done / it.plays * 100 : 0;
@@ -1804,6 +1807,8 @@
           tween(r.querySelector('.p'), it.plays, fmtInt);
           tween(r.querySelector('.d'), it.done, fmtInt);
           tween(r.querySelector('.f'), it.fs, fmtInt);
+          const dm = r.querySelector('.vid-demo'); dm.hidden = !(it.demo || it.demoUse || it.demoCta);
+          dm.querySelector('.do').textContent = fmtInt(it.demo); dm.querySelector('.du').textContent = fmtInt(it.demoUse); dm.querySelector('.dc').textContent = fmtInt(it.demoCta);
           setBar(r.querySelector('.track i'), rate / 100, fresh, i, later);
         });
     }
@@ -1880,11 +1885,15 @@
         case 'pv': return 'Визит';
         case 'scroll': return 'Прокрутка ' + (e.value != null ? num(e.value) + '%' : '');
         case 'section': return 'Секция: ' + (SECTIONS[n] || n || '—');
-        case 'click': return 'Клик: ' + (CLICKS[n] || n || '—');
+        case 'click': return 'Клик: ' + (CLICKS[n] || (/^demo_cta_/.test(n || '') ? 'Демо · Хочу такое · ' + (VIDEOS[n.slice(9)] || n.slice(9)) : n) || '—');
         case 'works_open': return 'Открыл работы';
         case 'video_play': return 'Запустил видео ' + q(VIDEOS[n] || n || '—');
         case 'video_done': return 'Досмотрел видео ' + q(VIDEOS[n] || n || '—');
         case 'video_fs': return 'Видео на весь экран ' + q(VIDEOS[n] || n || '—');
+        case 'demo': return 'Открыл демо ' + q(VIDEOS[n] || n || '—');
+        case 'demo_use': return 'Понажимал в демо ' + q(VIDEOS[n] || n || '—');
+        case 'demo_time': return 'Был в демо ' + q(VIDEOS[n] || n || '—') + (e.value != null ? ' · ' + num(e.value) + ' с' : '');
+        case 'demo_back': return 'Вернулся из демо на сайт';
         case 'faq': return 'Открыл вопрос ' + q(FAQ[n] || n || '—');
         case 'leave': return 'Ушёл';
         default: return String(e.type || 'Событие') + (n ? ': ' + n : '');
@@ -1900,7 +1909,7 @@
       const added = [];
       keyed(box, items, e => [e.ts, e.type, e.name, e.value, e.country, e.device].join('|'),
         e => {
-          const lead = e.type === 'click' && /^(tg|wa|mail|work)_/.test(e.name || '');
+          const lead = e.type === 'click' && /^(tg|wa|mail|work|demo_cta)_/.test(e.name || '');
           const icon = lead ? IC.tg : (IC[e.type] || IC.click);
           const r = el(`<div class="fd${lead ? ' is-lead' : ''}"><div class="fd-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg></div><div style="min-width:0"><div class="fd-t"></div><div class="fd-m"></div></div><span class="fd-time"></span></div>`);
           r._ts = num(e.ts);
@@ -2865,7 +2874,7 @@
     ];
     const SL_DEST = [{k:'/', label:'Главная'}, {k:'/#portfolio', label:'Работы'}, {k:'/#pricing', label:'Цены'},
       {k:'/en/', label:'EN · Главная'}, {k:'/en/#portfolio', label:'EN · Работы'}, {k:'/en/#pricing', label:'EN · Цены'}];
-    const SL_RESERVED = ['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme','en'];
+    const SL_RESERVED = ['stats','privacy','api','assets','functions','favicon','robots','sitemap','index','404','og-image','wrangler','readme','en','demo'];
     const SHORT_HOST = 'nexusnova.app/';
     let links = null;
     // «Моя Рассылка» → moya-rassylka: латиница, цифры и дефис

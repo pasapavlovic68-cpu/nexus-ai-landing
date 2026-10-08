@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Nexus КЦ — живое демо · Nexus AI</title>
+<meta name="description" content="Интерактивное демо расширения Nexus КЦ: заявка на звонок из CRM в колл-центр в один клик. Все данные вымышленные.">
+<meta name="theme-color" content="#07090e">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/demo/kc/panel.css">
+<link rel="stylesheet" href="/demo/kc/demo.css">
+</head>
+<body>
+<header class="kc-hint">
+  <h1 class="kc-sr">Nexus КЦ — живое демо расширения</h1>
+  <div class="kc-hint__brand"><span class="kc-hint__logo" aria-hidden="true">N</span><span>Nexus КЦ</span><span class="kc-hint__tag">живое демо</span></div>
+  <ol class="kc-steps">
+      <li class="kc-step" data-step="1"><span class="kc-step__in"><span class="kc-step__n">1</span><span>Откройте панель Nexus КЦ</span></span></li>
+      <li class="kc-step" data-step="2"><span class="kc-step__in"><span class="kc-step__n">2</span><span>Проверьте данные</span></span></li>
+      <li class="kc-step" data-step="3"><span class="kc-step__in"><span class="kc-step__n">3</span><span>Нажмите «Отправить» — придёт статус звонка</span></span></li>
+  </ol>
+  <p class="kc-hint__mobile">Демо удобнее смотреть с компьютера</p>
+</header>
+
+<main class="crm" aria-label="Макет CRM с демо-данными">
+  <div class="crm-rail" aria-hidden="true">
+    <span class="crm-logo">T</span>
+    <span class="crm-rail__i is-on"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+    <span class="crm-rail__i"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.4c1.8.9 3 2.9 3 5.6"/></svg></span>
+    <span class="crm-rail__i"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+    <span class="crm-rail__i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>
+  </div>
+  <section class="crm-chats">
+    <div class="crm-chats__head"><span class="crm-brand">Talqo CRM</span><span class="crm-brand__tag">демо-макет</span></div>
+    <div class="crm-search" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Поиск по чатам</span></div>
+    <h2 class="crm-sect">Чаты</h2>
+    <ul class="crm-chatlist" id="kc-chats"></ul>
+  </section>
+  <section class="crm-main">
+    <div class="crm-card">
+      <div class="crm-card__in">
+        <div class="crm-card__who">
+          <span class="crm-ava" id="kc-c-ava" aria-hidden="true"></span>
+          <div>
+            <h2 class="crm-card__name" id="kc-c-name"></h2>
+            <p class="crm-card__sub">Клиент<i></i>в сети · <span id="kc-c-region"></span></p>
+          </div>
+        </div>
+        <dl class="crm-fields">
+          <div class="crm-field" data-f="phone"><dt>Телефон</dt><dd class="is-data" id="kc-c-phone"></dd></div>
+          <div class="crm-field" data-f="chat"><dt>ID чата</dt><dd class="is-data" id="kc-c-chat"></dd></div>
+          <div class="crm-field" data-f="geo"><dt>ГЕО</dt><dd id="kc-c-geo"></dd></div>
+          <div class="crm-field" data-f="tag"><dt>Тег</dt><dd><span class="crm-tag" id="kc-c-tag"></span></dd></div>
+          <div class="crm-field crm-field--wide is-empty" data-f="note"><dt>Заметка</dt><dd id="kc-c-note">—</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="crm-thread"><div class="crm-thread__in" id="kc-thread"></div></div>
+    <div class="crm-composer" aria-hidden="true"><span>Сообщение…</span><span>↵</span></div>
+  </section>
+  <aside class="crm-aside">
+    <h2 class="crm-sect">Активность</h2>
+    <ul class="crm-act" id="kc-activity"></ul>
+  </aside>
+</main>
+
+<button type="button" class="kc-callout" id="kc-callout">Откройте панель Nexus КЦ</button>
+
+<div id="nexus-kc-root" class="vcf-theme-dark">
+<button id="vcf-open" class="vcf-open-button" type="button" aria-label="Open call request form" title="Create call request">
+  <svg class="vcf-open-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
+  </svg>
+</button>
+<section id="vcf-panel" class="vcf-panel" aria-label="Nexus КЦ" hidden>
+  <div class="vcf-panel-header">
+    <strong class="vcf-brand">
+      <span class="vcf-brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 36 36" focusable="false">
+          <defs>
+            <linearGradient id="vcf-brand-bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2a2a2e"/>
+              <stop offset="100%" stop-color="#1c1c1f"/>
+            </linearGradient>
+          </defs>
+          <rect x="0.5" y="0.5" width="35" height="35" rx="9" ry="9" fill="url(#vcf-brand-bg)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          <text x="18" y="18" text-anchor="middle" dominant-baseline="central" font-family="'Sora', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="600" font-size="13.5" letter-spacing="0.27" fill="#f4f4f5">N</text>
+        </svg>
+      </span>
+      <span class="vcf-brand-text">Nexus КЦ</span>
+    </strong>
+    <div id="vcf-direction-switch" class="vcf-direction-switch" aria-label="Направление">
+      <button type="button" class="vcf-direction-button" aria-haspopup="listbox" aria-expanded="false">
+        <span class="vcf-direction-value">Африка</span>
+        <span class="vcf-direction-arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="vcf-direction-menu" role="listbox" hidden>
+        <button type="button" class="vcf-direction-option" role="option" data-direction="africa" data-label="Африка" aria-selected="true">Африка</button>
+        <button type="button" class="vcf-direction-option" role="option" data-direction="latam" data-label="Латам" aria-selected="false">Латам</button>
+        <button type="button" class="vcf-direction-option" role="option" data-direction="arab" data-label="Арабский регион" aria-selected="false">Арабский регион</button>
+      </div>
+    </div>
+    <button id="vcf-history-button" class="vcf-history-button" type="button" aria-label="История уведомлений" title="История уведомлений">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><polyline points="12 7 12 12 15.5 14.5"/></svg>
+    </button>
+    <label class="vcf-notif-toggle-field" title="Уведомления вкл/выкл">
+      <input id="vcf-notif-toggle" type="checkbox" aria-label="Уведомления" checked>
+      <span class="vcf-notif-icon-on" aria-hidden="true">🔔</span>
+      <span class="vcf-notif-icon-off" aria-hidden="true">🔕</span>
+    </label>
+    <label class="vcf-theme-toggle-field" title="Переключить тему">
+      <input id="vcf-theme-toggle" type="checkbox" aria-label="Dark theme">
+      <span class="vcf-theme-icon-sun" aria-hidden="true">☀</span>
+      <span class="vcf-theme-icon-moon" aria-hidden="true">🌙</span>
+    </label>
+    <button id="vcf-close" class="vcf-close-button" type="button" aria-label="Закрыть">×</button>
+  </div>
+  <div id="vcf-history-panel" class="vcf-history-panel">
+    <div class="vcf-history-header">
+      <span class="vcf-history-title">История уведомлений</span>
+      <div id="vcf-history-direction-switch" class="vcf-direction-switch" aria-label="Направление">
+        <button type="button" class="vcf-direction-button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="vcf-direction-value">Африка</span>
+          <span class="vcf-direction-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="vcf-direction-menu" role="listbox" hidden>
+          <button type="button" class="vcf-direction-option" role="option" data-direction="africa" data-label="Африка" aria-selected="true">Африка</button>
+          <button type="button" class="vcf-direction-option" role="option" data-direction="latam" data-label="Латам" aria-selected="false">Латам</button>
+          <button type="button" class="vcf-direction-option" role="option" data-direction="arab" data-label="Арабский регион" aria-selected="false">Арабский регион</button>
+        </div>
+      </div>
+      <button id="vcf-history-close" class="vcf-history-close" type="button" aria-label="Закрыть историю">×</button>
+    </div>
+    <div class="vcf-history-filter-wrap">
+      <input id="vcf-history-filter" class="vcf-history-filter" type="text" placeholder="Поиск по ID чата" autocomplete="off">
+      <div class="vcf-history-status-filters">
+        <button class="vcf-history-filter-chip vcf-history-filter-chip-active" type="button" data-status="">Все</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Дозвон">Дозвон</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Клиент не отвечает">Клиент не отвечает</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Занято">Занято</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Неправильный номер">Неправильный номер</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Сбросил">Сбросил</button>
+        <button class="vcf-history-filter-chip" type="button" data-status="Вне сервиса">Вне сервиса</button>
+      </div>
+    </div>
+    <div id="vcf-history-list" class="vcf-history-list">
+      <div class="vcf-history-empty">
+        <span class="vcf-history-empty-title">Пока нет уведомлений</span>
+        <span class="vcf-history-empty-desc">Здесь появятся обновления по статусам звонков</span>
+      </div>
+    </div>
+  </div>
+  <form id="vcf-form" class="vcf-form" novalidate>
+    <div class="vcf-size-row">
+      <span class="vcf-size-label">Размер окна</span>
+      <div id="vcf-size-options" class="vcf-size-options" role="group" aria-label="Размер окна">
+        <button type="button" class="vcf-size-btn" data-size="0.5" aria-pressed="false">50</button><button type="button" class="vcf-size-btn" data-size="0.6" aria-pressed="false">60</button><button type="button" class="vcf-size-btn" data-size="0.7" aria-pressed="false">70</button><button type="button" class="vcf-size-btn" data-size="0.8" aria-pressed="false">80</button><button type="button" class="vcf-size-btn" data-size="0.9" aria-pressed="false">90</button><button type="button" class="vcf-size-btn" data-size="1" aria-pressed="false">100</button>
+      </div>
+    </div>
+    <label class="vcf-field">
+      <span>Сотрудник *</span>
+      <div class="vcf-dropdown vcf-employee-dropdown" data-placeholder="Выберите сотрудника">
+        <input id="vcf-employee" type="hidden" value="">
+        <button class="vcf-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="vcf-dropdown-value">Выберите сотрудника</span>
+          <span class="vcf-dropdown-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="vcf-dropdown-menu" role="listbox" hidden></div>
+      </div>
+    </label>
+
+    <label class="vcf-field">
+      <span>Имя лида</span>
+      <input id="vcf-lead-name" type="text" autocomplete="off">
+    </label>
+
+    <label class="vcf-field">
+      <span>Номер телефона *</span>
+      <input id="vcf-phone" type="tel" autocomplete="off">
+    </label>
+
+    <label class="vcf-field">
+      <span>ID чата *</span>
+      <input id="vcf-chat-id" type="text" autocomplete="off">
+    </label>
+
+    <label class="vcf-field">
+      <span>ГЕО *</span>
+      
+<div class="vcf-dropdown" data-placeholder="Выберите ГЕО">
+  <input id="vcf-geo" type="hidden" value="">
+  <button class="vcf-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+    <span class="vcf-dropdown-value">Выберите ГЕО</span>
+    <span class="vcf-dropdown-arrow" aria-hidden="true">▾</span>
+  </button>
+  <div class="vcf-dropdown-menu" role="listbox" hidden>
+    
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Нигерия">
+      Нигерия
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="ЮАР">
+      ЮАР
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Гана">
+      Гана
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Кения">
+      Кения
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Уганда">
+      Уганда
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Камерун">
+      Камерун
+    </button>
+  
+  </div>
+</div>
+  
+    </label>
+
+    <label class="vcf-field">
+      <span>Этап *</span>
+      
+<div class="vcf-dropdown" data-placeholder="Выберите этап">
+  <input id="vcf-stage" type="hidden" value="">
+  <button class="vcf-dropdown-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+    <span class="vcf-dropdown-value">Выберите этап</span>
+    <span class="vcf-dropdown-arrow" aria-hidden="true">▾</span>
+  </button>
+  <div class="vcf-dropdown-menu" role="listbox" hidden>
+    
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Новый лид">
+      Новый лид
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Верификация">
+      Верификация
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Перезвон">
+      Перезвон
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Дожим">
+      Дожим
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Напоминание">
+      Напоминание
+    </button>
+  
+    <button class="vcf-dropdown-option" type="button" role="option" data-value="Индивидуальный запрос">
+      Индивидуальный запрос
+    </button>
+  
+  </div>
+</div>
+  
+    </label>
+
+    <div class="vcf-field" style="align-items: flex-start;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label for="vcf-individual-request" style="cursor: default;">Индивидуальный запрос</label>
+        <div class="vcf-toggle-field" style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px;">
+          <span style="font-size: 12px; color: var(--vcf-muted-text); font-weight: normal; line-height: 1;">Шаблон</span>
+          <label style="display: flex; align-items: center; cursor: pointer;">
+            <input id="vcf-smart-toggle" type="checkbox" style="position: absolute; opacity: 0; pointer-events: none;">
+            <span class="vcf-toggle vcf-toggle-small" aria-hidden="true" style="margin: 0;"></span>
+          </label>
+        </div>
+      </div>
+      <textarea id="vcf-individual-request" rows="3"></textarea>
+    </div>
+
+    <label class="vcf-field">
+      <span>Источник звонка</span>
+      <input id="vcf-call-source" type="text" autocomplete="off">
+    </label>
+
+    <label class="vcf-toggle-field">
+      <span>Приоритетный звонок</span>
+      <input id="vcf-priority-call" type="checkbox">
+      <span class="vcf-toggle" aria-hidden="true"></span>
+    </label>
+
+    <div id="vcf-duplicate-warning" class="vcf-duplicate-warning" hidden></div>
+
+    <div id="vcf-called-history" class="vcf-called-history" hidden></div>
+
+    <div id="vcf-status" class="vcf-status" role="status" aria-live="polite"></div>
+
+    <button id="vcf-submit" class="premium-submit-btn" type="submit"><span>Отправить</span></button>
+  </form>
+</section>
+</div>
+
+<script src="/demo/kc/demo.js" defer></script>
+<script src="/assets/demo/bar.js" data-demo="kc" data-lang="ru" defer></script>
+</body>
+</html>

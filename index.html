@@ -326,6 +326,22 @@
   .work-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
   .work-chips span{font-family:'Space Mono',monospace; font-size:10.5px; letter-spacing:.6px; color:var(--accent-bright);
     background:rgba(79,140,255,0.08); border:1px solid rgba(79,140,255,0.2); padding:5px 11px; border-radius:20px;}
+  /* кнопка живого демо под описанием работы */
+  .work-demo{display:inline-flex; align-items:center; gap:14px; padding:12px 18px 12px 12px; margin:0 0 20px; max-width:100%;
+    border-radius:16px; text-decoration:none; color:var(--txt); background:rgba(79,140,255,0.07); border:1px solid rgba(121,168,255,0.28);
+    transition:transform .2s cubic-bezier(.23,1,.32,1), border-color .2s ease-out, background-color .2s ease-out, box-shadow .2s ease-out;}
+  .work-demo .wd-ic{flex:none; width:40px; height:40px; border-radius:12px; display:grid; place-items:center; color:#fff;
+    background:linear-gradient(135deg,#5b95ff,#2f5fe0); box-shadow:0 6px 18px rgba(79,140,255,0.35);}
+  .work-demo .wd-tx{display:flex; flex-direction:column; gap:3px; min-width:0; text-align:left;}
+  .work-demo .wd-tx b{font-size:15px; font-weight:600; letter-spacing:-.1px;}
+  .work-demo .wd-tx small{font-size:12.5px; font-weight:300; color:var(--muted); line-height:1.35;}
+  .work-demo .wd-go{flex:none; color:var(--accent-bright); font-size:16px; transition:transform .2s cubic-bezier(.23,1,.32,1);}
+  .work-demo:active{transform:scale(.98);}
+  .work-demo:focus-visible{outline:2px solid var(--accent-bright); outline-offset:3px;}
+  @media (hover:hover) and (pointer:fine){
+    .work-demo:hover{border-color:rgba(121,168,255,0.6); background:rgba(79,140,255,0.12); box-shadow:0 10px 30px rgba(79,140,255,0.18);}
+    .work-demo:hover .wd-go{transform:translate(2px,-2px);}
+  }
   .work-cta{display:inline-flex; align-items:center; gap:8px; color:var(--accent2); font-weight:600; font-size:15px; text-decoration:none;
     border-bottom:1px solid rgba(121,168,255,0.35); padding-bottom:2px; transition:color .2s, border-color .2s, gap .2s cubic-bezier(.2,.8,.2,1);}
   @media (hover:hover) and (pointer:fine){ .work-cta:hover{color:#fff; border-color:#fff; gap:12px;} }
@@ -780,6 +796,11 @@
           <li><b>Обратная связь.</b> Статус дозвона приходит уведомлением, история звонков — с поиском и фильтром.</li>
         </ul>
         <div class="work-chips"><span>2 CRM в связке</span><span>3 региона маршрутизации</span><span>1 клик до отправки</span></div>
+        <a href="/demo/kc/" class="work-demo" target="_blank" rel="noopener">
+          <span class="wd-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v3M3 9h3M5.2 5.2l2 2M12.5 12.5l8 3-3.4 1.6L15.5 20.5z"/></svg></span>
+          <span class="wd-tx"><b>Открыть живое демо</b><small>Можно понажимать — все данные выдуманные</small></span>
+          <span class="wd-go" aria-hidden="true">↗</span>
+        </a>
         <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_kc">Обсудить расширение для CRM <span aria-hidden="true">→</span></a>
       </div>
     </article>
@@ -809,6 +830,11 @@
           <li><b>Настройки администратора.</b> Доступы, пароли и день выплаты.</li>
         </ul>
         <div class="work-chips"><span>Прототип для заказчика</span><span>HTML · CSS · JavaScript</span></div>
+        <a href="/demo/dept/" class="work-demo" target="_blank" rel="noopener">
+          <span class="wd-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v3M3 9h3M5.2 5.2l2 2M12.5 12.5l8 3-3.4 1.6L15.5 20.5z"/></svg></span>
+          <span class="wd-tx"><b>Открыть живое демо</b><small>Можно понажимать — все данные выдуманные</small></span>
+          <span class="wd-go" aria-hidden="true">↗</span>
+        </a>
         <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta" data-track="work_dept">Обсудить похожий проект <span aria-hidden="true">→</span></a>
       </div>
     </article>

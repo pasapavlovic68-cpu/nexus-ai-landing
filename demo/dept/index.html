@@ -1,0 +1,2498 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Dept — живое демо · Nexus AI</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script>
+function demoFit(){
+  var de = document.documentElement, w = de.clientWidth || window.innerWidth;
+  var design = w >= 1100 ? 1420 : w >= 640 ? 924 : 450;
+  de.style.setProperty("--fit", String(Math.floor(Math.min(1, w / design) * 10000) / 10000));
+  var hint = document.getElementById("demo-hint");
+  if(hint) de.style.setProperty("--top", (hint.offsetTop + hint.offsetHeight) + "px");
+}
+demoFit();
+window.addEventListener("resize", demoFit);
+window.addEventListener("load", demoFit);
+</script>
+<style>
+:root{
+  --bg:#F2F3F0;
+  --surface:#FFFFFF;
+  --surface-2:#F7F8F6;
+  --ink:#0C0F0E;
+  --ink-2:#4A5250;
+  --ink-3:#8A928F;
+  --line:rgba(12,15,14,0.09);
+  --accent:#0F6B54;
+  --accent-soft:rgba(15,107,84,0.10);
+  --gold:#A8842C;
+  --danger:#B3392F;
+  --shadow-card:0 1px 2px rgba(12,15,14,0.05), 0 12px 32px -12px rgba(12,15,14,0.14);
+  --shadow-float:0 8px 24px -8px rgba(12,15,14,0.22), 0 32px 64px -24px rgba(12,15,14,0.28);
+  --on-accent:#FFFFFF;
+  --gold-soft:rgba(168,132,44,0.12);
+  --danger-soft:rgba(179,57,47,0.10);
+  --sheen:linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 42%);
+  --bezel:#16191B;
+  --scr-w:402px; --scr-h:874px; --bezel-pad:12px;
+  --phone-w:426px; --phone-h:898px;
+  --r-xs:10px;
+  --r-sm:14px;
+  --r-md:20px;
+  --r-lg:28px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --font:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0A0C0B;
+  --surface:#141817;
+  --surface-2:#1B211F;
+  --ink:#F2F4F3;
+  --ink-2:#A7B0AD;
+  --ink-3:#6E7875;
+  --line:rgba(255,255,255,0.08);
+  --accent:#2FBF95;
+  --accent-soft:rgba(47,191,149,0.12);
+  --gold:#D9B65F;
+  --danger:#E0685C;
+  --shadow-card:0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -12px rgba(0,0,0,0.6);
+  --shadow-float:0 8px 24px -8px rgba(0,0,0,0.55), 0 32px 64px -24px rgba(0,0,0,0.7);
+  --on-accent:#06231B;
+  --gold-soft:rgba(217,182,95,0.14);
+  --danger-soft:rgba(224,104,92,0.14);
+  --sheen:linear-gradient(180deg, rgba(255,255,255,0.030), rgba(255,255,255,0) 42%);
+  --bezel:#000000;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+html{background:var(--bg)}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); font-size:14px; line-height:1.45;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  transition:background-color 320ms ease, color 320ms ease;
+}
+html{transition:background-color 320ms ease}
+button{font:inherit; color:inherit; background:none; border:none; padding:0; cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+input{font:inherit; color:inherit}
+input:focus{outline:none}
+.num,.count,table td,table th{font-variant-numeric:tabular-nums}
+body{font-variant-numeric:tabular-nums}
+h1,h2,h3,h4{margin:0; font-weight:600; letter-spacing:-0.01em}
+p{margin:0}
+.ico{display:block; flex:none}
+*{scrollbar-width:none; -ms-overflow-style:none}
+*::-webkit-scrollbar{width:0; height:0; display:none}
+.card{
+  background:var(--surface); background-image:var(--sheen);
+  border:1px solid var(--line); border-radius:var(--r-md);
+  box-shadow:var(--shadow-card); padding:20px;
+}
+.card--tight{padding:16px}
+.label{font-size:13px; font-weight:500; color:var(--ink-2)}
+.hint{font-size:11.5px; color:var(--ink-3); line-height:1.35}
+.muted{color:var(--ink-3)}
+.big-num{font-weight:600; font-size:28px; letter-spacing:-0.02em; line-height:1.1; white-space:nowrap; overflow:hidden}
+.big-num--xl{font-size:40px}
+.sec-title{font-size:13px; font-weight:600; color:var(--ink-2); letter-spacing:-0.01em}
+.badge{
+  display:inline-flex; align-items:center; gap:4px; height:20px; padding:0 8px;
+  border-radius:99px; font-size:11px; font-weight:600; letter-spacing:-0.005em;
+  background:var(--surface-2); color:var(--ink-2); border:1px solid var(--line);
+}
+.badge--accent{background:var(--accent-soft); color:var(--accent); border-color:transparent}
+.badge--gold{background:transparent; color:var(--gold); border-color:var(--gold)}
+.badge--neutral{background:var(--surface-2); color:var(--ink-2)}
+.badge--outline{background:transparent; border-color:var(--line); color:var(--ink-2)}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:48px; padding:0 20px; border-radius:var(--r-sm);
+  font-size:14px; font-weight:600; letter-spacing:-0.01em;
+  background:var(--accent); color:var(--on-accent);
+  transition:transform 140ms var(--ease), opacity 160ms ease;
+}
+.btn:hover{opacity:.92}
+.btn:active{transform:scale(.98)}
+.btn--block{width:100%}
+.btn--ghost{background:var(--surface-2); color:var(--ink); border:1px solid var(--line)}
+.btn--ghost:hover{background:var(--surface)}
+.btn--sm{height:36px; font-size:13px; padding:0 14px; border-radius:var(--r-xs)}
+.btn[disabled]{opacity:.6; cursor:default}
+.icon-btn{
+  width:32px;height:32px;border-radius:var(--r-xs); display:grid; place-items:center;
+  color:var(--ink-2); transition:background-color 160ms ease, color 160ms ease;
+}
+.icon-btn:hover{background:var(--surface-2); color:var(--ink)}
+.seg{
+  position:relative; display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+  background:var(--surface-2); border:1px solid var(--line);
+  border-radius:var(--r-sm); padding:3px; isolation:isolate;
+}
+.seg-thumb{
+  position:absolute; top:0; left:0; z-index:0; width:0; height:0;
+  background:var(--surface); border-radius:var(--r-xs);
+  box-shadow:0 1px 2px rgba(0,0,0,.06); border:1px solid var(--line);
+  transition:transform 260ms var(--ease), width 260ms var(--ease);
+}
+.seg-btn{
+  position:relative; z-index:1; height:30px; padding:0 14px; border-radius:var(--r-xs);
+  font-size:13px; font-weight:500; color:var(--ink-2); white-space:nowrap;
+  transition:color 200ms ease;
+}
+.seg-btn.is-active{color:var(--ink); font-weight:600}
+.seg--tabs{background:transparent; border:none; padding:0; border-bottom:1px solid var(--line); border-radius:0}
+.seg--tabs .seg-thumb{
+  background:var(--surface-2); border:none; box-shadow:none;
+  border-bottom:2px solid var(--accent); border-radius:var(--r-xs) var(--r-xs) 0 0;
+}
+.seg--tabs .seg-btn{height:36px}
+.seg--tabs .seg-btn.is-active{color:var(--accent)}
+.f-row{margin-bottom:8px}
+.f-row:last-child{margin-bottom:0}
+.f-head{display:flex; align-items:center; gap:8px; margin-bottom:4px; min-height:19px}
+.field{
+  width:100%; height:44px; display:flex; align-items:center; gap:8px;
+  padding:0 12px; border-radius:var(--r-sm);
+  background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
+  font-size:14px; text-align:left;
+  transition:border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.field::placeholder{color:var(--ink-3)}
+.field:focus,.field.is-focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+.field.is-err{border-color:var(--danger); box-shadow:0 0 0 3px var(--danger-soft)}
+.field[data-disabled="1"]{cursor:not-allowed; color:var(--ink-3)}
+.field-wrap{position:relative}
+.prefix{
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  color:var(--ink-3); font-size:14px; pointer-events:none;
+}
+.field--prefixed{padding-left:26px}
+.f-err{
+  display:none; align-items:center; gap:6px; margin-top:6px;
+  font-size:12px; color:var(--danger);
+}
+.f-err.is-on{display:flex}
+.f-hl{animation:fieldHl 400ms ease}
+@keyframes fieldHl{0%{box-shadow:0 0 0 0 var(--accent-soft)}35%{box-shadow:0 0 0 5px var(--accent-soft)}100%{box-shadow:0 0 0 0 transparent}}
+.dd{position:relative}
+.dd-trigger{justify-content:space-between; cursor:pointer}
+.dd-trigger .ico{color:var(--ink-3); transition:transform 200ms var(--ease)}
+.dd.is-open .dd-trigger .ico{transform:rotate(180deg)}
+.dd-val{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.dd-val.is-ph{color:var(--ink-3)}
+.dd-menu{
+  position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:60;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm);
+  box-shadow:var(--shadow-float); padding:6px; max-height:240px; overflow-y:auto;
+  opacity:0; transform:scale(.98) translateY(-4px); transform-origin:top center;
+  pointer-events:none; transition:opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.dd.is-up .dd-menu{top:auto; bottom:calc(100% + 6px); transform-origin:bottom center}
+.dd.is-open .dd-menu{opacity:1; transform:none; pointer-events:auto}
+.dd-opt{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  height:38px; padding:0 10px; border-radius:var(--r-xs);
+  font-size:13.5px; color:var(--ink); cursor:pointer;
+  transition:background-color 140ms ease;
+}
+.dd-opt:hover,.dd-opt.is-active{background:var(--surface-2)}
+.dd-opt .ico{color:var(--accent); opacity:0}
+.dd-opt.is-sel .ico{opacity:1}
+.autofill{
+  display:inline-flex; align-items:center; height:18px; padding:0 7px; border-radius:99px;
+  font-size:10.5px; font-weight:600; letter-spacing:0; color:var(--accent);
+  background:var(--accent-soft); transition:opacity 240ms ease, transform 240ms ease;
+}
+.autofill.is-gone{opacity:0; transform:translateY(-2px) scale(.9)}
+.cal{
+  position:absolute; left:0; top:calc(100% + 6px); z-index:70; width:276px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md);
+  box-shadow:var(--shadow-float); padding:14px;
+  opacity:0; transform:scale(.98) translateY(-4px); pointer-events:none;
+  transition:opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.cal.is-open{opacity:1; transform:none; pointer-events:auto}
+.cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
+.cal-title{font-size:13.5px; font-weight:600}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px}
+.cal-wd{height:24px; display:grid; place-items:center; font-size:11px; color:var(--ink-3); font-weight:500}
+.cal-day{
+  height:32px; border-radius:var(--r-xs); display:grid; place-items:center;
+  font-size:13px; color:var(--ink); cursor:pointer;
+  transition:background-color 140ms ease, color 140ms ease;
+}
+.cal-day:hover{background:var(--surface-2)}
+.cal-day.is-out{color:var(--ink-3); opacity:.55}
+.cal-day.is-today{box-shadow:inset 0 0 0 1px var(--accent); color:var(--accent); font-weight:600}
+.cal-day.is-sel{background:var(--accent); color:var(--on-accent); font-weight:600; box-shadow:none}
+.legend{display:flex; align-items:center; gap:14px; margin-top:10px; flex-wrap:wrap}
+.legend-i{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-2)}
+.legend-d{width:12px; height:3px; border-radius:2px; flex:none}
+.toast-layer{
+  position:absolute; z-index:90; display:flex; flex-direction:column; align-items:center;
+  gap:8px; pointer-events:none;
+}
+.toast{
+  display:flex; gap:10px; align-items:flex-start; position:relative; overflow:hidden;
+  width:100%;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm);
+  box-shadow:var(--shadow-float); padding:11px 12px 13px; pointer-events:auto;
+  animation:toastIn 260ms var(--ease) both;
+}
+.toast.is-out{animation:toastOut 260ms var(--ease) both}
+.toast-ico{width:22px;height:22px;border-radius:50%; display:grid; place-items:center; flex:none; margin-top:1px}
+.toast-ico--ok{background:var(--accent-soft); color:var(--accent)}
+.toast-ico--err{background:var(--danger-soft); color:var(--danger)}
+.toast-ico--info{background:var(--surface-2); color:var(--ink-2)}
+.toast-tt{font-size:13px; font-weight:600; letter-spacing:-0.01em}
+.toast-sub{font-size:12px; color:var(--ink-3); margin-top:1px}
+.toast-x{position:absolute; top:8px; right:8px; color:var(--ink-3)}
+.toast-x:hover{color:var(--ink)}
+.toast-bar{position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--accent); transform-origin:left center; animation:toastBar 4s linear forwards}
+.toast--err .toast-bar{background:var(--danger)}
+.toast--info .toast-bar{background:var(--ink-3)}
+@keyframes toastIn{from{opacity:0; transform:translateY(-16px) scale(.96)}to{opacity:1; transform:none}}
+@keyframes toastOut{to{opacity:0; transform:translateY(-16px) scale(.96)}}
+@keyframes toastBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.fade-swap{animation:shiftSwap 260ms var(--ease) both}
+@keyframes shiftSwap{from{transform:translateX(10px)}to{transform:none}}
+.slide-swap{animation:slideSwap 300ms var(--ease) both}
+@keyframes slideSwap{from{transform:translateX(28px)}to{transform:none}}
+.cascade > *{animation:riseIn 300ms var(--ease) both; animation-delay:var(--d,0ms)}
+@keyframes riseIn{from{transform:translateY(8px)}to{transform:none}}
+.shake{animation:shake 320ms ease}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}100%{transform:none}}
+.spin{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fn-row{display:grid; grid-template-columns:1fr auto; gap:4px 10px; margin-bottom:12px}
+.fn-row:last-child{margin-bottom:0}
+.fn-name{font-size:12.5px; color:var(--ink-2)}
+.fn-val{font-size:12.5px; font-weight:600}
+.fn-track{grid-column:1/-1; height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden}
+.fn-fill{height:100%; width:0; border-radius:99px; background:var(--accent); transition:width 700ms var(--ease)}
+.topbar{
+  position:sticky; top:0; z-index:100;
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px;
+  padding:10px 20px; min-height:56px;
+  background:color-mix(in srgb, var(--surface) 86%, transparent);
+  -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--line);
+}
+@supports not (background:color-mix(in srgb,red,blue)){ .topbar{background:var(--surface)} }
+.brand{display:flex; align-items:center; gap:10px; min-width:0}
+.brand-mark{width:26px;height:26px;border-radius:8px; background:var(--accent); color:var(--on-accent); display:grid; place-items:center; flex:none}
+.brand-name{font-weight:600; letter-spacing:-0.01em; white-space:nowrap}
+.chip-ver{
+  height:20px; padding:0 8px; border-radius:99px; border:1px solid var(--line);
+  font-size:11px; color:var(--ink-3); display:inline-flex; align-items:center;
+}
+.topbar-center{display:flex; align-items:center; gap:14px; justify-content:center}
+.topbar-right{display:flex; align-items:center; gap:12px; justify-content:flex-end}
+.link-fail{
+  font-size:12px; color:var(--ink-3); border-bottom:1px dashed var(--line);
+  padding-bottom:1px; transition:color 160ms ease, border-color 160ms ease; white-space:nowrap;
+}
+.link-fail:hover{color:var(--danger); border-color:var(--danger)}
+.stage{
+  display:grid; grid-template-columns:minmax(520px,1fr) auto; gap:24px;
+  padding:24px; max-width:2100px; margin:0 auto; align-items:start;
+}
+.phones{display:grid; grid-template-columns:repeat(2, var(--phone-w)); gap:24px; justify-content:center}
+.phone-wrap{display:flex; flex-direction:column; align-items:center; gap:10px}
+.phone-cap{font-size:12.5px; font-weight:500; color:var(--ink-2)}
+.browser{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+  box-shadow:var(--shadow-card); overflow:hidden; display:flex; flex-direction:column;
+  height:var(--phone-h); min-width:0;
+}
+.browser-bar{
+  height:56px; flex:none; display:flex; align-items:center; gap:14px; padding:0 16px;
+  border-bottom:1px solid var(--line); background:var(--surface-2);
+}
+.dots{display:flex; gap:6px}
+.dot{width:11px;height:11px;border-radius:50%; background:var(--line)}
+.dot:nth-child(1){background:#E1655B}.dot:nth-child(2){background:#E0B44A}.dot:nth-child(3){background:#5FB768}
+[data-theme="dark"] .dot{opacity:.85}
+.url{
+  flex:1; height:32px; border-radius:var(--r-xs); background:var(--surface);
+  border:1px solid var(--line); display:flex; align-items:center; gap:8px;
+  padding:0 12px; font-size:12.5px; color:var(--ink-2); min-width:0;
+}
+.url span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.url .ico{color:var(--ink-3)}
+.crm{position:relative; flex:1; min-height:0; overflow:hidden; background:var(--bg)}
+.crm-fake{position:absolute; inset:0; display:flex; opacity:.6; filter:blur(.4px) saturate(.7); user-select:none}
+.fk-rail{width:56px; flex:none; background:var(--surface); border-right:1px solid var(--line); padding:14px 12px; display:flex; flex-direction:column; gap:14px}
+.fk-rail i{display:block; height:8px; border-radius:99px; background:var(--ink-3); opacity:.3}
+.fk-rail i:nth-child(1){opacity:.55}
+.fk-list{width:250px; flex:none; background:var(--surface-2); border-right:1px solid var(--line); padding:14px; overflow:hidden}
+.fk-h{font-size:12px; font-weight:600; color:var(--ink-2); margin-bottom:12px}
+.fk-item{display:flex; gap:10px; align-items:center; padding:9px; border-radius:var(--r-xs); margin-bottom:4px}
+.fk-item.is-on{background:var(--surface)}
+.fk-av{width:28px;height:28px;border-radius:50%; background:var(--ink-3); opacity:.25; flex:none}
+.fk-lines{flex:1; display:flex; flex-direction:column; gap:5px}
+.fk-lines i{display:block; height:7px; border-radius:99px; background:var(--ink-3); opacity:.32}
+.fk-lines i:last-child{width:62%; opacity:.2}
+.fk-card{flex:1; padding:22px 26px; overflow:hidden}
+.fk-title{font-size:15px; font-weight:600; margin-bottom:4px}
+.fk-sub{font-size:12px; color:var(--ink-3); margin-bottom:20px}
+.fk-field{display:grid; grid-template-columns:130px 1fr; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); font-size:12.5px}
+.fk-field b{font-weight:500; color:var(--ink-3)}
+.fk-field span{color:var(--ink-2)}
+.fab{
+  position:absolute; right:20px; bottom:20px; z-index:50;
+  width:56px; height:56px; border-radius:50%; background:var(--accent); color:var(--on-accent);
+  display:grid; place-items:center; box-shadow:var(--shadow-float);
+  transition:transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+.fab:hover{transform:translateY(-3px)}
+.fab.is-hidden{display:none}
+.ext{
+  position:absolute; right:20px; bottom:20px; z-index:55;
+  width:400px; max-width:calc(100% - 40px); max-height:calc(100% - 40px);
+  display:flex; flex-direction:column; overflow:hidden;
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-float);
+  transform-origin:100% 100%;
+}
+.ext.is-hidden{display:none}
+.ext.is-in{animation:extIn 380ms var(--ease) both}
+@keyframes extIn{from{transform:scale(.92) translateY(16px)}to{transform:none}}
+.ext-head{display:flex; align-items:center; justify-content:space-between; padding:12px 12px 4px 16px; flex:none}
+.ext-brand{display:flex; align-items:center; gap:9px; font-weight:600; letter-spacing:-0.01em}
+.ext-acts{display:flex; gap:2px}
+.ext-ctx{display:flex; align-items:center; gap:8px; padding:0 16px 8px; flex:none}
+.ext-body{position:relative; flex:1; min-height:0; display:flex; flex-direction:column}
+.ext-scroll{flex:1; min-height:0; overflow-y:auto; padding:0 16px}
+.ext-foot{flex:none; padding:10px 16px 14px}
+.ext-tabs{padding:0 16px; flex:none}
+.ext-load{padding:56px 18px 60px; display:flex; flex-direction:column; align-items:center; gap:12px}
+.ext-load-ring{width:38px;height:38px;border-radius:50%; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent)}
+.ext-load-cap{font-size:13px; color:var(--ink-2); font-weight:500}
+.ext-center{padding:34px 24px 30px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px}
+.ext-center h3{font-size:17px}
+.ext-center p{font-size:13px; color:var(--ink-3); max-width:270px}
+.circle-warn{width:52px;height:52px;border-radius:50%; background:var(--danger-soft); color:var(--danger); display:grid; place-items:center; margin-bottom:6px}
+.ok-mark{width:64px;height:64px; margin-bottom:6px}
+.ok-mark circle{stroke:var(--accent); stroke-width:2; fill:none; stroke-dasharray:170; stroke-dashoffset:170; animation:drawCircle 400ms var(--ease) forwards}
+.ok-mark path{stroke:var(--accent); stroke-width:2.4; fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:36; stroke-dashoffset:36; animation:drawCheck 300ms var(--ease) 400ms forwards}
+@keyframes drawCircle{to{stroke-dashoffset:0}}
+@keyframes drawCheck{to{stroke-dashoffset:0}}
+.ok-line{
+  display:inline-flex; align-items:center; gap:8px; margin-top:4px; padding:8px 12px;
+  border-radius:var(--r-xs); background:var(--surface-2); font-size:12.5px; color:var(--ink-2);
+}
+.sum-row{display:grid; grid-template-columns:132px 1fr; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13px}
+.sum-row:last-child{border-bottom:none}
+.sum-row b{font-weight:500; color:var(--ink-3)}
+.sum-row span{color:var(--ink); word-break:break-word}
+.ext-over{
+  position:absolute; inset:0; z-index:20; background:var(--surface);
+  display:flex; flex-direction:column; transform:translateX(100%);
+  transition:transform 320ms var(--ease); border-radius:var(--r-lg);
+}
+.ext-over.is-open{transform:none}
+.ext-over-head{display:flex; align-items:center; gap:10px; padding:16px 18px 12px; flex:none; border-bottom:1px solid var(--line)}
+.hist-row{display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line)}
+.hist-row:last-child{border-bottom:none}
+.hist-mid{flex:1; min-width:0}
+.hist-b{font-size:13px; font-weight:500}
+.hist-s{font-size:11.5px; color:var(--ink-3)}
+.hist-r{text-align:right}
+.hist-sum{font-size:13px; font-weight:600}
+.hist-t{font-size:11.5px; color:var(--ink-3)}
+.phone{
+  width:var(--phone-w); height:var(--phone-h); flex:none;
+  background:var(--bezel); border-radius:62px; padding:var(--bezel-pad);
+  box-shadow:var(--shadow-float); position:relative;
+}
+.phone::after{content:""; position:absolute; inset:4px; border-radius:58px; border:1px solid rgba(255,255,255,.09); pointer-events:none}
+.phone-notch{
+  position:absolute; top:24px; left:50%; transform:translateX(-50%);
+  width:125px; height:36px; border-radius:99px; background:#000; z-index:30;
+}
+.screen{
+  position:relative; width:var(--scr-w); height:var(--scr-h); border-radius:50px; overflow:hidden;
+  background:var(--bg); display:flex; flex-direction:column;
+}
+.ph-status{
+  height:60px; flex:none; display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 34px 6px; font-size:15px; font-weight:600; color:var(--ink);
+}
+.ph-scroll{--ph-pad:18px; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:0}
+.ph-nav{
+  flex:none; height:84px; position:relative; display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+  border-top:1px solid var(--line); background:var(--surface); padding-bottom:22px;
+}
+.ph-nav::after{
+  content:""; position:absolute; bottom:9px; left:50%; transform:translateX(-50%);
+  width:140px; height:5px; border-radius:99px; background:var(--ink); opacity:.26;
+}
+.nav-b{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:var(--ink-3); font-size:11px; font-weight:500; transition:color 200ms ease}
+.nav-b.is-active{color:var(--accent)}
+.ph-view{width:100%; padding:8px var(--ph-pad) 20px}
+.mh{display:flex; align-items:center; gap:10px; margin:6px 0 14px}
+.av{
+  width:38px;height:38px;border-radius:50%; flex:none; display:grid; place-items:center;
+  background:var(--accent-soft); color:var(--accent); font-size:13px; font-weight:600;
+}
+.av--sm{width:30px;height:30px;font-size:11px}
+.av--gold{box-shadow:0 0 0 1.5px var(--gold); background:var(--gold-soft); color:var(--gold)}
+.mh-mid{flex:1; min-width:0}
+.mh-name{font-size:14px; font-weight:600; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mh-sub{font-size:11.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.stack{display:flex; flex-direction:column; gap:12px}
+.grid2{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px}
+.stat,.metric{position:relative}
+.metric{cursor:pointer; transition:transform 220ms var(--ease), box-shadow 220ms var(--ease)}
+.metric:hover{transform:translateY(-2px); box-shadow:var(--shadow-float)}
+.spark{position:absolute; top:14px; right:14px; color:var(--accent); opacity:.75}
+.metric-l{font-size:12px; color:var(--ink-2); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.metric-n{font-weight:600; font-size:28px; letter-spacing:-0.02em; line-height:1.15; margin-top:2px; white-space:nowrap; overflow:hidden}
+.metric-s{font-size:11.5px; color:var(--ink-3); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pay-num{display:inline-block; font-weight:600; font-size:40px; letter-spacing:-0.02em; color:var(--gold); line-height:1.08}
+.pay-underline{height:2px; background:var(--gold); border-radius:2px; margin-top:6px; opacity:.85}
+.pay-split{font-size:12px; color:var(--ink-3); margin-top:10px}
+.chart-wrap{position:relative; margin-top:12px}
+.bar{fill:var(--ink-3); opacity:.28; transition:opacity 160ms ease}
+.bar.is-max{fill:var(--accent); opacity:.9}
+.bar:hover{opacity:.65}
+.bar.is-max:hover{opacity:1}
+.tip{
+  position:absolute; z-index:12; pointer-events:none; opacity:0; transform:translate(-50%,-120%);
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-xs);
+  box-shadow:var(--shadow-float); padding:6px 9px; font-size:11.5px; white-space:nowrap;
+  transition:opacity 140ms ease;
+}
+.tip.is-on{opacity:1}
+.tip b{display:block; font-size:12.5px; font-weight:600}
+.ev{display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line)}
+.ev:last-child{border-bottom:none}
+.ev-mid{flex:1; min-width:0}
+.ev-id{font-size:12.5px; font-weight:500}
+.ev-sub{font-size:11px; color:var(--ink-3)}
+.ev-r{text-align:right}
+.ev-sum{font-size:12.5px; font-weight:600}
+.ev-t{font-size:11px; color:var(--ink-3)}
+.grp{border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); background-image:var(--sheen); overflow:hidden}
+.grp-head{width:100%; display:flex; align-items:center; gap:10px; padding:14px 16px; text-align:left}
+.grp-head .ico{color:var(--ink-3); transition:transform 260ms var(--ease)}
+.grp.is-open .grp-head .ico{transform:rotate(180deg)}
+.grp-t{flex:1; font-size:13.5px; font-weight:600}
+.grp-s{font-size:11.5px; color:var(--ink-3); font-weight:500}
+.grp-body{height:0; overflow:hidden; transition:height 320ms var(--ease)}
+.grp-in{padding:0 16px 14px}
+.tbl{width:100%; border-collapse:collapse; font-size:11.5px}
+.tbl th{text-align:left; font-weight:500; color:var(--ink-3); padding:6px 6px 6px 0; border-bottom:1px solid var(--line); white-space:nowrap}
+.tbl td{padding:7px 6px 7px 0; border-bottom:1px solid var(--line); color:var(--ink-2); white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:last-child,.tbl th:last-child{text-align:right; padding-right:0; color:var(--ink); font-weight:500}
+.search{display:flex; align-items:center; gap:8px; height:40px; padding:0 12px; border-radius:var(--r-sm); background:var(--surface-2); border:1px solid var(--line); transition:border-color 160ms ease, box-shadow 160ms ease}
+.search.is-focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+.search .ico{color:var(--ink-3)}
+.search input{flex:1; min-width:0; background:none; border:none; font-size:13px}
+.chips{display:flex; gap:6px; overflow-x:auto; padding:2px 0}
+.chips--bleed{margin-left:calc(-1 * var(--ph-pad)); margin-right:calc(-1 * var(--ph-pad)); padding-left:var(--ph-pad); padding-right:var(--ph-pad)}
+.chip{display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 12px; border-radius:99px; border:1px solid var(--line); font-size:12px; font-weight:500; color:var(--ink-2); white-space:nowrap; background:var(--surface); transition:background-color 180ms ease, color 180ms ease, border-color 180ms ease}
+.chip.is-on{background:var(--accent-soft); color:var(--accent); border-color:transparent; font-weight:600}
+.emp-row{display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:var(--r-sm); background:var(--surface); border:1px solid var(--line); cursor:pointer; will-change:transform; transition:background-color 160ms ease}
+.emp-row:hover{background:var(--surface-2)}
+.emp-mid{flex:1; min-width:0}
+.emp-n{font-size:13px; font-weight:600; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.emp-s{font-size:11px; color:var(--ink-3); margin-top:1px}
+.emp-r{text-align:right}
+.emp-p{font-size:13px; font-weight:600}
+.emp-o{font-size:11px; color:var(--ink-3)}
+.top-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+.top-row:last-child{border-bottom:none}
+.top-pl{width:18px; font-size:12px; color:var(--ink-3); font-weight:600; text-align:center; flex:none}
+.set-row{
+  display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px;
+  border-radius:var(--r-sm); background:var(--surface); border:1px solid var(--line);
+  text-align:left; transition:background-color 160ms ease;
+}
+.set-row:hover{background:var(--surface-2)}
+.set-ico{width:34px;height:34px;border-radius:11px; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center; flex:none}
+.set-t{font-size:13.5px; font-weight:600; letter-spacing:-0.01em}
+.set-s{font-size:11.5px; color:var(--ink-3); margin-top:1px}
+.sub-head{display:flex; align-items:center; gap:8px; margin:2px 0 14px}
+.pick{
+  display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px;
+  border-radius:var(--r-sm); text-align:left; background:var(--surface);
+  border:1px solid var(--line); transition:background-color 160ms ease;
+}
+.pick:hover{background:var(--surface-2)}
+.pwd{font-size:17px; font-weight:600; letter-spacing:0.16em; font-variant-numeric:tabular-nums}
+.acc-body{height:0; overflow:hidden; transition:height 300ms var(--ease)}
+.day-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px}
+.day-cell{height:34px; border-radius:var(--r-xs); display:grid; place-items:center; font-size:12.5px; color:var(--ink); background:var(--surface-2); transition:background-color 150ms ease, color 150ms ease}
+.day-cell:hover{background:var(--surface)}
+.day-cell.is-on{background:var(--accent); color:var(--on-accent); font-weight:600}
+.logo{
+  width:36px;height:36px;border-radius:12px; overflow:hidden; flex:none;
+  display:grid; place-items:center; background:var(--accent-soft); color:var(--accent);
+  font-weight:700; font-size:13px; letter-spacing:-0.02em;
+}
+.logo img{width:100%;height:100%;object-fit:cover;display:block}
+.logo--lg{width:72px;height:72px;border-radius:22px; font-size:24px}
+.brandbar{display:flex; align-items:center; gap:10px; margin:2px 0 14px}
+.brandbar-n{font-size:14.5px; font-weight:600; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brandbar-s{font-size:11.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.sheet-bd{position:absolute; inset:0; z-index:70; background:rgba(4,7,6,.42); opacity:0; pointer-events:none; transition:opacity 320ms var(--ease)}
+.sheet-bd.is-open{opacity:1; pointer-events:auto}
+.sheet{
+  position:absolute; left:0; right:0; bottom:0; z-index:80; max-height:88%;
+  background:var(--surface); border-radius:var(--r-lg) var(--r-lg) 0 0;
+  border-top:1px solid var(--line); box-shadow:var(--shadow-float);
+  transform:translateY(100%); transition:transform 320ms var(--ease);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.sheet.is-open{transform:none}
+.sheet.is-drag{transition:none}
+.sheet-grab{padding:10px 0 6px; display:grid; place-items:center; flex:none; cursor:grab; touch-action:none}
+.sheet-grab i{display:block; width:38px; height:4px; border-radius:99px; background:var(--line)}
+.sheet-head{display:flex; align-items:center; gap:10px; padding:2px 16px 12px; flex:none}
+.sheet-body{flex:1; min-height:0; overflow-y:auto; padding:0 16px 20px}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:1ms !important; animation-delay:0ms !important;
+    animation-iteration-count:1 !important; transition-duration:1ms !important;
+    transition-delay:0ms !important; scroll-behavior:auto !important;
+  }
+  .metric:hover,.fab:hover{transform:none !important}
+  .seg-thumb,.dd-menu,.cal,.sheet,.ext-over,.ext.is-in,.toast{transform:none !important}
+  .dd-menu,.cal{opacity:1}
+  .dd-menu:not(.is-shown),.cal:not(.is-open){display:none}
+  .sheet{bottom:-2000px}
+  .sheet.is-open{bottom:0}
+  .ext-over{left:100%}
+  .ext-over.is-open{left:0}
+  .spin{animation:none}
+}
+html,body{height:auto; min-height:100%}
+body{overflow-x:clip}
+:root{
+  --fit:1; --top:100px;
+  --scr-h:clamp(580px, calc((100vh - var(--top) - 88px) / var(--fit) - 70px), 874px);
+  --phone-h:calc(var(--scr-h) + 2 * var(--bezel-pad));
+}
+.demo-hint{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px 10px;
+  padding:12px 20px 0; font-size:13px; line-height:1.4; color:var(--ink-2); text-align:center;
+}
+.demo-hint .badge{flex:none}
+.demo-hint-m{display:none; width:100%; font-size:12px; color:var(--ink-3)}
+.chip-ver{white-space:nowrap}
+.browser{container-type:inline-size}
+@container (max-width:759px){ .fk-list{width:170px} .fk-card{padding:22px 20px} }
+@container (max-width:599px){ .fk-list{display:none} }
+.stage{
+  zoom:var(--fit); grid-template-columns:minmax(440px,1fr) auto;
+  padding:16px 24px calc(88px / var(--fit));
+}
+@media (max-width:1099px){
+  :root{--scr-h:874px}
+  .stage{grid-template-columns:minmax(0,1fr); justify-items:center}
+  .browser{width:100%; max-width:876px; height:640px}
+}
+@media (max-width:899px){
+  .demo-hint-m{display:block}
+  .topbar{position:static; grid-template-columns:1fr auto; row-gap:10px}
+  .topbar-center{grid-column:1/-1; order:3; flex-wrap:wrap}
+}
+@media (max-width:639px){
+  :root{--scr-h:720px}
+  .demo-hint{padding:12px 16px 0}
+  .stage{padding-left:12px; padding-right:12px; gap:20px}
+  .phones{grid-template-columns:var(--phone-w); gap:20px}
+  .browser{width:var(--phone-w); height:580px}
+  .chip-ver{display:none}
+  .topbar{padding:10px 16px}
+  .topbar .seg-btn{padding:0 8px}
+  #seg-theme{width:168px !important}
+  #seg-platform{width:190px !important}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h4.2a7.5 7.5 0 0 1 0 15H7z"/></svg>
+    </span>
+    <span class="brand-name">Dept</span>
+    <span class="chip-ver">живое демо</span>
+  </div>
+  <div class="topbar-center">
+    <div class="seg" id="seg-platform" style="width:230px"></div>
+    <button class="link-fail" id="btn-fail" type="button">Симулировать сбой</button>
+  </div>
+  <div class="topbar-right">
+    <div class="seg" id="seg-theme" style="width:200px"></div>
+  </div>
+</header>
+<div class="demo-hint" id="demo-hint"><span class="badge badge--accent">Попробуйте</span><span>Нажмите зелёную кнопку в окне CRM, выберите брокера и кабинет, отправьте конверсию — администратор сразу получит уведомление. Мини-аппы тоже кликабельны.</span><span class="demo-hint-m">Демо удобнее смотреть с компьютера</span></div>
+<script>demoFit()</script>
+<main class="stage">
+  <section class="browser" aria-label="Окно CRM">
+    <div class="browser-bar">
+      <div class="dots"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+      <div class="url">
+        <svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2.4"/><path d="M8.4 10.5V7.8a3.6 3.6 0 0 1 7.2 0v2.7"/></svg>
+        <span id="crm-url">chatline.app/chats/48219</span>
+      </div>
+    </div>
+    <div class="crm" id="crm">
+      <div class="crm-fake" aria-hidden="true">
+        <div class="fk-rail"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="fk-list">
+          <div class="fk-h" id="fk-list-h">Диалоги</div>
+          <div id="fk-items"></div>
+        </div>
+        <div class="fk-card">
+          <div class="fk-title" id="fk-card-t">Карточка клиента</div>
+          <div class="fk-sub" id="fk-card-s">Открыт диалог 48219</div>
+          <div id="fk-fields"></div>
+        </div>
+      </div>
+      <button class="fab" id="fab" type="button" aria-label="Открыть панель Dept">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h4.2a7.5 7.5 0 0 1 0 15H7z"/></svg>
+      </button>
+      <div class="ext is-hidden" id="ext" role="dialog" aria-label="Панель Dept"></div>
+    </div>
+  </section>
+  <section class="phones">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="screen" id="screen-emp"></div>
+      </div>
+      <div class="phone-cap">Сотрудник</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="screen" id="screen-adm"></div>
+      </div>
+      <div class="phone-cap">Администратор</div>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+const NBSP = " ";
+const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $  = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.prototype.slice.call((root || document).querySelectorAll(sel));
+function h(html){ const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+function fitK(el){ const w = el.offsetWidth; return w ? (el.getBoundingClientRect().width / w) || 1 : 1; }
+function mulberry32(seed){
+  let a = seed >>> 0;
+  return function(){
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(20260809);
+const ri  = (min, max) => min + Math.floor(rnd() * (max - min + 1));
+const pick = arr => arr[Math.floor(rnd() * arr.length)];
+function fmtNum(n){
+  const s = Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+  return (n < 0 ? "−" : "") + s;
+}
+function usd(n){ return fmtNum(n) + NBSP + "$"; }
+function pct(n){ return (Math.round(n * 10) / 10).toFixed(1).replace(".", ",") + "%"; }
+const FORMATS = { num: fmtNum, usd: usd, pct: pct };
+function startOfDay(d){ const x = new Date(d); x.setHours(0,0,0,0); return x; }
+function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function pad2(n){ return n < 10 ? "0" + n : String(n); }
+function dmy(d){ return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1) + "." + d.getFullYear(); }
+function dm(d){ return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1); }
+const MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const WEEKDAYS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const PATHS = {
+  dept:        '<path d="M7 4.5h4.2a7.5 7.5 0 0 1 0 15H7z"/>',
+  clock:       '<circle cx="12" cy="12" r="8.6"/><path d="M12 7.2v5l3.1 1.9"/>',
+  minus:       '<path d="M5.5 12h13"/>',
+  close:       '<path d="M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6"/>',
+  calendar:    '<rect x="3.6" y="5.2" width="16.8" height="15.2" rx="3"/><path d="M8.2 3v4.2M15.8 3v4.2M3.6 10.2h16.8"/>',
+  chevron:     '<path d="M6.5 9.5l5.5 5.5 5.5-5.5"/>',
+  chevronL:    '<path d="M14.5 6l-6 6 6 6"/>',
+  check:       '<path d="M5.5 12.6l4.4 4.4L18.6 8"/>',
+  alert:       '<path d="M12 3.6L2.6 20.4h18.8z"/><path d="M12 9.6v4.6M12 17.3v.1"/>',
+  info:        '<circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v5M12 7.9v.1"/>',
+  search:      '<circle cx="10.8" cy="10.8" r="6.4"/><path d="M15.6 15.6l4.4 4.4"/>',
+  bell:        '<path d="M6.2 9.4a5.8 5.8 0 1 1 11.6 0c0 3.9 1.5 5.4 1.5 5.4H4.7s1.5-1.5 1.5-5.4z"/><path d="M10.1 18a2 2 0 0 0 3.8 0"/>',
+  home:        '<path d="M4 10.4L12 4.2l8 6.2V19a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 19z"/>',
+  list:        '<path d="M4.5 7.5h15M4.5 12h15M4.5 16.5h9.5"/>',
+  grid:        '<rect x="3.8" y="3.8" width="7" height="7" rx="2"/><rect x="13.2" y="3.8" width="7" height="7" rx="2"/><rect x="3.8" y="13.2" width="7" height="7" rx="2"/><rect x="13.2" y="13.2" width="7" height="7" rx="2"/>',
+  users:       '<circle cx="9.2" cy="8.8" r="3.3"/><path d="M3.6 19.2c0-3.1 2.5-5.2 5.6-5.2s5.6 2.1 5.6 5.2"/><path d="M16.4 6.2a3.2 3.2 0 0 1 0 6M17.6 14.4c2 .7 3.4 2.5 3.4 4.8"/>',
+  arrowUp:     '<path d="M12 19V5.6M6.4 11.2L12 5.6l5.6 5.6"/>',
+  refresh:     '<path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20.2 4.2v5h-5"/>',
+  checkCircle: '<circle cx="12" cy="12" r="8.6"/><path d="M8.2 12.3l2.7 2.7 4.9-5.4"/>',
+  dollar:      '<path d="M12 4.5v15"/><path d="M15.8 8.2c0-1.7-1.7-2.8-3.8-2.8S8.2 6.5 8.2 8.2s1.6 2.3 3.8 2.9 3.8 1.2 3.8 3-1.7 2.8-3.8 2.8-3.8-1.1-3.8-2.8"/>',
+  spinner:     '<path d="M12 3.6v3.2M12 17.2v3.2M3.6 12h3.2M17.2 12h3.2M6.1 6.1l2.3 2.3M15.6 15.6l2.3 2.3M17.9 6.1l-2.3 2.3M8.4 15.6l-2.3 2.3"/>',
+  sliders:     '<path d="M4 7.6h9.4M18.6 7.6h1.4M4 16.4h3.4M12.6 16.4h7.4"/><circle cx="15.8" cy="7.6" r="2.4"/><circle cx="10" cy="16.4" r="2.4"/>',
+  plus:        '<path d="M12 5.4v13.2M5.4 12h13.2"/>',
+  key:         '<circle cx="8.4" cy="12" r="3.7"/><path d="M12.1 12H21M18.2 12v3.2M15.4 12v2.4"/>',
+  image:       '<rect x="3.5" y="4.8" width="17" height="14.4" rx="3"/><circle cx="8.9" cy="10.1" r="1.7"/><path d="M4.3 17.4l4.6-4.3 3.4 3 3-2.6 4.4 3.9"/>',
+  wallet:      '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16.4 14.4h2"/>'
+};
+function icon(name, size){
+  size = size || 16;
+  return '<svg class="ico" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(PATHS[name]||"")+'</svg>';
+}
+const BROKERS = ["Nordwin", "Marvex", "Cresta", "Quanto"];
+const CABINETS = {
+  "Nordwin":     ["kd7wqtn4 (Стёпа)", "3xbrpT8ke (Лёня)", "3hWLcuvNd (Марк)", "3RPeiixaz (Игорь)", "3mBK7qHTC (Zimin)"],
+  "Marvex":   ["Marvex (Стёпа)", "Marvex (Игорь)", "Marvex (Лёня)", "Marvex (Zimin)"],
+  "Cresta": ["Cresta (Стёпа)"],
+  "Quanto":   ["Quanto (Стёпа)"]
+};
+const NAMES = [
+  "Илья Воронов", "Степан Орешкин", "Фёдор Зимин", "Леонид Калугин",
+  "Марк Субботин", "Арсений Громов", "Игорь Лапшин", "Вадим Ершов",
+  "Вера Соловьёва", "Ульяна Мельникова", "Таисия Королёва", "Захар Беляков",
+  "Семён Чижов", "Нина Фомина", "Эльдар Каримов"
+];
+const FTD_AMOUNTS = [100,100,150,200,200,250,250,300,300,400,500,750,1000];
+const RD_AMOUNTS  = [150,200,250,300,300,500,500,750,1000,1500,2000];
+const DAYS = 28;
+const TODAY = startOfDay(new Date());
+const dayDate = i => addDays(TODAY, i - (DAYS - 1));
+function initials(name){
+  const p = name.split(" ");
+  return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
+}
+function buildEmployees(){
+  const list = [];
+  for(let i = 0; i < NAMES.length; i++){
+    const strength    = i === 0 ? 1.15 : 0.55 + rnd() * 1.0;
+    const percentRate = (4 + ri(0, 4)) / 100;
+    const ratePerDay  = 12 + ri(0, 8);
+    const delta       = { day: 0, week: 0, month: 0 };
+    const days = [];
+    const ops  = [];
+    for(let d = 0; d < DAYS; d++){
+      const date = dayDate(d);
+      const day = { leads:0, regs:0, ftdCount:0, ftdSum:0, rdCount:0, rdSum:0, oborot:0, rate:ratePerDay, percent:0, salary:0 };
+      let leads = Math.max(1, Math.round(1.8 * strength + rnd() * 2.2));
+      let regs = 0, ftd = 0, rd = 0;
+      for(let k = 0; k < leads; k++) if(rnd() < 0.24 + 0.13 * strength) regs++;
+      for(let k = 0; k < regs;  k++) if(rnd() < 0.26 + 0.13 * strength) ftd++;
+      for(let k = 0; k < ftd;   k++) if(rnd() < 0.42 + 0.16 * strength) rd++;
+      if(i === 0 && d === DAYS - 1){ regs = Math.max(regs, 2); ftd = Math.max(ftd, 1); rd = Math.max(rd, 1); leads = Math.max(leads, regs); }
+      const mkOp = (type, amount) => {
+        const broker = pick(BROKERS);
+        const cabs = CABINETS[broker];
+        return {
+          type: type, dayIdx: d, date: date,
+          leadId: 40000 + ri(0, 9899),
+          broker: broker, cab: cabs[Math.floor(rnd() * cabs.length)],
+          amount: amount || 0,
+          hour: 10 + ri(0, 9), min: ri(0, 59)
+        };
+      };
+      for(let k = 0; k < leads; k++) ops.push(mkOp("lead", 0));
+      for(let k = 0; k < regs;  k++) ops.push(mkOp("reg", 0));
+      for(let k = 0; k < ftd;   k++){ const a = pick(FTD_AMOUNTS); day.ftdSum += a; ops.push(mkOp("ftd", a)); }
+      for(let k = 0; k < rd;    k++){ const a = pick(RD_AMOUNTS);  day.rdSum  += a; ops.push(mkOp("rd",  a)); }
+      day.leads = leads; day.regs = regs; day.ftdCount = ftd; day.rdCount = rd;
+      day.oborot  = day.ftdSum + day.rdSum;
+      day.percent = Math.round(day.oborot * percentRate);
+      day.salary  = day.rate + day.percent;
+      days.push(day);
+    }
+    delta.day = 3 + ri(0, 21); delta.week = 3 + ri(0, 21); delta.month = 3 + ri(0, 21);
+    list.push({
+      id: i, name: NAMES[i], ini: initials(NAMES[i]),
+      percentRate: percentRate, ratePerDay: ratePerDay,
+      days: days, ops: ops, delta: delta
+    });
+  }
+  return list;
+}
+const EMP = buildEmployees();
+const PERIODS = [
+  { key: "day",   title: "День",   from: DAYS - 1, to: DAYS },
+  { key: "week",  title: "Неделя", from: DAYS - 7, to: DAYS },
+  { key: "month", title: "Месяц",  from: 0,        to: DAYS }
+];
+const periodDef = key => PERIODS.filter(p => p.key === key)[0];
+const AGG_FIELDS = ["leads","regs","ftdCount","ftdSum","rdCount","rdSum","oborot","rate","percent","salary"];
+function agg(emp, periodKey){
+  const p = periodDef(periodKey);
+  const out = {};
+  AGG_FIELDS.forEach(f => out[f] = 0);
+  for(let d = p.from; d < p.to; d++){
+    const day = emp.days[d];
+    AGG_FIELDS.forEach(f => out[f] += day[f]);
+  }
+  return out;
+}
+function aggDept(periodKey){
+  const out = {};
+  AGG_FIELDS.forEach(f => out[f] = 0);
+  EMP.forEach(e => { const a = agg(e, periodKey); AGG_FIELDS.forEach(f => out[f] += a[f]); });
+  return out;
+}
+function funnel(a){
+  return [
+    { name: "Лид → Рег", v: a.leads    ? a.regs     / a.leads    * 100 : 0 },
+    { name: "Рег → ФД",  v: a.regs     ? a.ftdCount / a.regs     * 100 : 0 },
+    { name: "ФД → РД",   v: a.ftdCount ? a.rdCount  / a.ftdCount * 100 : 0 }
+  ];
+}
+function opsIn(emp, periodKey, types){
+  const p = periodDef(periodKey);
+  return emp.ops
+    .filter(o => o.dayIdx >= p.from && o.dayIdx < p.to && (!types || types.indexOf(o.type) >= 0))
+    .sort((x, y) => (y.dayIdx - x.dayIdx) || (y.hour - x.hour) || (y.min - x.min));
+}
+function buckets(emp, periodKey){
+  const p = periodDef(periodKey);
+  if(periodKey === "day"){
+    const out = [];
+    for(let hr = 10; hr <= 19; hr++) out.push({ label: pad2(hr) + ":00", v: 0 });
+    emp.ops.forEach(o => {
+      if(o.dayIdx !== DAYS - 1 || !o.amount) return;
+      const idx = clamp(o.hour - 10, 0, out.length - 1);
+      out[idx].v += o.amount;
+    });
+    return out;
+  }
+  const out = [];
+  for(let d = p.from; d < p.to; d++) out.push({ label: dm(dayDate(d)), v: emp.days[d].oborot });
+  return out;
+}
+const SERIES = {
+  leads: { title: "Лиды",        opType: "lead", field: "leads",  money: false },
+  regs:  { title: "Регистрации", opType: "reg",  field: "regs",   money: false },
+  ftd:   { title: "ФД",          opType: "ftd",  field: "ftdSum", money: true  },
+  rd:    { title: "РД",          opType: "rd",   field: "rdSum",  money: true  }
+};
+function seriesData(emps, periodKey, metric){
+  const cfg = SERIES[metric], p = periodDef(periodKey), out = [];
+  if(periodKey === "day"){
+    for(let hr = 10; hr <= 19; hr++) out.push({ label: pad2(hr) + ":00", v: 0 });
+    emps.forEach(e => e.ops.forEach(o => {
+      if(o.dayIdx !== DAYS - 1 || o.type !== cfg.opType) return;
+      out[clamp(o.hour - 10, 0, out.length - 1)].v += cfg.money ? o.amount : 1;
+    }));
+    return out;
+  }
+  for(let d = p.from; d < p.to; d++){
+    let v = 0;
+    emps.forEach(e => v += e.days[d][cfg.field]);
+    out.push({ label: dm(dayDate(d)), v: v });
+  }
+  return out;
+}
+function byBroker(emps, periodKey, opType){
+  const p = periodDef(periodKey), map = {};
+  BROKERS.forEach(b => map[b] = { broker: b, count: 0, sum: 0 });
+  emps.forEach(e => e.ops.forEach(o => {
+    if(o.dayIdx < p.from || o.dayIdx >= p.to || o.type !== opType) return;
+    map[o.broker].count++; map[o.broker].sum += o.amount;
+  }));
+  return BROKERS.map(b => map[b]).sort((x, y) => y.count - x.count);
+}
+function sparkData(emp, field){
+  const out = [];
+  for(let d = DAYS - 7; d < DAYS; d++) out.push(emp.days[d][field]);
+  return out;
+}
+const OP_META = {
+  lead: { title: "Лид", cls: "badge--neutral" },
+  reg:  { title: "Рег", cls: "badge--neutral" },
+  ftd:  { title: "ФД",  cls: "badge--accent"  },
+  rd:   { title: "РД",  cls: "badge--gold"    }
+};
+const company = {
+  name: "Dept Group",
+  logo: null,
+  payout: { mode: "month", weekday: 4, day: 10 }
+};
+const WEEKDAYS_FULL = ["понедельник","вторник","среду","четверг","пятницу","субботу","воскресенье"];
+const pwRnd = mulberry32(913377);
+function genPassword(){ return String(100000 + Math.floor(pwRnd() * 900000)); }
+EMP.forEach((e, i) => { e.password = i < 6 ? genPassword() : null; e.fresh = false; });
+function makeBlankEmployee(name){
+  const days = [];
+  for(let d = 0; d < DAYS; d++){
+    days.push({ leads:0, regs:0, ftdCount:0, ftdSum:0, rdCount:0, rdSum:0, oborot:0, rate:0, percent:0, salary:0 });
+  }
+  return {
+    id: EMP.length, name: name, ini: initials(name),
+    percentRate: 0.05, ratePerDay: 0, days: days, ops: [],
+    delta: { day:0, week:0, month:0 }, password: null, fresh: true
+  };
+}
+function payoutPeriod(){
+  const p = company.payout;
+  if(p.mode === "week"){
+    const dow = (TODAY.getDay() + 6) % 7;
+    const from = addDays(TODAY, -dow);
+    return { from: from, to: addDays(from, 6), when: "в " + WEEKDAYS_FULL[p.weekday], title: "Неделя" };
+  }
+  const from = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+  const to   = new Date(TODAY.getFullYear(), TODAY.getMonth() + 1, 0);
+  return { from: from, to: to, when: p.day + "-го числа", title: "Месяц" };
+}
+function payoutText(){
+  const p = payoutPeriod();
+  return dm(p.from) + " — " + dm(p.to) + " · выплата " + p.when;
+}
+function companyMono(){
+  const words = company.name.trim().split(/\s+/);
+  return ((words[0] || "К")[0] + (words[1] ? words[1][0] : "")).toUpperCase();
+}
+function logoHtml(cls){
+  const c = "logo" + (cls ? " " + cls : "");
+  return company.logo
+    ? '<span class="' + c + '"><img src="' + company.logo + '" alt=""></span>'
+    : '<span class="' + c + '">' + companyMono() + "</span>";
+}
+const HISTORY = [
+  { type:"ftd",  broker:"Marvex",   sum:250,  time:"14:02" },
+  { type:"reg",  broker:"Nordwin",     sum:0,    time:"13:47" },
+  { type:"rd",   broker:"Nordwin",     sum:1000, time:"12:19" },
+  { type:"ftd",  broker:"Cresta", sum:150,  time:"11:56" },
+  { type:"reg",  broker:"Marvex",   sum:0,    time:"11:08" },
+  { type:"ftd",  broker:"Quanto",   sum:300,  time:"10:31" }
+];
+function createSeg(root, items, activeIdx, onChange){
+  clear(root);
+  root.classList.add("seg");
+  const thumb = h('<span class="seg-thumb"></span>');
+  root.appendChild(thumb);
+  const btns = items.map((label, i) => {
+    const b = h('<button type="button" class="seg-btn">' + label + "</button>");
+    b.addEventListener("click", () => api.set(i, true));
+    root.appendChild(b);
+    return b;
+  });
+  const api = {
+    index: activeIdx || 0,
+    set: function(i, fire){
+      api.index = i;
+      btns.forEach((b, k) => b.classList.toggle("is-active", k === i));
+      api.layout();
+      if(fire && onChange) onChange(i);
+    },
+    layout: function(){
+      const b = btns[api.index];
+      if(!b || !b.offsetWidth) return;
+      const extra = root.classList.contains("seg--tabs") ? 1 : 0;
+      thumb.style.width  = b.offsetWidth + "px";
+      thumb.style.height = (b.offsetHeight + extra) + "px";
+      thumb.style.transform = "translate(" + b.offsetLeft + "px," + b.offsetTop + "px)";
+    }
+  };
+  api.set(api.index, false);
+  requestAnimationFrame(api.layout);
+  if(window.ResizeObserver) new ResizeObserver(() => api.layout()).observe(root);
+  return api;
+}
+function createDropdown(root, opts){
+  const st = {
+    open: false, value: opts.value || null, items: opts.items || [],
+    disabled: !!opts.disabled, active: -1
+  };
+  root.classList.add("dd");
+  root.innerHTML =
+    '<button type="button" class="field dd-trigger"><span class="dd-val"></span>' + icon("chevron", 16) + "</button>" +
+    '<div class="dd-menu" role="listbox"></div>';
+  const trg  = $(".dd-trigger", root);
+  const val  = $(".dd-val", root);
+  const menu = $(".dd-menu", root);
+  function paintValue(){
+    const empty = !st.value;
+    val.textContent = empty ? (st.disabled ? (opts.disabledText || "Недоступно") : (opts.placeholder || "Выбрать")) : st.value;
+    val.classList.toggle("is-ph", empty);
+    trg.setAttribute("data-disabled", st.disabled ? "1" : "0");
+    trg.style.cursor = st.disabled ? "not-allowed" : "pointer";
+  }
+  function paintMenu(){
+    clear(menu);
+    st.items.forEach((item, i) => {
+      const o = h('<div class="dd-opt" role="option"><span>' + item + "</span>" + icon("check", 15) + "</div>");
+      if(item === st.value) o.classList.add("is-sel");
+      if(i === st.active)   o.classList.add("is-active");
+      o.addEventListener("mouseenter", () => { st.active = i; markActive(); });
+      o.addEventListener("click", () => choose(item));
+      menu.appendChild(o);
+    });
+  }
+  function markActive(){
+    $$(".dd-opt", menu).forEach((o, i) => o.classList.toggle("is-active", i === st.active));
+  }
+  function choose(item){
+    st.value = item; paintValue(); close();
+    if(opts.onChange) opts.onChange(item);
+  }
+  function open(){
+    if(st.disabled || st.open) return;
+    st.open = true;
+    st.active = Math.max(0, st.items.indexOf(st.value));
+    paintMenu();
+    const boundary = root.closest(".ext-scroll") || root.closest(".ph-scroll") || document.documentElement;
+    const rb = boundary.getBoundingClientRect();
+    const rr = root.getBoundingClientRect();
+    const need = Math.min(240, st.items.length * 38 + 12) + 10;
+    const k = fitK(root);
+    root.classList.toggle("is-up", (rb.bottom - rr.bottom) / k < need && (rr.top - rb.top) / k > need);
+    root.classList.add("is-open");
+    menu.classList.add("is-shown");
+    trg.setAttribute("aria-expanded", "true");
+    setTimeout(() => document.addEventListener("mousedown", outside), 0);
+  }
+  function close(){
+    if(!st.open) return;
+    st.open = false;
+    root.classList.remove("is-open");
+    menu.classList.remove("is-shown");
+    trg.setAttribute("aria-expanded", "false");
+    document.removeEventListener("mousedown", outside);
+  }
+  function outside(e){ if(!root.contains(e.target)) close(); }
+  trg.addEventListener("click", () => st.open ? close() : open());
+  trg.addEventListener("keydown", e => {
+    if(st.disabled) return;
+    if(e.key === "ArrowDown" || e.key === "ArrowUp"){
+      e.preventDefault();
+      if(!st.open){ open(); return; }
+      st.active = clamp(st.active + (e.key === "ArrowDown" ? 1 : -1), 0, st.items.length - 1);
+      markActive();
+      const el = $$(".dd-opt", menu)[st.active]; if(el) el.scrollIntoView({ block: "nearest" });
+    } else if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      if(!st.open){ open(); }
+      else if(st.items[st.active] !== undefined) choose(st.items[st.active]);
+    } else if(e.key === "Escape"){ close(); }
+  });
+  paintValue();
+  return {
+    root: root, trigger: trg,
+    get value(){ return st.value; },
+    setItems: function(items, keepValue){
+      st.items = items;
+      if(!keepValue) st.value = null;
+      paintValue(); paintMenu();
+    },
+    setDisabled: function(v){ st.disabled = v; if(v) close(); paintValue(); },
+    setValue: function(v){ st.value = v; paintValue(); },
+    highlight: function(){
+      trg.classList.remove("f-hl"); void trg.offsetWidth; trg.classList.add("f-hl");
+    }
+  };
+}
+function createDatePicker(root, opts){
+  const base = opts.value ? new Date(opts.value) : TODAY;
+  const st = { open: false, value: opts.value || null, view: new Date(base.getFullYear(), base.getMonth(), 1) };
+  root.style.position = "relative";
+  root.innerHTML =
+    '<button type="button" class="field dp-trigger">' + icon("calendar", 16) + '<span class="dp-val is-ph"></span></button>' +
+    '<div class="cal"><div class="cal-head">' +
+      '<button type="button" class="icon-btn cal-prev">' + icon("chevronL", 16) + "</button>" +
+      '<div class="cal-title"></div>' +
+      '<button type="button" class="icon-btn cal-next" style="transform:rotate(180deg)">' + icon("chevronL", 16) + "</button>" +
+    "</div><div class='cal-grid'></div></div>";
+  const trg  = $(".dp-trigger", root);
+  const val  = $(".dp-val", root);
+  const cal  = $(".cal", root);
+  const ttl  = $(".cal-title", root);
+  const grid = $(".cal-grid", root);
+  $(".dp-trigger .ico", root).style.color = "var(--ink-3)";
+  function paintValue(){
+    val.textContent = st.value ? dmy(st.value) : (opts.placeholder || "дд.мм.гггг");
+    val.classList.toggle("is-ph", !st.value);
+    val.style.color = st.value ? "var(--ink)" : "var(--ink-3)";
+  }
+  function paintGrid(){
+    ttl.textContent = MONTHS[st.view.getMonth()] + " " + st.view.getFullYear();
+    clear(grid);
+    WEEKDAYS.forEach(w => grid.appendChild(h('<div class="cal-wd">' + w + "</div>")));
+    const first = new Date(st.view.getFullYear(), st.view.getMonth(), 1);
+    const shift = (first.getDay() + 6) % 7;
+    const start = addDays(first, -shift);
+    for(let i = 0; i < 42; i++){
+      const d = addDays(start, i);
+      const cell = h('<div class="cal-day" tabindex="0">' + d.getDate() + "</div>");
+      if(d.getMonth() !== st.view.getMonth()) cell.classList.add("is-out");
+      if(d.getTime() === TODAY.getTime()) cell.classList.add("is-today");
+      if(st.value && d.getTime() === startOfDay(st.value).getTime()) cell.classList.add("is-sel");
+      cell.addEventListener("click", () => {
+        st.value = d; paintValue(); paintGrid(); close();
+        if(opts.onChange) opts.onChange(d);
+      });
+      cell.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); cell.click(); } });
+      grid.appendChild(cell);
+    }
+  }
+  function open(){
+    st.open = true; cal.classList.add("is-open");
+    paintGrid();
+    setTimeout(() => document.addEventListener("mousedown", outside), 0);
+    const sc = root.closest(".ext-scroll");
+    if(sc) setTimeout(() => { sc.scrollTo({ top: root.offsetTop - 8, behavior: RM ? "auto" : "smooth" }); }, 60);
+  }
+  function close(){ st.open = false; cal.classList.remove("is-open"); document.removeEventListener("mousedown", outside); }
+  function outside(e){ if(!root.contains(e.target)) close(); }
+  trg.addEventListener("click", () => st.open ? close() : open());
+  trg.addEventListener("keydown", e => { if(e.key === "Escape") close(); });
+  $(".cal-prev", root).addEventListener("click", () => { st.view = new Date(st.view.getFullYear(), st.view.getMonth() - 1, 1); paintGrid(); });
+  $(".cal-next", root).addEventListener("click", () => { st.view = new Date(st.view.getFullYear(), st.view.getMonth() + 1, 1); paintGrid(); });
+  paintValue();
+  return { root: root, trigger: trg, get value(){ return st.value; }, get text(){ return st.value ? dmy(st.value) : ""; } };
+}
+function createToaster(layerRef){
+  return {
+    show: function(type, title, sub){
+      const layer = typeof layerRef === "function" ? layerRef() : layerRef;
+      if(!layer) return;
+      const cls = type === "err" ? "toast--err" : (type === "info" ? "toast--info" : "");
+      const ic  = type === "err" ? "alert" : (type === "info" ? "info" : "checkCircle");
+      const t = h(
+        '<div class="toast ' + cls + '">' +
+          '<span class="toast-ico toast-ico--' + (type === "err" ? "err" : type === "info" ? "info" : "ok") + '">' + icon(ic, 14) + "</span>" +
+          '<div style="flex:1;min-width:0;padding-right:14px">' +
+            '<div class="toast-tt">' + title + "</div>" +
+            (sub ? '<div class="toast-sub">' + sub + "</div>" : "") +
+          "</div>" +
+          '<button type="button" class="toast-x icon-btn" style="width:22px;height:22px" aria-label="Закрыть">' + icon("close", 13) + "</button>" +
+          '<span class="toast-bar"></span>' +
+        "</div>");
+      const kill = () => {
+        if(t.dataset.dead) return;
+        t.dataset.dead = "1";
+        t.classList.add("is-out");
+        setTimeout(() => t.remove(), RM ? 10 : 280);
+      };
+      $(".toast-x", t).addEventListener("click", kill);
+      layer.appendChild(t);
+      setTimeout(kill, 4000);
+      while(layer.children.length > 3) layer.firstElementChild.remove();
+    }
+  };
+}
+const observers = new WeakMap();
+function counterObserver(root){
+  if(observers.has(root)) return observers.get(root);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if(!en.isIntersecting) return;
+      const el = en.target;
+      if(el.__done) return;
+      el.__done = true;
+      animateCount(el, el.__target, el.__fmt);
+      io.unobserve(el);
+    });
+  }, { root: root, threshold: 0.15 });
+  observers.set(root, io);
+  return io;
+}
+function animateCount(el, to, fmt){
+  const from = el.__val || 0;
+  if(RM || from === to){ el.__val = to; el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 700;
+  cancelAnimationFrame(el.__raf);
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (to - from) * e);
+    if(p < 1) el.__raf = requestAnimationFrame(step); else el.__val = to;
+  };
+  el.__raf = requestAnimationFrame(step);
+}
+function initCounters(scope, root){
+  $$(".count", scope).forEach(el => {
+    const v = parseFloat(el.dataset.value) || 0;
+    const f = FORMATS[el.dataset.fmt || "num"];
+    el.__target = v; el.__fmt = f; el.__val = 0; el.__done = false;
+    el.textContent = RM ? f(v) : f(0);
+    if(!RM) counterObserver(root).observe(el);
+  });
+  fitNumbers(scope);
+}
+function fitNumbers(scope){
+  $$(".metric-n.count, .big-num.count", scope).forEach(el => {
+    el.style.fontSize = "";
+    const keep = el.textContent;
+    el.textContent = el.__fmt(el.__target);
+    let size = parseFloat(getComputedStyle(el).fontSize), guard = 0;
+    while(el.scrollWidth > el.clientWidth + 0.5 && size > 17 && guard++ < 24){
+      size -= 1;
+      el.style.fontSize = size + "px";
+    }
+    el.textContent = keep;
+  });
+}
+function initBars(scope, root){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if(!en.isIntersecting) return;
+      const el = en.target;
+      const delay = parseInt(el.dataset.delay || "0", 10);
+      setTimeout(() => { el.style.width = el.dataset.w; }, RM ? 0 : delay);
+      io.unobserve(el);
+    });
+  }, { root: root, threshold: 0.2 });
+  $$(".fn-fill", scope).forEach(el => io.observe(el));
+}
+function barChart(data, w, hgt){
+  const max = Math.max(1, ...data.map(d => d.v));
+  const gap = data.length > 12 ? 2 : 5;
+  const bw  = (w - gap * (data.length - 1)) / data.length;
+  let rects = "";
+  data.forEach((d, i) => {
+    const bh = Math.max(2, d.v / max * (hgt - 4));
+    const x  = i * (bw + gap);
+    rects += '<rect class="bar' + (d.v === max && d.v > 0 ? " is-max" : "") + '" x="' + x.toFixed(2) + '" y="' + (hgt - bh).toFixed(2) +
+             '" width="' + bw.toFixed(2) + '" height="' + bh.toFixed(2) + '" rx="' + Math.min(3, bw / 2).toFixed(1) +
+             '" data-i="' + i + '"></rect>';
+  });
+  return '<svg viewBox="0 0 ' + w + " " + hgt + '" width="100%" height="' + hgt + '" preserveAspectRatio="none" style="display:block;overflow:visible">' + rects + "</svg>";
+}
+function sparkline(values, w, hgt){
+  const max = Math.max(1, ...values), min = Math.min(...values);
+  const span = Math.max(1, max - min);
+  const pts = values.map((v, i) => {
+    const x = i / (values.length - 1) * w;
+    const y = hgt - 1.5 - (v - min) / span * (hgt - 3);
+    return x.toFixed(1) + "," + y.toFixed(1);
+  }).join(" ");
+  return '<svg class="spark" width="' + w + '" height="' + hgt + '" viewBox="0 0 ' + w + " " + hgt + '" fill="none">' +
+         '<polyline points="' + pts + '" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function smoothPath(pts){
+  if(pts.length < 2) return "";
+  let d = "M" + pts[0][0].toFixed(2) + " " + pts[0][1].toFixed(2);
+  for(let i = 0; i < pts.length - 1; i++){
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += " C" + c1x.toFixed(2) + " " + c1y.toFixed(2) + "," + c2x.toFixed(2) + " " + c2y.toFixed(2) + "," + p2[0].toFixed(2) + " " + p2[1].toFixed(2);
+  }
+  return d;
+}
+function areaChart(rows, w, hgt, uid){
+  let max = 1;
+  rows.forEach(r => r.data.forEach(d => { if(d.v > max) max = d.v; }));
+  const n = rows[0].data.length;
+  const xOf = i => i / Math.max(1, n - 1) * w;
+  let defs = "", body = "";
+  rows.forEach((r, ri) => {
+    const pts = r.data.map((d, i) => [xOf(i), hgt - 6 - d.v / max * (hgt - 14)]);
+    const line = smoothPath(pts);
+    if(r.fill){
+      const gid = uid + "-" + ri;
+      defs += "<linearGradient id='" + gid + "' x1='0' y1='0' x2='0' y2='1'>" +
+        "<stop offset='0%' stop-color='" + r.color + "' stop-opacity='0.22'/>" +
+        "<stop offset='100%' stop-color='" + r.color + "' stop-opacity='0'/></linearGradient>";
+      body += '<path d="' + line + " L" + w + " " + hgt + " L0 " + hgt + ' Z" fill="url(#' + gid + ')"/>';
+    }
+    body += '<path class="area-line" d="' + line + '" fill="none" stroke="' + r.color +
+      '" stroke-width="' + (r.width || 1.8) + '" stroke-linecap="round" stroke-linejoin="round"/>';
+    body += pts.map(p => '<circle cx="' + p[0].toFixed(2) + '" cy="' + p[1].toFixed(2) +
+      '" r="2" fill="var(--surface)" stroke="' + r.color + '" stroke-width="1.3"/>').join("");
+  });
+  const bw = w / n;
+  let hits = "";
+  for(let i = 0; i < n; i++){
+    hits += '<rect class="hit" x="' + (xOf(i) - bw / 2).toFixed(2) + '" y="0" width="' + bw.toFixed(2) +
+            '" height="' + hgt + '" fill="transparent" data-i="' + i + '"></rect>';
+  }
+  return '<svg viewBox="0 0 ' + w + " " + hgt + '" width="100%" height="' + hgt +
+    '" preserveAspectRatio="none" style="display:block;overflow:visible">' +
+    "<defs>" + defs + "</defs>" + body + hits + "</svg>";
+}
+function animateLines(svg){
+  if(RM) return;
+  $$(".area-line", svg).forEach((p, i) => {
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+    requestAnimationFrame(() => {
+      p.style.transition = "stroke-dashoffset 900ms cubic-bezier(.22,1,.36,1) " + (i * 90) + "ms";
+      p.style.strokeDashoffset = "0";
+    });
+  });
+}
+function bindTip(wrap, selector, textFor){
+  const tip = h('<div class="tip"></div>');
+  wrap.appendChild(tip);
+  $$(selector, wrap).forEach(node => {
+    node.addEventListener("mouseenter", () => {
+      const i = parseInt(node.dataset.i, 10);
+      tip.innerHTML = textFor(i);
+      const wr = wrap.getBoundingClientRect(), nr = node.getBoundingClientRect(), k = fitK(wrap);
+      tip.style.left = ((nr.left + nr.width / 2 - wr.left) / k) + "px";
+      tip.style.top  = ((nr.top - wr.top) / k) + "px";
+      tip.classList.add("is-on");
+    });
+    node.addEventListener("mouseleave", () => tip.classList.remove("is-on"));
+  });
+}
+function funnelHtml(a){
+  return funnel(a).map((f, i) =>
+    '<div class="fn-row"><div class="fn-name">' + f.name + '</div><div class="fn-val">' + pct(f.v) + '</div>' +
+    '<div class="fn-track"><div class="fn-fill" data-w="' + clamp(f.v, 0, 100).toFixed(1) + '%" data-delay="' + (i * 80) + '"></div></div></div>'
+  ).join("");
+}
+const crmState = {
+  platform: "chatline",
+  view: "collapsed",
+  tab: 0,
+  failNext: false,
+  values: null,
+  errors: {},
+  lastSent: null
+};
+const TABS = [
+  { key: "reg", title: "Рег" },
+  { key: "ftd", title: "ФД"  },
+  { key: "rd",  title: "РД"  }
+];
+const extEl    = $("#ext");
+const fabEl    = $("#fab");
+const crmToast = createToaster(() => $("#ext-toasts"));
+function defaultValues(){
+  return {
+    date: TODAY, dateText: dmy(TODAY), dateAuto: true,
+    campaign: crmState.platform === "lidix" ? "organic" : "ads_dept_ru_08",
+    campaignAuto: true,
+    broker: null,
+    leadId: "k48219@demo.mail", leadAuto: true,
+    cabinet: null, amount: "",
+    dealId: "48219", dealAuto: true
+  };
+}
+crmState.values = defaultValues();
+function renderFakeCrm(){
+  const isAlt = crmState.platform === "lidix";
+  $("#crm-url").textContent  = isAlt ? "lidix.app/leads/detail/48219" : "chatline.app/chats/48219";
+  $("#fk-list-h").textContent = isAlt ? "Сделки" : "Диалоги";
+  $("#fk-card-t").textContent = isAlt ? "Сделка № 48219" : "Карточка клиента";
+  $("#fk-card-s").textContent = isAlt ? "Этап: Квалификация" : "Открыт диалог 48219";
+  const items = $("#fk-items"); clear(items);
+  for(let i = 0; i < 12; i++){
+    const on = i === 2 ? " is-on" : "";
+    items.appendChild(h('<div class="fk-item' + on + '"><span class="fk-av"></span><span class="fk-lines"><i style="width:' + (52 + (i % 5) * 9) + '%"></i><i></i></span></div>'));
+  }
+  const fields = $("#fk-fields"); clear(fields);
+  const rows = isAlt
+    ? [["Контакт","Пользователь 48219"],["Бюджет","—"],["Ответственный","Илья Воронов"],["Тег","organic"],
+       ["ID пользователя","48219"],["Создана", dmy(TODAY)],["Воронка","Входящие обращения"],["Источник","Сайт"],
+       ["Телефон","+7 ··· ·· 41"],["Почта","k48219@demo.mail"]]
+    : [["Имя","Клиент 48219"],["Телефон","+7 ··· ·· 41"],["Источник","Реклама"],["Tracker Campaign","ads_dept_ru_08"],
+       ["ID чата","48219"],["Первое сообщение", dmy(TODAY)],["Канал","Мессенджер"],["Оператор","Илья Воронов"],
+       ["Статус","В работе"],["Почта","k48219@demo.mail"]];
+  rows.forEach(r => fields.appendChild(h('<div class="fk-field"><b>' + r[0] + "</b><span>" + r[1] + "</span></div>")));
+  fields.appendChild(h('<div class="fk-sub" style="margin:22px 0 12px">' + (isAlt ? "Примечания" : "Переписка") + "</div>"));
+  for(let i = 0; i < 4; i++){
+    fields.appendChild(h('<div class="fk-item"><span class="fk-av"></span><span class="fk-lines">' +
+      '<i style="width:' + (86 - i * 11) + '%"></i><i style="width:' + (64 - i * 7) + '%"></i></span></div>'));
+  }
+}
+function extShell(){
+  const src = crmState.platform === "lidix" ? "Lidix" : "Chatline";
+  return '' +
+  '<div class="ext-head">' +
+    '<div class="ext-brand">' +
+      '<span style="width:22px;height:22px;border-radius:7px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center">' + icon("dept", 13) + "</span>Dept</div>" +
+    '<div class="ext-acts">' +
+      '<button type="button" class="icon-btn" id="ext-hist" aria-label="История отправок">' + icon("clock", 17) + "</button>" +
+      '<button type="button" class="icon-btn" id="ext-min" aria-label="Свернуть панель">' + icon("minus", 17) + "</button>" +
+      '<button type="button" class="icon-btn" id="ext-close" aria-label="Закрыть панель">' + icon("close", 17) + "</button>" +
+    "</div></div>" +
+  '<div class="ext-ctx"><span class="badge badge--accent">' + src + '</span><span class="hint">Карточка 48219</span></div>' +
+  '<div class="ext-body" id="ext-body"></div>' +
+  '<div class="ext-over" id="ext-over"></div>' +
+  '<div class="toast-layer" id="ext-toasts" style="top:12px;left:16px;right:16px"></div>';
+}
+function openPanel(){
+  fabEl.classList.add("is-hidden");
+  extEl.classList.remove("is-hidden");
+  extEl.innerHTML = extShell();
+  extEl.classList.remove("is-in"); void extEl.offsetWidth; extEl.classList.add("is-in");
+  $("#ext-hist").addEventListener("click", openHistory);
+  $("#ext-min").addEventListener("click", closePanel);
+  $("#ext-close").addEventListener("click", closePanel);
+  renderHistoryOverlay();
+  startLoading();
+}
+function closePanel(){
+  extEl.classList.add("is-hidden");
+  fabEl.classList.remove("is-hidden");
+  crmState.view = "collapsed";
+}
+function setBody(html){
+  const body = $("#ext-body");
+  clear(body);
+  body.appendChild(h(html));
+  return body.firstElementChild;
+}
+function startLoading(){
+  crmState.view = "loading";
+  setBody(
+    '<div class="ext-load">' +
+      '<span class="ext-load-ring"><span class="spin" style="display:block">' + icon("spinner", 20) + "</span></span>" +
+      '<div class="ext-load-cap">Читаем карточку клиента</div>' +
+      '<div class="hint">Дата, кампания, лид и ID сделки подставятся сами</div>' +
+    "</div>");
+  setTimeout(() => {
+    if(crmState.view !== "loading") return;
+    if(crmState.failNext){ crmState.failNext = false; renderError(); return; }
+    crmState.values = defaultValues();
+    renderForm(false);
+    crmToast.show("info", "Данные подхвачены из карточки", "Tracker Campaign и ID сделки заполнены");
+  }, 700);
+}
+function renderError(){
+  crmState.view = "error";
+  const el = setBody(
+    '<div class="ext-center fade-swap">' +
+      '<span class="circle-warn">' + icon("alert", 24) + "</span>" +
+      "<h3>Не удалось прочитать карточку</h3>" +
+      "<p>Откройте карточку клиента и повторите</p>" +
+      '<button type="button" class="btn btn--ghost btn--sm" id="ext-retry" style="margin-top:10px">' + icon("refresh", 15) + "Повторить</button>" +
+    "</div>");
+  $("#ext-retry", el).addEventListener("click", startLoading);
+  crmToast.show("err", "Нет доступа к карточке", "Расширение не получило данные");
+}
+const FIELD_LABELS = {
+  date: "Дата когда пришел лид", campaign: "Tracker Campaign", broker: "Брокер",
+  leadId: "Идентификатор Лида", cabinet: "Реф. Кабинет", amount: "Сумма", dealId: "ID сделки (чата)"
+};
+function amountLabel(){ return crmState.tab === 1 ? "Размер FTD" : "Размер РД"; }
+function hasAmount(){ return crmState.tab > 0; }
+function renderForm(swap){
+  crmState.view = "form";
+  crmState.errors = {};
+  const v = crmState.values;
+  const el = setBody(
+    '<div style="display:flex;flex-direction:column;min-height:0;flex:1">' +
+      '<div class="ext-tabs"><div class="seg seg--tabs" id="ext-tabs"></div></div>' +
+      '<div class="ext-scroll" id="ext-scroll"><div id="ext-form" style="padding:10px 0 0"></div></div>' +
+      '<div class="ext-foot"><button type="button" class="btn btn--block" id="ext-submit">Отправить</button></div>' +
+    "</div>");
+  if(swap && !RM){ $("#ext-form", el).classList.add("fade-swap"); }
+  createSeg($("#ext-tabs", el), TABS.map(t => t.title), crmState.tab, i => {
+    crmState.tab = i;
+    collectValues();
+    renderForm(true);
+  });
+  const form = $("#ext-form", el);
+  form.appendChild(fieldRow("date", FIELD_LABELS.date, '<div id="fr-date"></div>', null, v.dateAuto));
+  form.appendChild(fieldRow("campaign", FIELD_LABELS.campaign,
+    '<input class="field" id="fr-campaign" type="text" value="' + v.campaign + '" placeholder="organic">',
+    "в Lidix всегда organic, в Chatline — листнуть карточку и скопировать", v.campaignAuto));
+  form.appendChild(fieldRow("broker", FIELD_LABELS.broker, '<div id="fr-broker"></div>'));
+  form.appendChild(fieldRow("leadId", FIELD_LABELS.leadId,
+    '<input class="field" id="fr-leadId" type="text" value="' + v.leadId + '" placeholder="почта или uid">',
+    "Nordwin — строго почта. Marvex и Cresta — uid", v.leadAuto));
+  form.appendChild(fieldRow("cabinet", FIELD_LABELS.cabinet, '<div id="fr-cabinet"></div>'));
+  if(hasAmount()){
+    form.appendChild(fieldRow("amount", amountLabel(),
+      '<div class="field-wrap"><span class="prefix">$</span>' +
+      '<input class="field field--prefixed" id="fr-amount" type="text" inputmode="numeric" value="' + v.amount + '" placeholder="0"></div>'));
+  }
+  form.appendChild(fieldRow("dealId", FIELD_LABELS.dealId,
+    '<input class="field" id="fr-dealId" type="text" value="' + v.dealId + '" placeholder="48219">',
+    "в Chatline — ID чата, в Lidix — ID пользователя из карточки", v.dealAuto));
+  crmState.dp = createDatePicker($("#fr-date", form), { value: v.date, onChange: () => clearError("date") });
+  crmState.ddBroker = createDropdown($("#fr-broker", form), {
+    items: BROKERS, value: v.broker, placeholder: "Выбрать",
+    onChange: b => {
+      clearError("broker");
+      crmState.values.broker = b;
+      crmState.values.cabinet = null;
+      crmState.ddCab.setItems(CABINETS[b], false);
+      crmState.ddCab.setDisabled(false);
+      crmState.ddCab.highlight();
+      clearError("cabinet");
+    }
+  });
+  crmState.ddCab = createDropdown($("#fr-cabinet", form), {
+    items: v.broker ? CABINETS[v.broker] : [], value: v.cabinet,
+    placeholder: "Выбрать", disabled: !v.broker, disabledText: "Сначала выберите брокера",
+    onChange: () => clearError("cabinet")
+  });
+  bindAutofill(form, "date", "dateAuto", "#fr-date .dp-trigger");
+  bindAutofill(form, "campaign", "campaignAuto");
+  bindAutofill(form, "leadId", "leadAuto");
+  bindAutofill(form, "dealId", "dealAuto");
+  const am = $("#fr-amount", form);
+  if(am){
+    am.addEventListener("input", () => {
+      const digits = am.value.replace(/\D/g, "").slice(0, 9);
+      am.value = digits ? fmtNum(parseInt(digits, 10)) : "";
+      clearError("amount");
+    });
+  }
+  ["campaign","leadId","dealId"].forEach(k => {
+    const inp = $("#fr-" + k, form);
+    if(inp) inp.addEventListener("input", () => clearError(k));
+  });
+  $("#ext-submit", el).addEventListener("click", submitForm);
+}
+function fieldRow(key, label, control, hint, auto){
+  const row = h('<div class="f-row" data-field="' + key + '"></div>');
+  row.appendChild(h('<div class="f-head"><span class="label">' + label + "</span>" +
+    (auto ? '<span class="autofill">из карточки</span>' : "") + "</div>"));
+  if(hint) row.appendChild(h('<div class="hint" style="margin:-2px 0 4px">' + hint + "</div>"));
+  row.appendChild(h("<div>" + control + "</div>"));
+  row.appendChild(h('<div class="f-err">' + icon("alert", 13) + "Обязательное поле</div>"));
+  return row;
+}
+function bindAutofill(form, key, flag, selector){
+  const inp = $(selector || ("#fr-" + key), form);
+  if(!inp) return;
+  const row = inp.closest(".f-row");
+  const badge = $(".autofill", row);
+  const drop = () => {
+    if(!badge || badge.classList.contains("is-gone")) return;
+    badge.classList.add("is-gone");
+    crmState.values[flag] = false;
+    setTimeout(() => badge.remove(), RM ? 10 : 260);
+  };
+  inp.addEventListener("focus", drop);
+  inp.addEventListener("mousedown", drop);
+}
+function clearError(key){
+  const row = $('.f-row[data-field="' + key + '"]', extEl);
+  if(!row) return;
+  $(".f-err", row).classList.remove("is-on");
+  const f = $(".field", row); if(f) f.classList.remove("is-err");
+  delete crmState.errors[key];
+}
+function collectValues(){
+  const v = crmState.values;
+  const g = id => { const e = $("#fr-" + id, extEl); return e ? e.value.trim() : ""; };
+  if($("#fr-campaign", extEl)) v.campaign = g("campaign");
+  if($("#fr-leadId", extEl))   v.leadId   = g("leadId");
+  if($("#fr-dealId", extEl))   v.dealId   = g("dealId");
+  if($("#fr-amount", extEl))   v.amount   = g("amount");
+  if(crmState.dp)       { v.date = crmState.dp.value; v.dateText = crmState.dp.text; }
+  if(crmState.ddBroker) { v.broker = crmState.ddBroker.value; }
+  if(crmState.ddCab)    { v.cabinet = crmState.ddCab.value; }
+  return v;
+}
+function submitForm(){
+  const v = collectValues();
+  const required = ["date","campaign","broker","leadId","cabinet"].concat(hasAmount() ? ["amount"] : []).concat(["dealId"]);
+  const bad = [];
+  required.forEach(k => {
+    const empty = k === "date" ? !v.date : !String(v[k] || "").length;
+    if(empty) bad.push(k);
+  });
+  if(bad.length){
+    bad.forEach(k => {
+      const row = $('.f-row[data-field="' + k + '"]', extEl);
+      if(!row) return;
+      $(".f-err", row).classList.add("is-on");
+      const f = $(".field", row); if(f) f.classList.add("is-err");
+      crmState.errors[k] = true;
+    });
+    extEl.classList.remove("shake"); void extEl.offsetWidth; extEl.classList.add("shake");
+    const first = $('.f-row[data-field="' + bad[0] + '"]', extEl);
+    const sc = $("#ext-scroll", extEl);
+    if(first && sc) sc.scrollTo({ top: Math.max(0, first.offsetTop - 16), behavior: RM ? "auto" : "smooth" });
+    return;
+  }
+  renderConfirm();
+}
+function summaryPairs(){
+  const v = crmState.values;
+  const rows = [
+    ["Тип операции", TABS[crmState.tab].title],
+    [FIELD_LABELS.date, v.dateText],
+    [FIELD_LABELS.campaign, v.campaign],
+    [FIELD_LABELS.broker, v.broker],
+    [FIELD_LABELS.leadId, v.leadId],
+    [FIELD_LABELS.cabinet, v.cabinet]
+  ];
+  if(hasAmount()) rows.push([amountLabel(), usd(parseInt(v.amount.replace(/\D/g, ""), 10) || 0)]);
+  rows.push([FIELD_LABELS.dealId, v.dealId]);
+  return rows;
+}
+function renderConfirm(){
+  crmState.view = "confirm";
+  const el = setBody(
+    '<div class="slide-swap" style="display:flex;flex-direction:column;min-height:0;flex:1">' +
+      '<div style="padding:14px 18px 6px"><h3 style="font-size:16px">Проверьте перед отправкой</h3></div>' +
+      '<div class="ext-scroll scroll"><div style="padding:4px 0 8px">' +
+        summaryPairs().map(r => '<div class="sum-row"><b>' + r[0] + "</b><span>" + r[1] + "</span></div>").join("") +
+      "</div></div>" +
+      '<div class="ext-foot" style="display:grid;grid-template-columns:1fr 1.4fr;gap:10px">' +
+        '<button type="button" class="btn btn--ghost" id="ext-back">Назад</button>' +
+        '<button type="button" class="btn" id="ext-send">Отправить</button>' +
+      "</div></div>");
+  $("#ext-back", el).addEventListener("click", () => renderForm(true));
+  $("#ext-send", el).addEventListener("click", () => {
+    const b = $("#ext-send", el);
+    b.disabled = true;
+    b.innerHTML = '<span class="spin" style="display:block">' + icon("spinner", 17) + "</span>Отправляем";
+    setTimeout(renderSuccess, 900);
+  });
+}
+function renderSuccess(){
+  crmState.view = "success";
+  const v = crmState.values;
+  const parts = [TABS[crmState.tab].title, v.broker];
+  if(hasAmount()) parts.push(usd(parseInt(v.amount.replace(/\D/g, ""), 10) || 0));
+  parts.push("ID " + v.dealId);
+  crmState.lastSent = parts.join(" · ");
+  const el = setBody(
+    '<div class="ext-center slide-swap">' +
+      '<svg class="ok-mark" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27"/><path d="M20 33.5l8.5 8.5L45 24"/></svg>' +
+      "<h3>Записано в таблицу</h3>" +
+      '<div class="ok-line">' + icon("checkCircle", 14) + crmState.lastSent + "</div>" +
+      '<button type="button" class="btn btn--ghost btn--sm" id="ext-more" style="margin-top:14px">Внести ещё одну</button>' +
+    "</div>");
+  $("#ext-more", el).addEventListener("click", () => {
+    crmState.values = defaultValues();
+    renderForm(true);
+  });
+  crmToast.show("ok", "Записано в таблицу", crmState.lastSent);
+  admToaster.show("ok", "Илья Воронов внёс " + TABS[crmState.tab].title + (hasAmount() ? " " + usd(parseInt(v.amount.replace(/\D/g, ""), 10) || 0) : ""), v.broker);
+}
+function renderHistoryOverlay(){
+  const over = $("#ext-over");
+  over.innerHTML =
+    '<div class="ext-over-head">' +
+      '<button type="button" class="icon-btn" id="hist-back" aria-label="Назад">' + icon("chevronL", 18) + "</button>" +
+      '<h3 style="font-size:15px">История отправок</h3>' +
+    "</div>" +
+    '<div class="scroll" style="flex:1;min-height:0;overflow-y:auto;padding:4px 18px 18px">' +
+      HISTORY.map(r =>
+        '<div class="hist-row">' +
+          '<span class="badge ' + OP_META[r.type].cls + '">' + OP_META[r.type].title + "</span>" +
+          '<div class="hist-mid"><div class="hist-b">' + r.broker + '</div><div class="hist-s">Карточка 48219</div></div>' +
+          '<div class="hist-r"><div class="hist-sum">' + (r.sum ? usd(r.sum) : "—") + '</div><div class="hist-t">' + r.time + "</div></div>" +
+        "</div>").join("") +
+    "</div>";
+  $("#hist-back", over).addEventListener("click", () => over.classList.remove("is-open"));
+}
+function openHistory(){ $("#ext-over").classList.add("is-open"); }
+fabEl.addEventListener("click", openPanel);
+function swapView(host, node, dir){
+  const old = host.lastElementChild;
+  while(host.children.length > 1) host.firstElementChild.remove();
+  if(!old || RM || !dir){ clear(host); host.appendChild(node); return; }
+  host.style.position = "relative";
+  old.style.position = "absolute";
+  old.style.top = "0"; old.style.left = "0"; old.style.width = "100%";
+  old.style.willChange = "transform";
+  node.style.transform = "translateX(" + (dir > 0 ? 100 : -100) + "%)";
+  node.style.willChange = "transform";
+  host.appendChild(node);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    old.style.transition  = "transform 300ms var(--ease)";
+    node.style.transition = "transform 300ms var(--ease)";
+    old.style.transform   = "translateX(" + (dir > 0 ? -100 : 100) + "%)";
+    node.style.transform  = "translateX(0)";
+  }));
+  let done = false;
+  const finish = () => {
+    if(done) return;
+    done = true;
+    if(old.parentNode) old.remove();
+    node.removeAttribute("style");
+    host.removeAttribute("style");
+  };
+  node.addEventListener("transitionend", finish, { once: true });
+  setTimeout(finish, 480);
+}
+function stepDir(state, key){
+  const prev = state.lastKey;
+  state.lastKey = key;
+  return (prev === undefined || prev === key) ? 0 : (key > prev ? 1 : -1);
+}
+function phoneShell(navItems){
+  return '' +
+  '<div class="ph-status"><span>9:41</span>' +
+    '<span style="display:flex;gap:6px;align-items:center">' +
+      '<svg width="19" height="13" viewBox="0 0 19 13" fill="currentColor"><rect x="0" y="8.4" width="3.4" height="4.6" rx="1.1"/><rect x="5.1" y="6" width="3.4" height="7" rx="1.1"/><rect x="10.2" y="3.1" width="3.4" height="9.9" rx="1.1"/><rect x="15.3" y="0" width="3.4" height="13" rx="1.1" opacity=".33"/></svg>' +
+      '<svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="0.7" y="0.7" width="21.4" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.6" y="2.6" width="15" height="7.8" rx="1.7" fill="currentColor"/><path d="M24.2 4.7v3.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.8" stroke-linecap="round"/></svg>' +
+    "</span></div>" +
+  '<div class="ph-scroll" data-scroll><div data-view></div></div>' +
+  '<div class="ph-nav" data-nav>' +
+    navItems.map((n, i) => '<button type="button" class="nav-b' + (i === 0 ? " is-active" : "") + '" data-nav-i="' + i + '">' + icon(n.icon, 22) + "<span>" + n.title + "</span></button>").join("") +
+  "</div>" +
+  '<div class="toast-layer" data-toasts style="top:70px;left:18px;right:18px"></div>' +
+  '<div class="sheet-bd" data-sheet-bd></div>' +
+  '<div class="sheet" data-sheet></div>';
+}
+const empState = { screen: 0, period: "month", openGroup: null };
+const empScreen = $("#screen-emp");
+empScreen.innerHTML = phoneShell([
+  { title: "Главная", icon: "home" }, { title: "Детали", icon: "list" }
+]);
+const empScroll  = $("[data-scroll]", empScreen);
+const empView    = $("[data-view]", empScreen);
+const empToaster = createToaster($("[data-toasts]", empScreen));
+$$("[data-nav-i]", empScreen).forEach(b => b.addEventListener("click", () => {
+  empState.screen = parseInt(b.dataset.navI, 10);
+  empState.openGroup = null;
+  renderEmp();
+}));
+function periodSegHtml(id){ return '<div class="seg" id="' + id + '" style="margin-bottom:12px"></div>'; }
+function periodIdx(){ return PERIODS.map(p => p.key).indexOf(empState.period); }
+function renderEmp(){
+  $$("[data-nav-i]", empScreen).forEach((b, i) => b.classList.toggle("is-active", i === empState.screen));
+  const dir = stepDir(empState, empState.screen);
+  const wrap = h('<div class="ph-view"></div>');
+  if(empState.screen === 0) wrap.appendChild(empHome());
+  if(empState.screen === 1) wrap.appendChild(empDetails());
+  swapView(empView, wrap, dir);
+  empScroll.scrollTop = 0;
+  initCounters(wrap, empScroll);
+  initBars(wrap, empScroll);
+}
+function brandbarHtml(sub){
+  return '<div class="brandbar">' + logoHtml() +
+    '<div style="flex:1;min-width:0"><div class="brandbar-n">' + company.name + "</div>" +
+      '<div class="brandbar-s">' + sub + "</div></div></div>";
+}
+function empHeaderHtml(){
+  return brandbarHtml("Личный кабинет сотрудника") +
+  '<div class="mh">' +
+    '<span class="av">' + EMP[0].ini + "</span>" +
+    '<div class="mh-mid"><div class="mh-name">' + EMP[0].name + '</div><div class="mh-sub">Смена A · с 09:00</div></div>' +
+  "</div>";
+}
+function empHome(){
+  const e = EMP[0], a = agg(e, empState.period);
+  const box = h("<div></div>");
+  box.appendChild(h("<div>" + empHeaderHtml() + "</div>"));
+  box.appendChild(h(periodSegHtml("emp-period")));
+  const stack = h('<div class="stack"></div>');
+  stack.appendChild(h(
+    '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+        '<div><div class="label">Зарплата за период</div>' +
+          '<div style="display:inline-block;margin-top:4px">' +
+            '<span class="pay-num count" data-value="' + a.salary + '" data-fmt="usd">0</span>' +
+            '<div class="pay-underline"></div>' +
+          "</div>" +
+          '<div class="pay-split">Ставка ' + usd(a.rate) + " · Процент " + usd(a.percent) + "</div>" +
+        "</div>" +
+        '<span class="badge badge--accent">' + icon("arrowUp", 11) + "+" + e.delta[empState.period] + "%</span>" +
+      "</div>" +
+      '<div style="display:flex;align-items:center;gap:7px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);color:var(--ink-3)">' +
+        icon("calendar", 14) + '<span class="hint">' + payoutText() + "</span></div>" +
+    "</div>"));
+  const bd = buckets(e, empState.period);
+  const oborotCard = h(
+    '<div class="card">' +
+      '<div class="label">Оборот</div>' +
+      '<div class="big-num count" data-value="' + a.oborot + '" data-fmt="usd" style="margin-top:2px">0</div>' +
+      '<div class="chart-wrap" data-chart>' + barChart(bd, 300, 72) + "</div>" +
+      '<div class="hint" style="margin-top:6px">' + (empState.period === "day" ? "по часам" : "по дням периода") + "</div>" +
+    "</div>");
+  stack.appendChild(oborotCard);
+  const metrics = [
+    { key: "lead", title: "Лиды", n: a.leads,    s: "",                   f: "leads" },
+    { key: "reg",  title: "Реги", n: a.regs,     s: "",                   f: "regs" },
+    { key: "ftd",  title: "ФД",   n: a.ftdCount, s: usd(a.ftdSum),        f: "ftdCount" },
+    { key: "rd",   title: "РД",   n: a.rdCount,  s: usd(a.rdSum),         f: "rdCount" }
+  ];
+  const grid = h('<div class="grid2"></div>');
+  metrics.forEach(m => {
+    grid.appendChild(h(
+      '<div class="card card--tight stat">' +
+        sparkline(sparkData(e, m.f), 44, 18) +
+        '<div class="metric-l">' + m.title + "</div>" +
+        '<div class="metric-n count" data-value="' + m.n + '">0</div>' +
+        '<div class="metric-s">' + (m.s || "&nbsp;") + "</div>" +
+      "</div>"));
+  });
+  stack.appendChild(grid);
+  stack.appendChild(h('<div class="card"><div class="sec-title" style="margin-bottom:12px">Воронка</div>' + funnelHtml(a) + "</div>"));
+  const evs = opsIn(e, empState.period, ["reg","ftd","rd"]).slice(0, 4);
+  stack.appendChild(h(
+    '<div class="card"><div class="sec-title" style="margin-bottom:6px">Последние события</div>' +
+      '<div class="cascade">' + (evs.length ? evs.map((o, i) =>
+        '<div class="ev" style="--d:' + (i * 50) + 'ms">' +
+          '<span class="badge ' + OP_META[o.type].cls + '">' + OP_META[o.type].title + "</span>" +
+          '<div class="ev-mid"><div class="ev-id">Лид ' + o.leadId + '</div><div class="ev-sub">' + o.broker + "</div></div>" +
+          '<div class="ev-r"><div class="ev-sum">' + (o.amount ? usd(o.amount) : "—") + '</div><div class="ev-t">' + pad2(o.hour) + ":" + pad2(o.min) + "</div></div>" +
+        "</div>").join("") : '<div class="hint" style="padding:10px 0">За период событий нет</div>') +
+      "</div></div>"));
+  box.appendChild(stack);
+  setTimeout(() => {
+    createSeg($("#emp-period", box), PERIODS.map(p => p.title), periodIdx(), i => {
+      empState.period = PERIODS[i].key;
+      renderEmp();
+    });
+    const num = $(".pay-num", box);
+    const ul  = $(".pay-underline", box);
+    if(num && ul) ul.style.width = "100%";
+    const cw = $("[data-chart]", box);
+    if(cw) bindTip(cw, ".bar", i => "<b>" + usd(bd[i].v) + "</b>" + bd[i].label);
+  }, 0);
+  return box;
+}
+const GROUPS = [
+  { key: "lead", title: "Лиды", type: "lead" },
+  { key: "reg",  title: "Реги", type: "reg"  },
+  { key: "ftd",  title: "ФД",   type: "ftd"  },
+  { key: "rd",   title: "РД",   type: "rd"   }
+];
+function opsTable(ops, withSum){
+  return '<table class="tbl"><thead><tr><th>Дата</th><th>Лид</th><th>Брокер</th><th>Кабинет</th>' +
+    (withSum ? "<th>Сумма</th>" : "<th></th>") + "</tr></thead><tbody>" +
+    ops.map(o =>
+      "<tr><td>" + dm(o.date) + "</td><td>" + o.leadId + "</td><td>" + o.broker + "</td>" +
+      '<td style="max-width:96px;overflow:hidden;text-overflow:ellipsis">' + o.cab + "</td>" +
+      "<td>" + (withSum ? usd(o.amount) : "") + "</td></tr>").join("") +
+    "</tbody></table>";
+}
+function empDetails(){
+  const e = EMP[0], a = agg(e, empState.period);
+  const box = h("<div></div>");
+  box.appendChild(h('<h3 style="font-size:16px;margin:6px 0 12px">Детали</h3>'));
+  box.appendChild(h(periodSegHtml("emp-period2")));
+  const stack = h('<div class="stack"></div>');
+  GROUPS.forEach(g => {
+    const ops = opsIn(e, empState.period, [g.type]);
+    const cnt = { lead: a.leads, reg: a.regs, ftd: a.ftdCount, rd: a.rdCount }[g.key];
+    const sum = { lead: 0, reg: 0, ftd: a.ftdSum, rd: a.rdSum }[g.key];
+    const grp = h(
+      '<div class="grp" data-grp="' + g.key + '">' +
+        '<button type="button" class="grp-head">' +
+          '<span class="badge ' + OP_META[g.type].cls + '">' + OP_META[g.type].title + "</span>" +
+          '<span class="grp-t">' + g.title + "</span>" +
+          '<span class="grp-s">' + fmtNum(cnt) + (sum ? " · " + usd(sum) : "") + "</span>" +
+          icon("chevron", 16) +
+        "</button>" +
+        '<div class="grp-body"><div class="grp-in">' +
+          (ops.length ? opsTable(ops, g.key === "ftd" || g.key === "rd") : '<div class="hint" style="padding:8px 0">Записей нет</div>') +
+        "</div></div>" +
+      "</div>");
+    const body = $(".grp-body", grp);
+    const inner = $(".grp-in", grp);
+    $(".grp-head", grp).addEventListener("click", () => {
+      const open = grp.classList.toggle("is-open");
+      body.style.height = open ? inner.offsetHeight + "px" : "0px";
+    });
+    if(empState.openGroup === g.key){
+      grp.classList.add("is-open");
+      setTimeout(() => { body.style.height = inner.offsetHeight + "px"; }, 30);
+    }
+    stack.appendChild(grp);
+  });
+  box.appendChild(stack);
+  setTimeout(() => {
+    createSeg($("#emp-period2", box), PERIODS.map(p => p.title), periodIdx(), i => {
+      empState.period = PERIODS[i].key; renderEmp();
+    });
+  }, 0);
+  return box;
+}
+const admState = {
+  screen: 0, period: "month", sort: "salary", query: "",
+  detail: null,
+  empId: null,
+  settings: null,
+  sheetEmp: null
+};
+const admScreen = $("#screen-adm");
+admScreen.innerHTML = phoneShell([
+  { title: "Сводка", icon: "grid" }, { title: "Сотрудники", icon: "users" }, { title: "Настройки", icon: "sliders" }
+]);
+const admScroll   = $("[data-scroll]", admScreen);
+const admView     = $("[data-view]", admScreen);
+const admToaster  = createToaster($("[data-toasts]", admScreen));
+const admSheet    = $("[data-sheet]", admScreen);
+const admSheetBd  = $("[data-sheet-bd]", admScreen);
+$$("[data-nav-i]", admScreen).forEach(b => b.addEventListener("click", () => {
+  admState.screen = parseInt(b.dataset.navI, 10);
+  admState.settings = null;
+  admState.detail = null;
+  renderAdm();
+}));
+admSheetBd.addEventListener("click", closeSheet);
+function admPeriodIdx(){ return PERIODS.map(p => p.key).indexOf(admState.period); }
+function admScope(){ return admState.empId === null ? EMP : [EMP[admState.empId]]; }
+function admAgg(){ return admState.empId === null ? aggDept(admState.period) : agg(EMP[admState.empId], admState.period); }
+function admSolo(){ return admState.empId === null ? null : EMP[admState.empId]; }
+function goHome(){ admState.screen = 0; admState.settings = null; admState.detail = null; renderAdm(); }
+function renderAdm(){
+  $$("[data-nav-i]", admScreen).forEach((b, i) => b.classList.toggle("is-active", i === admState.screen));
+  const depth = admState.screen === 2
+    ? (admState.settings ? (admState.settings === "add" ? 2 : 1) : 0)
+    : (admState.screen === 0 && admState.detail ? 1 : 0);
+  const dir = stepDir(admState, admState.screen * 10 + depth);
+  const wrap = h('<div class="ph-view"></div>');
+  if(admState.screen === 0) wrap.appendChild(admState.detail ? admDetail() : admSummary());
+  if(admState.screen === 1) wrap.appendChild(admPeople());
+  if(admState.screen === 2) wrap.appendChild(admSettings());
+  swapView(admView, wrap, dir);
+  admScroll.scrollTop = 0;
+  initCounters(wrap, admScroll);
+  initBars(wrap, admScroll);
+}
+function admHeaderHtml(){
+  const solo = admSolo();
+  if(solo){
+    return brandbarHtml("Кабинет администратора") +
+      '<div class="mh"><span class="av">' + solo.ini + "</span>" +
+      '<div class="mh-mid"><div class="mh-name">' + solo.name + '</div><div class="mh-sub">Личные показатели</div></div>' +
+      '<span class="badge badge--outline">Админ</span></div>';
+  }
+  return '<div class="brandbar">' + logoHtml("logo--lg") +
+    '<div style="flex:1;min-width:0"><div class="mh-name">' + company.name + "</div>" +
+      '<div class="mh-sub">' + EMP.length + " сотрудников · сводно</div></div>" +
+    '<span class="badge badge--outline">Админ</span></div>';
+}
+function admSummary(){
+  const a = admAgg(), solo = admSolo(), scope = admScope();
+  const box = h("<div></div>");
+  box.appendChild(h("<div>" + admHeaderHtml() + "</div>"));
+  if(solo){
+    const back = h('<button type="button" class="chip is-on" data-all style="margin-bottom:12px">' + icon("chevronL", 13) + "Все сотрудники</button>");
+    back.addEventListener("click", () => { admState.empId = null; renderAdm(); });
+    box.appendChild(back);
+  }
+  box.appendChild(h(periodSegHtml("adm-period")));
+  const stack = h('<div class="stack"></div>');
+  stack.appendChild(h(
+    '<div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">' +
+      '<div><div class="label">Оборот</div>' +
+        '<div class="big-num count" data-value="' + a.oborot + '" data-fmt="usd">0</div></div>' +
+      "<div><div class=\"label\">" + (solo ? "Зарплата" : "Фонд оплаты") + "</div>" +
+        (solo
+          ? '<div style="display:inline-block"><span class="pay-num count" data-value="' + a.salary + '" data-fmt="usd" style="font-size:28px">0</span><div class="pay-underline"></div></div>'
+          : '<div class="big-num count" data-value="' + a.salary + '" data-fmt="usd">0</div>') +
+      "</div></div>"));
+  const tiles = [
+    { k: "leads", t: "Лиды",        n: a.leads,    s: "все обращения" },
+    { k: "regs",  t: "Регистрации", n: a.regs,     s: pct(a.leads ? a.regs / a.leads * 100 : 0) + " от лидов" },
+    { k: "ftd",   t: "ФД",          n: a.ftdCount, s: usd(a.ftdSum) },
+    { k: "rd",    t: "РД",          n: a.rdCount,  s: usd(a.rdSum) }
+  ];
+  const grid = h('<div class="grid2"></div>');
+  tiles.forEach(t => grid.appendChild(h(
+    '<div class="card card--tight metric" data-metric="' + t.k + '">' +
+      '<div class="metric-l">' + t.t + "</div>" +
+      '<div class="metric-n count" data-value="' + t.n + '">0</div>' +
+      '<div class="metric-s">' + t.s + "</div>" +
+      '<span style="position:absolute;right:12px;bottom:12px;color:var(--ink-3);transform:rotate(-90deg)">' + icon("chevron", 14) + "</span>" +
+    "</div>")));
+  stack.appendChild(grid);
+  const sFtd = seriesData(scope, admState.period, "ftd");
+  const sRd  = seriesData(scope, admState.period, "rd");
+  stack.appendChild(h(
+    '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+        '<div class="sec-title">Динамика · ФД и РД</div>' +
+        '<span class="hint">' + (admState.period === "day" ? "по часам" : "по дням периода") + "</span>" +
+      "</div>" +
+      '<div class="chart-wrap" data-area>' + areaChart([
+        { color: "var(--accent)", fill: true,  data: sFtd },
+        { color: "var(--ink-3)",  fill: false, data: sRd, width: 1.5 }
+      ], 300, 108, "grad-adm") + "</div>" +
+      '<div class="legend">' +
+        '<span class="legend-i"><span class="legend-d" style="background:var(--accent)"></span>ФД · ' + usd(a.ftdSum) + "</span>" +
+        '<span class="legend-i"><span class="legend-d" style="background:var(--ink-3)"></span>РД · ' + usd(a.rdSum) + "</span>" +
+      "</div>" +
+    "</div>"));
+  stack.appendChild(h('<div class="card"><div class="sec-title" style="margin-bottom:12px">Воронка' +
+    (solo ? "" : " по всем") + "</div>" + funnelHtml(a) + "</div>"));
+  if(solo){
+    const ops = opsIn(solo, admState.period, ["reg","ftd","rd"]).slice(0, 5);
+    stack.appendChild(h(
+      '<div class="card"><div class="sec-title" style="margin-bottom:6px">Последние операции</div>' +
+        (ops.length ? ops.map(o =>
+          '<div class="ev"><span class="badge ' + OP_META[o.type].cls + '">' + OP_META[o.type].title + "</span>" +
+          '<div class="ev-mid"><div class="ev-id">Лид ' + o.leadId + '</div><div class="ev-sub">' + o.broker + "</div></div>" +
+          '<div class="ev-r"><div class="ev-sum">' + (o.amount ? usd(o.amount) : "—") + '</div><div class="ev-t">' + dm(o.date) + "</div></div></div>").join("")
+          : '<div class="hint" style="padding:8px 0">Операций нет</div>') +
+      "</div>"));
+  } else {
+    const top = EMP.map(e => ({ e: e, a: agg(e, admState.period) })).sort((x, y) => y.a.salary - x.a.salary).slice(0, 3);
+    const card = h('<div class="card"><div class="sec-title" style="margin-bottom:6px">Топ-3 за период</div>' +
+      top.map((r, i) =>
+        '<div class="top-row" data-emp="' + r.e.id + '" style="cursor:pointer"><span class="top-pl">' + (i + 1) + "</span>" +
+          '<span class="av av--sm' + (i === 0 ? " av--gold" : "") + '">' + r.e.ini + "</span>" +
+          '<div style="flex:1;min-width:0"><div class="emp-n">' + r.e.name + "</div>" +
+            '<div class="emp-s">Оборот ' + usd(r.a.oborot) + "</div></div>" +
+          '<div class="emp-p">' + usd(r.a.salary) + "</div>" +
+        "</div>").join("") + "</div>");
+    $$("[data-emp]", card).forEach(row => row.addEventListener("click", () => {
+      admState.empId = parseInt(row.dataset.emp, 10); renderAdm();
+    }));
+    stack.appendChild(card);
+  }
+  box.appendChild(stack);
+  setTimeout(() => {
+    createSeg($("#adm-period", box), PERIODS.map(p => p.title), admPeriodIdx(), i => {
+      admState.period = PERIODS[i].key; renderAdm();
+    });
+    $$("[data-metric]", box).forEach(t => t.addEventListener("click", () => {
+      admState.detail = t.dataset.metric; renderAdm();
+    }));
+    const aw = $("[data-area]", box);
+    if(aw){
+      animateLines(aw);
+      bindTip(aw, ".hit", i =>
+        "<b>" + sFtd[i].label + "</b>ФД " + usd(sFtd[i].v) + " · РД " + usd(sRd[i].v));
+    }
+  }, 0);
+  return box;
+}
+function admDetail(){
+  const key = admState.detail, cfg = SERIES[key], a = admAgg(), scope = admScope(), solo = admSolo();
+  const count = { leads: a.leads, regs: a.regs, ftd: a.ftdCount, rd: a.rdCount }[key];
+  const sum   = { leads: 0, regs: 0, ftd: a.ftdSum, rd: a.rdSum }[key];
+  const conv  = {
+    leads: null,
+    regs: { name: "Лид → Рег", v: a.leads ? a.regs / a.leads * 100 : 0 },
+    ftd:  { name: "Рег → ФД",  v: a.regs ? a.ftdCount / a.regs * 100 : 0 },
+    rd:   { name: "ФД → РД",   v: a.ftdCount ? a.rdCount / a.ftdCount * 100 : 0 }
+  }[key];
+  const box = h("<div></div>");
+  const head = h('<div class="sub-head">' +
+    '<button type="button" class="icon-btn" data-back aria-label="Назад">' + icon("chevronL", 18) + "</button>" +
+    '<h3 style="font-size:16px;flex:1">' + cfg.title + "</h3>" +
+    '<span class="badge badge--outline">' + (solo ? solo.name.split(" ")[0] : "Все") + "</span></div>");
+  $("[data-back]", head).addEventListener("click", () => { admState.detail = null; renderAdm(); });
+  box.appendChild(head);
+  box.appendChild(h(periodSegHtml("adm-period-d")));
+  const stack = h('<div class="stack"></div>');
+  stack.appendChild(h(
+    '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">' +
+        '<div><div class="label">Всего за период</div>' +
+          '<div class="big-num count" data-value="' + count + '" style="margin-top:2px">0</div>' +
+          (sum ? '<div class="metric-s">' + usd(sum) + "</div>" : "") + "</div>" +
+        (conv ? '<span class="badge badge--accent">' + conv.name + " " + pct(conv.v) + "</span>" : "") +
+      "</div></div>"));
+  const sd = seriesData(scope, admState.period, key);
+  stack.appendChild(h(
+    '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">' +
+        '<div class="sec-title">Динамика</div>' +
+        '<span class="hint">' + (cfg.money ? "сумма" : "количество") +
+          (admState.period === "day" ? " по часам" : " по дням") + "</span>" +
+      "</div>" +
+      '<div class="chart-wrap" data-area>' +
+        areaChart([{ color: "var(--accent)", fill: true, data: sd }], 300, 104, "grad-det") + "</div>" +
+    "</div>"));
+  const rows = byBroker(scope, admState.period, cfg.opType);
+  const maxC = Math.max(1, ...rows.map(r => r.count));
+  stack.appendChild(h(
+    '<div class="card"><div class="sec-title" style="margin-bottom:12px">По брокерам</div>' +
+      rows.map((r, i) =>
+        '<div class="fn-row"><div class="fn-name">' + r.broker + "</div>" +
+        '<div class="fn-val">' + fmtNum(r.count) + (cfg.money ? " · " + usd(r.sum) : "") + "</div>" +
+        '<div class="fn-track"><div class="fn-fill" data-w="' + (r.count / maxC * 100).toFixed(1) + '%" data-delay="' + (i * 80) + '"></div></div></div>'
+      ).join("") + "</div>"));
+  const ops = opsIn(scope.length === 1 ? scope[0] : EMP[0], admState.period, [cfg.opType]).slice(0, 6);
+  const allOps = scope.length === 1 ? ops
+    : scope.reduce((acc, e) => acc.concat(opsIn(e, admState.period, [cfg.opType]).slice(0, 2)), [])
+        .sort((x, y) => (y.dayIdx - x.dayIdx) || (y.hour - x.hour)).slice(0, 6);
+  stack.appendChild(h(
+    '<div class="card"><div class="sec-title" style="margin-bottom:6px">Последние записи</div>' +
+      (allOps.length ? '<div class="cascade">' + allOps.map((o, i) =>
+        '<div class="ev" style="--d:' + (i * 50) + 'ms"><span class="badge ' + OP_META[o.type].cls + '">' + OP_META[o.type].title + "</span>" +
+        '<div class="ev-mid"><div class="ev-id">Лид ' + o.leadId + '</div><div class="ev-sub">' + o.broker + "</div></div>" +
+        '<div class="ev-r"><div class="ev-sum">' + (o.amount ? usd(o.amount) : "—") + '</div><div class="ev-t">' + dm(o.date) + "</div></div></div>").join("") + "</div>"
+        : '<div class="hint" style="padding:8px 0">Записей нет</div>') +
+    "</div>"));
+  box.appendChild(stack);
+  setTimeout(() => {
+    createSeg($("#adm-period-d", box), PERIODS.map(p => p.title), admPeriodIdx(), i => {
+      admState.period = PERIODS[i].key; renderAdm();
+    });
+    const aw = $("[data-area]", box);
+    if(aw){
+      animateLines(aw);
+      bindTip(aw, ".hit", i => "<b>" + (cfg.money ? usd(sd[i].v) : fmtNum(sd[i].v)) + "</b>" + sd[i].label);
+    }
+  }, 0);
+  return box;
+}
+const SORTS = [
+  { key: "salary", title: "По зарплате", get: a => a.salary },
+  { key: "oborot", title: "По обороту",  get: a => a.oborot },
+  { key: "ftd",    title: "По ФД",       get: a => a.ftdCount },
+  { key: "conv",   title: "По конверсии", get: a => a.leads ? a.ftdCount / a.leads : 0 }
+];
+function admPeople(){
+  const box = h("<div></div>");
+  box.appendChild(h('<h3 style="font-size:16px;margin:6px 0 12px">Сотрудники</h3>'));
+  box.appendChild(h(periodSegHtml("adm-period3")));
+  box.appendChild(h('<div class="search" id="adm-search">' + icon("search", 15) +
+    '<input type="text" placeholder="Поиск по имени" value="' + admState.query + '"></div>'));
+  box.appendChild(h('<div class="chips chips--bleed" id="adm-chips" style="margin-top:10px;margin-bottom:12px">' +
+    SORTS.map(s => '<button type="button" class="chip' + (s.key === admState.sort ? " is-on" : "") + '" data-sort="' + s.key + '">' + s.title + "</button>").join("") + "</div>"));
+  const list = h('<div class="stack" id="adm-list" style="gap:8px"></div>');
+  EMP.forEach(e => {
+    const a = agg(e, admState.period);
+    const row = h(
+      '<div class="emp-row" data-emp="' + e.id + '">' +
+        '<span class="av av--sm">' + e.ini + "</span>" +
+        '<div class="emp-mid"><div class="emp-n">' + e.name + (e.fresh ? ' <span class="badge">новый</span>' : "") + "</div>" +
+          '<div class="emp-s">' + (e.fresh ? "Данных пока нет"
+            : "Лиды " + a.leads + " · Реги " + a.regs + " · ФД " + a.ftdCount + " · РД " + a.rdCount) + "</div></div>" +
+        '<div class="emp-r"><div class="emp-p">' + usd(a.salary) + '</div><div class="emp-o">' + usd(a.oborot) + "</div></div>" +
+      "</div>");
+    row.__agg = a; row.__name = e.name.toLowerCase(); row.__emp = e;
+    row.addEventListener("click", () => openSheet(e));
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+  setTimeout(() => {
+    createSeg($("#adm-period3", box), PERIODS.map(p => p.title), admPeriodIdx(), i => {
+      admState.period = PERIODS[i].key; renderAdm();
+    });
+    const search = $("#adm-search", box);
+    const inp = $("input", search);
+    inp.addEventListener("focus", () => search.classList.add("is-focus"));
+    inp.addEventListener("blur",  () => search.classList.remove("is-focus"));
+    inp.addEventListener("input", () => { admState.query = inp.value; applyFilterSort(list, false); });
+    $$("[data-sort]", box).forEach(c => c.addEventListener("click", () => {
+      admState.sort = c.dataset.sort;
+      $$("[data-sort]", box).forEach(x => x.classList.toggle("is-on", x === c));
+      applyFilterSort(list, true);
+    }));
+    applyFilterSort(list, false);
+  }, 0);
+  return box;
+}
+function applyFilterSort(list, animate){
+  const rows = $$(".emp-row", list);
+  const q = admState.query.trim().toLowerCase();
+  const first = new Map();
+  if(animate && !RM) rows.forEach(r => first.set(r, r.getBoundingClientRect().top));
+  rows.forEach(r => { r.style.display = (!q || r.__name.indexOf(q) >= 0) ? "" : "none"; });
+  const getter = SORTS.filter(s => s.key === admState.sort)[0].get;
+  rows.slice().sort((x, y) => getter(y.__agg) - getter(x.__agg)).forEach(r => list.appendChild(r));
+  if(animate && !RM){
+    rows.forEach(r => {
+      if(r.style.display === "none") return;
+      const dy = ((first.get(r) || 0) - r.getBoundingClientRect().top) / fitK(list);
+      if(!dy) return;
+      r.style.transition = "none";
+      r.style.transform = "translateY(" + dy + "px)";
+      requestAnimationFrame(() => {
+        r.style.transition = "transform 380ms cubic-bezier(.22,1,.36,1)";
+        r.style.transform = "";
+      });
+    });
+  }
+}
+function openSheet(e){
+  const a = agg(e, admState.period);
+  const ops = opsIn(e, admState.period, ["ftd","rd","reg"]).slice(0, 5);
+  admSheet.innerHTML =
+    '<div class="sheet-grab" data-drag><i></i></div>' +
+    '<div class="sheet-head">' +
+      '<span class="av">' + e.ini + "</span>" +
+      '<div style="flex:1;min-width:0"><div class="mh-name">' + e.name + '</div><div class="mh-sub">Личная карточка</div></div>' +
+      '<button type="button" class="btn btn--ghost btn--sm" data-to-summary>В сводку</button>' +
+      '<button type="button" class="icon-btn" data-sheet-x aria-label="Закрыть">' + icon("close", 17) + "</button>" +
+    "</div>" +
+    '<div class="sheet-body">' +
+      '<div class="card" style="margin-bottom:12px">' +
+        '<div class="label">Зарплата за период</div>' +
+        '<div style="display:inline-block;margin-top:4px"><span class="pay-num count" data-value="' + a.salary + '" data-fmt="usd">0</span><div class="pay-underline"></div></div>' +
+        '<div class="pay-split">Ставка ' + usd(a.rate) + " · Процент " + usd(a.percent) + "</div>" +
+      "</div>" +
+      '<div class="grid2" style="margin-bottom:12px">' +
+        [["Лиды", a.leads, ""], ["Реги", a.regs, ""], ["ФД", a.ftdCount, usd(a.ftdSum)], ["РД", a.rdCount, usd(a.rdSum)]].map(m =>
+          '<div class="card card--tight"><div class="metric-l">' + m[0] + '</div>' +
+          '<div class="metric-n count" data-value="' + m[1] + '">0</div>' +
+          '<div class="metric-s">' + (m[2] || "&nbsp;") + "</div></div>").join("") +
+      "</div>" +
+      '<div class="card" style="margin-bottom:12px"><div class="sec-title" style="margin-bottom:12px">Воронка</div>' + funnelHtml(a) + "</div>" +
+      '<div class="card"><div class="sec-title" style="margin-bottom:6px">Последние операции</div>' +
+        (ops.length ? ops.map(o =>
+          '<div class="ev"><span class="badge ' + OP_META[o.type].cls + '">' + OP_META[o.type].title + "</span>" +
+          '<div class="ev-mid"><div class="ev-id">Лид ' + o.leadId + '</div><div class="ev-sub">' + o.broker + "</div></div>" +
+          '<div class="ev-r"><div class="ev-sum">' + (o.amount ? usd(o.amount) : "—") + '</div><div class="ev-t">' + dm(o.date) + "</div></div></div>").join("")
+          : '<div class="hint" style="padding:8px 0">Операций нет</div>') +
+      "</div>" +
+    "</div>";
+  $("[data-sheet-x]", admSheet).addEventListener("click", closeSheet);
+  $("[data-to-summary]", admSheet).addEventListener("click", () => {
+    admState.empId = e.id; admState.screen = 0; admState.detail = null; closeSheet(); renderAdm();
+  });
+  bindSheetDrag();
+  admSheetBd.classList.add("is-open");
+  admSheet.classList.add("is-open");
+  admState.sheetEmp = e;
+  initCounters(admSheet, $(".sheet-body", admSheet));
+  initBars(admSheet, $(".sheet-body", admSheet));
+}
+function closeSheet(){
+  admSheet.classList.remove("is-open");
+  admSheetBd.classList.remove("is-open");
+  admSheet.style.transform = "";
+  admState.sheetEmp = null;
+}
+function bindSheetDrag(){
+  const grab = $("[data-drag]", admSheet);
+  let y0 = 0, dy = 0, on = false;
+  grab.addEventListener("pointerdown", e => {
+    on = true; y0 = e.clientY; dy = 0;
+    admSheet.classList.add("is-drag");
+    grab.setPointerCapture(e.pointerId);
+  });
+  grab.addEventListener("pointermove", e => {
+    if(!on) return;
+    dy = Math.max(0, (e.clientY - y0) / fitK(admSheet));
+    admSheet.style.transform = "translateY(" + dy + "px)";
+  });
+  grab.addEventListener("pointerup", () => {
+    if(!on) return;
+    on = false;
+    admSheet.classList.remove("is-drag");
+    admSheet.style.transform = "";
+    if(dy > 100) closeSheet();
+  });
+}
+function subHead(title){
+  const el = h('<div class="sub-head">' +
+    '<button type="button" class="icon-btn" data-back aria-label="Назад">' + icon("chevronL", 18) + "</button>" +
+    '<h3 style="font-size:16px;flex:1">' + title + "</h3>" +
+    '<button type="button" class="chip" data-home>' + icon("home", 13) + "На главную</button></div>");
+  $("[data-back]", el).addEventListener("click", () => { admState.settings = null; renderAdm(); });
+  $("[data-home]", el).addEventListener("click", goHome);
+  return el;
+}
+function admSettings(){
+  if(admState.settings === "company") return setCompany();
+  if(admState.settings === "access")  return setAccess();
+  if(admState.settings === "add")     return setAddEmployee();
+  if(admState.settings === "payout")  return setPayout();
+  const withPass = EMP.filter(e => e.password).length;
+  const box = h("<div></div>");
+  box.appendChild(h(brandbarHtml("Настройки")));
+  const stack = h('<div class="stack" style="gap:10px"></div>');
+  const rows = [
+    { k: "company", ico: "image",    t: "Компания",            s: company.name + " · логотип и название" },
+    { k: "access",  ico: "key",      t: "Сотрудники и доступы", s: withPass + " из " + EMP.length + " с паролем" },
+    { k: "payout",  ico: "wallet",   t: "Выплаты",             s: payoutPeriod().title + " · выплата " + payoutPeriod().when }
+  ];
+  rows.forEach(r => {
+    const row = h('<button type="button" class="set-row">' +
+      '<span class="set-ico">' + icon(r.ico, 17) + "</span>" +
+      '<span style="flex:1;min-width:0"><span class="set-t" style="display:block">' + r.t + "</span>" +
+        '<span class="set-s" style="display:block">' + r.s + "</span></span>" +
+      '<span style="display:block;transform:rotate(-90deg);color:var(--ink-3)">' + icon("chevron", 16) + "</span></button>");
+    row.addEventListener("click", () => { admState.settings = r.k; renderAdm(); });
+    stack.appendChild(row);
+  });
+  const add = h('<button type="button" class="btn btn--block" style="margin-top:6px">' + icon("plus", 17) + "Добавить сотрудника</button>");
+  add.addEventListener("click", () => { admState.settings = "add"; renderAdm(); });
+  stack.appendChild(add);
+  box.appendChild(stack);
+  return box;
+}
+function setCompany(){
+  const box = h("<div></div>");
+  box.appendChild(subHead("Компания"));
+  const card = h('<div class="card" style="text-align:center">' +
+    '<div style="display:flex;justify-content:center;margin-bottom:14px" data-logo-slot>' + logoHtml("logo--lg") + "</div>" +
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
+      '<button type="button" class="btn btn--ghost btn--sm" data-pick-logo>' + icon("image", 15) + "Загрузить логотип</button>" +
+      '<button type="button" class="btn btn--ghost btn--sm" data-clear-logo>Сбросить</button>' +
+    "</div>" +
+    '<input type="file" accept="image/*" data-file style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">' +
+  "</div>");
+  const nameCard = h('<div class="card" style="margin-top:12px">' +
+    '<div class="f-row"><div class="f-head"><span class="label">Название компании</span></div>' +
+    '<input class="field" type="text" data-name value="' + company.name + '" placeholder="Название"></div>' +
+    '<div class="hint">Оно подписывает главный экран у сотрудников и у администратора</div></div>');
+  box.appendChild(card);
+  box.appendChild(nameCard);
+  const file = $("[data-file]", card);
+  $("[data-pick-logo]", card).addEventListener("click", () => file.click());
+  file.addEventListener("change", () => {
+    const f = file.files && file.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      company.logo = reader.result;
+      renderEmp(); renderAdm();
+      admToaster.show("ok", "Логотип обновлён", "Показан у сотрудников и в кабинете");
+    };
+    reader.readAsDataURL(f);
+  });
+  $("[data-clear-logo]", card).addEventListener("click", () => {
+    company.logo = null; renderEmp(); renderAdm();
+  });
+  const inp = $("[data-name]", nameCard);
+  inp.addEventListener("input", () => {
+    company.name = inp.value.trim() || "Компания";
+    $$(".brandbar-n", empScreen).forEach(n => n.textContent = company.name);
+    if(!company.logo) $(".logo", card).textContent = companyMono();
+  });
+  inp.addEventListener("blur", () => { renderEmp(); });
+  return box;
+}
+function setAccess(){
+  const box = h("<div></div>");
+  box.appendChild(subHead("Сотрудники и доступы"));
+  const stack = h('<div class="stack" style="gap:8px"></div>');
+  EMP.forEach(e => {
+    const row = h('<div style="border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);overflow:hidden">' +
+      '<button type="button" class="pick" style="border:none;border-radius:0">' +
+        '<span class="av av--sm">' + e.ini + "</span>" +
+        '<span style="flex:1;min-width:0"><span class="emp-n" style="display:block">' + e.name + "</span>" +
+          '<span class="emp-s" style="display:block">' + (e.password ? "Доступ выдан" : "Доступа нет") +
+            (e.fresh ? " · новый" : "") + "</span></span>" +
+        (e.password ? '<span class="badge badge--accent">' + e.password + "</span>"
+                    : '<span class="badge">нет пароля</span>') +
+      "</button>" +
+      '<div class="acc-body"><div style="padding:0 12px 14px">' +
+        '<div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--r-xs);background:var(--surface-2)">' +
+          '<span class="set-ico">' + icon("key", 16) + "</span>" +
+          '<div style="flex:1"><div class="set-s">Пароль для входа</div>' +
+            '<div class="pwd" data-pwd>' + (e.password || "— — — — — —") + "</div></div></div>" +
+        '<div style="display:flex;gap:8px;margin-top:10px">' +
+          '<button type="button" class="btn btn--sm" style="flex:1" data-issue>' + (e.password ? "Сменить пароль" : "Выдать пароль") + "</button>" +
+          (e.password ? '<button type="button" class="btn btn--ghost btn--sm" data-revoke>Отозвать</button>' : "") +
+        "</div></div></div></div>");
+    const body = $(".acc-body", row), inner = body.firstElementChild;
+    $(".pick", row).addEventListener("click", () => {
+      const open = body.style.height && body.style.height !== "0px";
+      body.style.height = open ? "0px" : inner.offsetHeight + "px";
+    });
+    $("[data-issue]", row).addEventListener("click", () => {
+      e.password = genPassword();
+      admToaster.show("ok", "Пароль выдан", e.name + " · " + e.password);
+      renderAdm();
+    });
+    const rev = $("[data-revoke]", row);
+    if(rev) rev.addEventListener("click", () => {
+      e.password = null;
+      admToaster.show("info", "Доступ отозван", e.name);
+      renderAdm();
+    });
+    stack.appendChild(row);
+  });
+  box.appendChild(stack);
+  const add = h('<button type="button" class="btn btn--block" style="margin-top:12px">' + icon("plus", 17) + "Добавить сотрудника</button>");
+  add.addEventListener("click", () => { admState.settings = "add"; renderAdm(); });
+  box.appendChild(add);
+  return box;
+}
+function setAddEmployee(){
+  const box = h("<div></div>");
+  box.appendChild(subHead("Добавить сотрудника"));
+  const card = h('<div class="card">' +
+    '<div class="f-row" style="margin-bottom:0">' +
+      '<div class="f-head"><span class="label">Имя и фамилия</span></div>' +
+      '<input class="field" type="text" data-new-name placeholder="Например, Олег Сорокин" autocomplete="off">' +
+      '<div class="f-err">' + icon("alert", 13) + '<span data-err-text>Введите имя</span></div>' +
+    "</div>" +
+    '<div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">' +
+      '<span class="set-ico">' + icon("key", 16) + "</span>" +
+      '<div><div class="set-t">Пароль сгенерируется сам</div>' +
+        '<div class="set-s">Шесть цифр, показываем сразу после добавления</div></div>' +
+    "</div></div>");
+  box.appendChild(card);
+  const btn = h('<button type="button" class="btn btn--block" style="margin-top:14px">' + icon("plus", 17) + "Добавить и выдать пароль</button>");
+  box.appendChild(btn);
+  const input = $("[data-new-name]", card);
+  const errBox = $(".f-err", card);
+  const errText = $("[data-err-text]", card);
+  const showErr = msg => {
+    errText.textContent = msg;
+    errBox.classList.add("is-on");
+    input.classList.add("is-err");
+  };
+  input.addEventListener("input", () => {
+    errBox.classList.remove("is-on");
+    input.classList.remove("is-err");
+  });
+  input.addEventListener("keydown", e => { if(e.key === "Enter") btn.click(); });
+  btn.addEventListener("click", () => {
+    const name = input.value.trim().replace(/\s+/g, " ");
+    if(name.length < 2){ showErr("Введите имя и фамилию"); input.focus(); return; }
+    if(EMP.some(e => e.name.toLowerCase() === name.toLowerCase())){ showErr("Такой сотрудник уже есть"); input.focus(); return; }
+    const emp = makeBlankEmployee(name);
+    emp.password = genPassword();
+    EMP.push(emp);
+    admToaster.show("ok", "Сотрудник добавлен", emp.name + " · пароль " + emp.password);
+    admState.settings = "access";
+    renderAdm();
+  });
+  setTimeout(() => input.focus(), 380);
+  return box;
+}
+function setPayout(){
+  const box = h("<div></div>");
+  box.appendChild(subHead("Выплаты"));
+  box.appendChild(h('<div class="label" style="margin-bottom:6px">Как часто платим</div>'));
+  box.appendChild(h('<div class="seg" id="pay-mode" style="margin-bottom:14px"></div>'));
+  const body = h('<div class="card"></div>');
+  if(company.payout.mode === "week"){
+    body.appendChild(h('<div class="label" style="margin-bottom:8px">День выплаты</div>'));
+    const chips = h('<div class="chips" style="flex-wrap:wrap"></div>');
+    WEEKDAYS.forEach((w, i) => {
+      const c = h('<button type="button" class="chip' + (company.payout.weekday === i ? " is-on" : "") + '">' + w + "</button>");
+      c.addEventListener("click", () => { company.payout.weekday = i; renderEmp(); renderAdm(); });
+      chips.appendChild(c);
+    });
+    body.appendChild(chips);
+  } else {
+    body.appendChild(h('<div class="label" style="margin-bottom:8px">Число выплаты</div>'));
+    const grid = h('<div class="day-grid"></div>');
+    for(let d = 1; d <= 28; d++){
+      const c = h('<button type="button" class="day-cell' + (company.payout.day === d ? " is-on" : "") + '">' + d + "</button>");
+      c.addEventListener("click", () => { company.payout.day = d; renderEmp(); renderAdm(); });
+      grid.appendChild(c);
+    }
+    body.appendChild(grid);
+  }
+  box.appendChild(body);
+  const p = payoutPeriod();
+  box.appendChild(h('<div class="card" style="margin-top:12px">' +
+    '<div class="sec-title" style="margin-bottom:8px">Что увидит сотрудник</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;color:var(--ink-3)">' + icon("calendar", 15) +
+      '<span class="hint">' + payoutText() + "</span></div>" +
+    '<div class="hint" style="margin-top:8px">Расчётный период: ' + dmy(p.from) + " — " + dmy(p.to) + "</div></div>"));
+  setTimeout(() => {
+    createSeg($("#pay-mode", box), ["Раз в неделю", "Раз в месяц"], company.payout.mode === "week" ? 0 : 1, i => {
+      company.payout.mode = i === 0 ? "week" : "month";
+      renderEmp(); renderAdm();
+    });
+  }, 0);
+  return box;
+}
+createSeg($("#seg-platform"), ["Chatline", "Lidix"], 0, i => {
+  crmState.platform = i === 1 ? "lidix" : "chatline";
+  renderFakeCrm();
+  if(crmState.view !== "collapsed"){ openPanel(); }
+});
+createSeg($("#seg-theme"), ["Светлая", "Тёмная"], 1, i => {
+  document.documentElement.setAttribute("data-theme", i === 1 ? "dark" : "light");
+});
+$("#btn-fail").addEventListener("click", () => {
+  crmState.failNext = true;
+  if(crmState.view === "collapsed") openPanel(); else startLoading();
+});
+renderFakeCrm();
+renderEmp();
+renderAdm();
+setTimeout(() => empToaster.show("ok", "Начислено 42 $ за ФД", "Лид 48219 · Marvex · 250 $"), 3000);
+setTimeout(() => admToaster.show("info", "Илья Воронов внёс ФД 250 $", "Marvex · кабинет Стёпа"), 4600);
+</script>
+<script src="/assets/demo/bar.js" data-demo="dept" data-lang="ru" defer></script>
+</body>
+</html>

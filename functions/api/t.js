@@ -6,7 +6,8 @@ import { authed } from './stats.js';
 //   3) визит считается «живым» (human = 1), только если прошёл невидимый Cloudflare Turnstile
 //      или человек что-то сделал: листал, кликал, пробыл на странице от 5 секунд.
 
-const TYPES = new Set(['pv','scroll','section','click','works_open','video_play','video_done','video_fs','faq','leave']);
+const TYPES = new Set(['pv','scroll','section','click','works_open','video_play','video_done','video_fs','faq','leave',
+  'demo','demo_use','demo_time','demo_back']);   // demo* — живые демо работ (/demo/<имя>/)
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|telegram|whatsapp|vkshare|pingdom|monitor/i;
 // сети хостингов и облаков: живые люди оттуда почти не заходят, сканеры и роботы — почти всегда
 const DATACENTER = /amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|contabo|vultr|choopa|scaleway|leaseweb|m247|datacamp|hostinger|ionos|cloudflare|fastly|zscaler|servers|hosting|colocation|data ?center|vps/i;
@@ -34,7 +35,8 @@ function browser(ua){
 function engaged(ev, value){
   if(ev.t === 'scroll') return value >= 25;
   if(ev.t === 'leave') return value >= 5;
-  return ev.t === 'click' || ev.t === 'faq' || ev.t === 'works_open' || ev.t === 'video_play' || ev.t === 'video_fs';
+  if(ev.t === 'demo_time') return value >= 5;
+  return ev.t === 'click' || ev.t === 'faq' || ev.t === 'works_open' || ev.t === 'video_play' || ev.t === 'video_fs' || ev.t === 'demo_use';
 }
 async function turnstileOk(env, token, ip){
   if(!env.TURNSTILE_SECRET || typeof token !== 'string' || !token || token.length > 2048) return false;

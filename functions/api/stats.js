@@ -62,7 +62,7 @@ export async function onRequestGet({ request, env }){
     /*13 */ S(`SELECT SUM(max_scroll >= 25) AS s25, SUM(max_scroll >= 50) AS s50, SUM(max_scroll >= 75) AS s75, SUM(max_scroll >= 100) AS s100
                FROM sessions WHERE human = 1 AND first_ts >= ?`, from),
     /*14 */ S(`SELECT name, COUNT(DISTINCT sid) AS sessions FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'section' AND ts >= ? GROUP BY name`, from),
-    /*15 */ S(`SELECT name, type, COUNT(*) AS c FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type IN ('video_play','video_done','video_fs') AND ts >= ? GROUP BY name, type`, from),
+    /*15 */ S(`SELECT name, type, COUNT(*) AS c FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND (type IN ('video_play','video_done','video_fs','demo','demo_use') OR (type = 'click' AND name LIKE 'demo_cta_%')) AND ts >= ? GROUP BY name, type`, from),
     /*16 */ S(`SELECT device AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY device ORDER BY visits DESC`, from),
     /*17 */ S(`SELECT COALESCE(country,'??') AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY name ORDER BY visits DESC LIMIT 12`, from),
     /*18 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'faq' AND ts >= ? GROUP BY name ORDER BY count DESC`, from),
@@ -87,7 +87,12 @@ export async function onRequestGet({ request, env }){
 
   const vids = {};
   for(const x of rows(15)){
-    const v = vids[x.name] || (vids[x.name] = { name: x.name, plays: 0, done: 0, fs: 0 });
+    // клик «Хочу такое» внутри демо приходит как click:demo_cta_<имя> — относим к той же работе
+    const key = x.type === 'click' ? String(x.name || '').replace(/^demo_cta_/, '') : x.name;
+    const v = vids[key] || (vids[key] = { name: key, plays: 0, done: 0, fs: 0, demo: 0, demoUse: 0, demoCta: 0 });
+    if(x.type === 'demo') v.demo = x.c;
+    if(x.type === 'demo_use') v.demoUse = x.c;
+    if(x.type === 'click') v.demoCta = x.c;
     if(x.type === 'video_play') v.plays = x.c;
     if(x.type === 'video_done') v.done = x.c;
     if(x.type === 'video_fs') v.fs = x.c;
