@@ -9,10 +9,11 @@
 <meta name="theme-color" content="#07090e">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
-<link rel="stylesheet" href="/en/demo/kc/panel.css">
-<link rel="stylesheet" href="/en/demo/kc/demo.css">
+<link rel="stylesheet" href="/en/demo/kc/panel.css?v=2">
+<link rel="stylesheet" href="/en/demo/kc/demo.css?v=2">
 </head>
 <body>
+<div class="kc-wrap">
 <header class="kc-hint">
   <h1 class="kc-sr">Nexus CC — live extension demo</h1>
   <div class="kc-hint__brand"><span class="kc-hint__logo" aria-hidden="true">N</span><span>Nexus CC</span><span class="kc-hint__tag">live demo</span></div>
@@ -24,6 +25,9 @@
   <p class="kc-hint__mobile">The demo works best on a desktop</p>
 </header>
 
+<div class="kc-cap"><p class="kc-cap__t">Operator’s CRM — demo mockup</p><p class="kc-cap__d">Pick a chat on the left — the extension reads the customer card on its own</p></div>
+
+<div class="kc-stage">
 <main class="crm" aria-label="CRM mockup with demo data">
   <div class="crm-rail" aria-hidden="true">
     <span class="crm-logo">T</span>
@@ -57,7 +61,10 @@
         </dl>
       </div>
     </div>
-    <div class="crm-thread"><div class="crm-thread__in" id="kc-thread"></div></div>
+    <div class="crm-threadwrap">
+      <div class="kc-toasts" id="kc-toasts"></div>
+      <div class="crm-thread"><div class="crm-thread__in" id="kc-thread"></div></div>
+    </div>
     <div class="crm-composer" aria-hidden="true"><span>Message…</span><span>↵</span></div>
   </section>
   <aside class="crm-aside">
@@ -74,6 +81,8 @@
     <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path>
   </svg>
 </button>
+<div class="kc-ext">
+<p class="kc-ext__label">Nexus CC extension</p>
 <section id="vcf-panel" class="vcf-panel" aria-label="Nexus CC" hidden>
   <div class="vcf-panel-header">
     <strong class="vcf-brand">
@@ -301,8 +310,11 @@
   </form>
 </section>
 </div>
+</div>
+</div>
+</div>
 
-<script src="/en/demo/kc/demo.js" defer></script>
+<script src="/en/demo/kc/demo.js?v=2" defer></script>
 <script src="/assets/demo/bar.js" data-demo="kc" data-lang="en" defer></script>
 </body>
 </html>

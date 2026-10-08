@@ -1,7 +1,7 @@
 /* Nexus CC: demo behaviour (generated, do not edit). No network, no browser-extension APIs: everything is simulated. */
 (function () {
 'use strict';
-var CFG = {"locale":"en-US","timeOpts":{"hour":"numeric","minute":"2-digit"},"regions":{"africa":"Africa","latam":"LatAm","arab":"MENA"},"geos":{"africa":["South Africa","Nigeria","Ghana","Kenya","Uganda","Cameroon"],"latam":["Mexico","Colombia","Peru","Argentina","Chile","Brazil","Ecuador"],"arab":["Morocco","Algeria","Egypt","UAE"]},"stages":{"africa":["New lead","Verification","Callback","Follow-up","Reminder","Individual request"],"latam":["New lead","Verification","Consultation","Callback","Reminder","Individual request"],"arab":["New lead","Verification","Callback","Reminder","Individual request"]},"employees":{"africa":["Agent 12 | Retention","Agent 07 | Retention","Agent 21 | Sales"],"latam":["Agent 31 | Retention","Agent 34 | Sales"],"arab":["Agent 41 | Retention","Agent 45 | Sales"]},"statuses":{"success":"Reached","no-answer":"No answer","busy":"Busy","wrong-number":"Wrong number","dropped":"Declined","offline":"Unavailable"},"results":[{"s":"success","c":"Booked a follow-up call for tomorrow"},{"s":"no-answer","c":""},{"s":"success","c":"Asked for a callback this evening"},{"s":"busy","c":""}],"seeds":[{"chat":"31905744","s":"success","c":"Asked for a callback this evening","region":"africa","days":1,"at":"14:31"},{"chat":"60214877","s":"busy","c":"","region":"africa","days":1,"at":"13:12"},{"chat":"60377125","s":"wrong-number","c":"","region":"africa","days":2,"at":"16:05"},{"chat":"77390218","s":"no-answer","c":"","region":"latam","days":1,"at":"14:39"},{"chat":"52008341","s":"success","c":"Prefers calls after 6 PM","region":"latam","days":1,"at":"11:47"},{"chat":"52114096","s":"dropped","c":"","region":"latam","days":2,"at":"15:20"},{"chat":"55120944","s":"busy","c":"","region":"arab","days":1,"at":"12:26"},{"chat":"58830412","s":"offline","c":"","region":"arab","days":2,"at":"10:58"}],"clients":[{"name":"Daniel Moyo","phone":"+27 82 555 0143","chat":"48210573","region":"africa","geo":"South Africa","tag":"Callback","time":"2:38 PM","hue":212,"msgs":[["in","Hi! Could someone call me back? It’s easier to talk."],["out","Of course, Daniel. I’m passing your request to the call center — expect a call shortly."],["in","Thanks, I’ll be waiting."]]},{"name":"Carlos Mendoza","phone":"+52 55 5550 0142","chat":"77390218","region":"latam","geo":"Mexico","tag":"Verification","time":"2:21 PM","hue":28,"msgs":[["in","Good afternoon. I can’t finish confirming my profile."],["out","We’ll sort it out by phone — I’m booking a specialist call for you."],["in","Great, I’m available."]]},{"name":"Youssef Benali","phone":"+212 600 555 018","chat":"55120944","region":"arab","geo":"Morocco","tag":"New lead","time":"1:57 PM","hue":158,"msgs":[["in","Hello, I’d like to learn more about your plans."],["out","We’ll walk you through it on a call — requesting one now."],["in","Perfect, thanks."]]},{"name":"Amina Mensah","phone":"+233 24 555 0167","chat":"31905744","region":"africa","geo":"Ghana","tag":"Reminder","time":"1:40 PM","hue":318,"msgs":[["in","Please remind me tomorrow about my renewal."],["out","Noted. The call center will ring you with a reminder."],["in","Thank you!"]]}],"activity":[["Chat created","1:02 PM"],["Agent assigned","1:04 PM"],["Tag added: %TAG%","1:11 PM"]],"t":{"send":"Send","sending":"Sending","sent":"Call request sent","fillRequired":"Fill in the required fields: ","req":{"vcf-employee":"Agent","vcf-phone":"Phone","vcf-chat-id":"Chat ID","vcf-geo":"GEO","vcf-stage":"Stage"},"autofilled":"Details filled in from the customer card","historyHint":"The record is already in the history — the clock icon in the panel header","notifOff":"Notifications are off — the status went to the history only","dupTitle":"Repeat call within 24 hours","pending":"Pending","chatId":"Chat ID","ack":"Got it ✓","close":"Close","template":"Topic: \nBest time to call: ","notePrefix":"CC"}};
+var CFG = {"locale":"en-US","timeOpts":{"hour":"numeric","minute":"2-digit"},"regions":{"africa":"Africa","latam":"LatAm","arab":"MENA"},"geos":{"africa":["South Africa","Nigeria","Ghana","Kenya","Uganda","Cameroon"],"latam":["Mexico","Colombia","Peru","Argentina","Chile","Brazil","Ecuador"],"arab":["Morocco","Algeria","Egypt","UAE"]},"stages":{"africa":["New lead","Verification","Callback","Follow-up","Reminder","Individual request"],"latam":["New lead","Verification","Consultation","Callback","Reminder","Individual request"],"arab":["New lead","Verification","Callback","Reminder","Individual request"]},"employees":{"africa":["Agent 12 | Retention","Agent 07 | Retention","Agent 21 | Sales"],"latam":["Agent 31 | Retention","Agent 34 | Sales"],"arab":["Agent 41 | Retention","Agent 45 | Sales"]},"statuses":{"success":"Reached","no-answer":"No answer","busy":"Busy","wrong-number":"Wrong number","dropped":"Declined","offline":"Unavailable"},"results":[{"s":"success","c":"Booked a follow-up call for tomorrow"},{"s":"no-answer","c":""},{"s":"success","c":"Asked for a callback this evening"},{"s":"busy","c":""}],"seeds":[{"chat":"31905744","s":"success","c":"Asked for a callback this evening","region":"africa","days":1,"at":"14:31"},{"chat":"60214877","s":"busy","c":"","region":"africa","days":1,"at":"13:12"},{"chat":"60377125","s":"wrong-number","c":"","region":"africa","days":2,"at":"16:05"},{"chat":"77390218","s":"no-answer","c":"","region":"latam","days":1,"at":"14:39"},{"chat":"52008341","s":"success","c":"Prefers calls after 6 PM","region":"latam","days":1,"at":"11:47"},{"chat":"52114096","s":"dropped","c":"","region":"latam","days":2,"at":"15:20"},{"chat":"55120944","s":"busy","c":"","region":"arab","days":1,"at":"12:26"},{"chat":"58830412","s":"offline","c":"","region":"arab","days":2,"at":"10:58"}],"clients":[{"name":"Daniel Moyo","phone":"+27 82 555 0143","chat":"48210573","region":"africa","geo":"South Africa","tag":"Callback","time":"2:38 PM","hue":212,"msgs":[["in","Hi! Could someone call me back? It’s easier to talk."],["out","Of course, Daniel. I’m passing your request to the call center — expect a call shortly."],["in","Thanks, I’ll be waiting."]]},{"name":"Carlos Mendoza","phone":"+52 55 5550 0142","chat":"77390218","region":"latam","geo":"Mexico","tag":"Verification","time":"2:21 PM","hue":28,"msgs":[["in","Good afternoon. I can’t finish confirming my profile."],["out","We’ll sort it out by phone — I’m booking a specialist call for you."],["in","Great, I’m available."]]},{"name":"Youssef Benali","phone":"+212 600 555 018","chat":"55120944","region":"arab","geo":"Morocco","tag":"New lead","time":"1:57 PM","hue":158,"msgs":[["in","Hello, I’d like to learn more about your plans."],["out","We’ll walk you through it on a call — requesting one now."],["in","Perfect, thanks."]]},{"name":"Amina Mensah","phone":"+233 24 555 0167","chat":"31905744","region":"africa","geo":"Ghana","tag":"Reminder","time":"1:40 PM","hue":318,"msgs":[["in","Please remind me tomorrow about my renewal."],["out","Noted. The call center will ring you with a reminder."],["in","Thank you!"]]}],"activity":[["Chat created","1:02 PM"],["Agent assigned","1:04 PM"],["Tag added: %TAG%","1:11 PM"],["Customer message","1:26 PM"],["Agent replied","1:31 PM"],["Card updated","1:35 PM"]],"t":{"send":"Send","sending":"Sending","sent":"Call request sent","fillRequired":"Fill in the required fields: ","req":{"vcf-employee":"Agent","vcf-phone":"Phone","vcf-chat-id":"Chat ID","vcf-geo":"GEO","vcf-stage":"Stage"},"autofilled":"Details filled in from the customer card","historyHint":"The record is already in the history — the clock icon in the panel header","notifOff":"Notifications are off — the status went to the history only","dupTitle":"Repeat call within 24 hours","pending":"Pending","chatId":"Chat ID","ack":"Got it ✓","close":"Close","template":"Topic: \nBest time to call: ","notePrefix":"CC"}};
 var lib = { hasFire: function () { return false; } };
 function escapeHtml(value) {
   return value
@@ -327,6 +327,7 @@ function kcRuntime(CFG, lib) {
     prefill(true)
     advance(2)
     later(() => advance(3), 2200)
+    later(() => revealSubmit(false), 320)
   }
   function hidePanel() {
     window.clearTimeout(animTimer)
@@ -356,7 +357,16 @@ function kcRuntime(CFG, lib) {
   }
   function fitSize() {
     if (state.sizeTouched || panel.hidden) return
-    while (state.size > 0.5 && panel.scrollHeight > panel.clientHeight + 12) setSize(state.size - 0.1)
+    const tooTall = () => panel.scrollHeight > panel.clientHeight + 12
+      || (!narrow.matches && (panel.clientHeight + 2) * state.size > window.innerHeight - 118)
+    while (state.size > 0.5 && tooTall()) setSize(state.size - 0.1)
+  }
+  const stage = doc.querySelector('.kc-stage')
+  function revealSubmit(toBottom) {
+    if (narrow.matches || panel.hidden || !stage) return
+    if (toBottom && panel.scrollHeight > panel.clientHeight + 12) panel.scrollTop = panel.scrollHeight
+    const delta = Math.min(panel.getBoundingClientRect().bottom - (window.innerHeight - 100), stage.getBoundingClientRect().top - 8)
+    if (delta > 4) window.scrollBy({ top: delta, behavior: 'smooth' })
   }
   q('#vcf-size-options').addEventListener('click', (event) => {
     const b = event.target.closest('.vcf-size-btn')
@@ -461,6 +471,7 @@ function kcRuntime(CFG, lib) {
         resetSubmit()
         state.busy = false
         renderDuplicates()
+        revealSubmit(true)
       }, 2000)
       later(() => deliverStatus(call, result), 3000)
     }, 900)
@@ -484,7 +495,8 @@ function kcRuntime(CFG, lib) {
     stack.id = 'vcf-toast-stack'
     stack.className = 'vcf-toast-stack vcf-toast-stack-flat'
     stack.innerHTML = '<div class="vcf-toast-stack-list"></div>'
-    doc.body.appendChild(stack)
+    const slot = narrow.matches ? null : doc.getElementById('kc-toasts')
+    ;(slot || doc.body).appendChild(stack)
     return stack
   }
   function showToast(key, chatId, comment, region) {
@@ -572,7 +584,7 @@ function kcRuntime(CFG, lib) {
   })
   resetSubmit()
   applyTheme('dark')
-  setSize(narrow.matches ? 0.8 : window.innerWidth >= 1800 ? 0.9 : window.innerWidth >= 1500 ? 0.8 : 0.7)
+  setSize(narrow.matches || window.innerWidth >= 1500 ? 0.8 : 0.7)
   renderChats()
   renderCard()
   applyRegion(current().region)

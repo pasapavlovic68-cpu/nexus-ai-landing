@@ -6,18 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Dept — live demo · Nexus AI</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<script>
-function demoFit(){
-  var de = document.documentElement, w = de.clientWidth || window.innerWidth;
-  var design = w >= 1100 ? 1420 : w >= 640 ? 924 : 450;
-  de.style.setProperty("--fit", String(Math.floor(Math.min(1, w / design) * 10000) / 10000));
-  var hint = document.getElementById("demo-hint");
-  if(hint) de.style.setProperty("--top", (hint.offsetTop + hint.offsetHeight) + "px");
-}
-demoFit();
-window.addEventListener("resize", demoFit);
-window.addEventListener("load", demoFit);
-</script>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
 :root{
   --bg:#F2F3F0;
@@ -304,7 +293,6 @@ p{margin:0}
 }
 .phones{display:grid; grid-template-columns:repeat(2, var(--phone-w)); gap:24px; justify-content:center}
 .phone-wrap{display:flex; flex-direction:column; align-items:center; gap:10px}
-.phone-cap{font-size:12.5px; font-weight:500; color:var(--ink-2)}
 .browser{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
   box-shadow:var(--shadow-card); overflow:hidden; display:flex; flex-direction:column;
@@ -406,23 +394,9 @@ p{margin:0}
 .hist-r{text-align:right}
 .hist-sum{font-size:13px; font-weight:600}
 .hist-t{font-size:11.5px; color:var(--ink-3)}
-.phone{
-  width:var(--phone-w); height:var(--phone-h); flex:none;
-  background:var(--bezel); border-radius:62px; padding:var(--bezel-pad);
-  box-shadow:var(--shadow-float); position:relative;
-}
-.phone::after{content:""; position:absolute; inset:4px; border-radius:58px; border:1px solid rgba(255,255,255,.09); pointer-events:none}
-.phone-notch{
-  position:absolute; top:24px; left:50%; transform:translateX(-50%);
-  width:125px; height:36px; border-radius:99px; background:#000; z-index:30;
-}
 .screen{
   position:relative; width:var(--scr-w); height:var(--scr-h); border-radius:50px; overflow:hidden;
   background:var(--bg); display:flex; flex-direction:column;
-}
-.ph-status{
-  height:60px; flex:none; display:flex; align-items:flex-end; justify-content:space-between;
-  padding:0 34px 6px; font-size:15px; font-weight:600; color:var(--ink);
 }
 .ph-scroll{--ph-pad:18px; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:0}
 .ph-nav{
@@ -574,48 +548,137 @@ p{margin:0}
   .ext-over.is-open{left:0}
   .spin{animation:none}
 }
-html,body{height:auto; min-height:100%}
-body{overflow-x:clip}
 :root{
-  --fit:1; --top:100px;
-  --scr-h:clamp(580px, calc((100vh - var(--top) - 88px) / var(--fit) - 70px), 874px);
-  --phone-h:calc(var(--scr-h) + 2 * var(--bezel-pad));
+  --font:"Sora", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --wrap:1480px; --pad:28px; --app-h:760px; --crm-h:640px;
+  --glass:rgba(255,255,255,.62); --glass-2:rgba(255,255,255,.4); --glass-line:rgba(12,15,14,.09);
+  --card:#FFFFFF; --pill-on:#FFFFFF; --pill-shadow:0 1px 3px rgba(12,15,14,.14); --nav-bg:rgba(255,255,255,.82); --fade:rgba(244,245,243,.96);
+  --glow-a:rgba(15,107,84,.09); --glow-b:rgba(79,140,255,.08); --grid:rgba(12,15,14,.035);
+  --shadow-panel:0 1px 2px rgba(12,15,14,.04), 0 34px 70px -44px rgba(12,15,14,.34);
 }
+[data-theme="dark"]{
+  --bg:#05060a; --surface:#0f1316; --surface-2:#171c20;
+  --glass:rgba(255,255,255,.035); --glass-2:rgba(255,255,255,.022); --glass-line:rgba(255,255,255,.09);
+  --card:rgba(255,255,255,.04); --pill-on:rgba(255,255,255,.11); --pill-shadow:none; --nav-bg:rgba(20,25,29,.8); --fade:rgba(8,9,13,.94);
+  --glow-a:rgba(47,191,149,.09); --glow-b:rgba(79,140,255,.09); --grid:rgba(255,255,255,.028);
+  --shadow-panel:0 34px 80px -44px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.04);
+}
+html,body{height:auto; min-height:100%}
+body{background:transparent; overflow-x:clip}
+body::before,body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none}
+body::before{
+  background:
+    radial-gradient(760px circle at 10% 4%, var(--glow-a), transparent 58%),
+    radial-gradient(860px circle at 94% 34%, var(--glow-b), transparent 58%),
+    radial-gradient(700px circle at 40% 104%, var(--glow-a), transparent 62%);
+}
+body::after{
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(circle at 50% 22%, #000, transparent 78%); mask-image:radial-gradient(circle at 50% 22%, #000, transparent 78%);
+}
+.topbar{
+  position:static; max-width:calc(var(--wrap) + 2 * var(--pad)); margin:0 auto; padding:20px var(--pad) 0; min-height:0;
+  background:transparent; border-bottom:none; -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+.brand-name{font-size:16px}
+.chip-ver{
+  white-space:nowrap; height:22px; padding:0 9px; border-color:var(--glass-line); background:var(--glass);
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2);
+}
+.seg,.seg-thumb,.seg-btn{border-radius:999px}
+.seg--tabs{background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:3px}
+.seg--tabs .seg-thumb{background:var(--surface); border:1px solid var(--line); border-radius:999px; box-shadow:0 1px 2px rgba(0,0,0,.06); max-height:30px}
+.seg--tabs .seg-btn{height:30px}
+.topbar .seg,.screen .seg{background:var(--glass); border-color:var(--glass-line)}
+.topbar .seg-thumb,.screen .seg-thumb{background:var(--pill-on); border-color:transparent; box-shadow:var(--pill-shadow)}
+.topbar .seg{-webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.topbar .seg-btn{height:26px; padding:0 12px; font-size:12.5px}
+#seg-platform{width:188px !important}
+#seg-theme{width:176px !important}
 .demo-hint{
-  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px 10px;
-  padding:12px 20px 0; font-size:13px; line-height:1.4; color:var(--ink-2); text-align:center;
+  max-width:calc(900px + 2 * var(--pad)); margin:18px auto 0; padding:0 var(--pad);
+  font-size:13.5px; line-height:1.6; color:var(--ink-2); text-align:center; text-wrap:balance;
 }
-.demo-hint .badge{flex:none}
-.demo-hint-m{display:none; width:100%; font-size:12px; color:var(--ink-3)}
-.chip-ver{white-space:nowrap}
-.browser{container-type:inline-size}
-@container (max-width:759px){ .fk-list{width:170px} .fk-card{padding:22px 20px} }
-@container (max-width:599px){ .fk-list{display:none} }
+.demo-hint .badge{
+  margin-right:10px; vertical-align:1px; height:22px; padding:0 10px;
+  font-family:var(--mono); font-size:10px; font-weight:400; letter-spacing:.12em; text-transform:uppercase;
+}
+.demo-hint-m{display:none; margin-top:6px; font-size:12px; color:var(--ink-3)}
 .stage{
-  zoom:var(--fit); grid-template-columns:minmax(440px,1fr) auto;
-  padding:16px 24px calc(88px / var(--fit));
+  grid-template-columns:minmax(0,1fr) auto; gap:28px; align-items:start;
+  max-width:calc(var(--wrap) + 2 * var(--pad)); padding:30px var(--pad) 104px;
 }
-@media (max-width:1099px){
-  :root{--scr-h:874px}
-  .stage{grid-template-columns:minmax(0,1fr); justify-items:center}
-  .browser{width:100%; max-width:876px; height:640px}
+.phones{grid-template-columns:repeat(2, 392px); gap:28px; justify-content:normal}
+.demo-col,.phone-wrap{display:flex; flex-direction:column; align-items:stretch; gap:12px; min-width:0}
+.demo-cap{display:flex; flex-direction:column; gap:5px; padding:0 6px; min-width:0}
+.demo-cap-k{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent)}
+.demo-cap-t{font-size:13px; line-height:1.4; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.crm,.screen,.browser-bar{border:1px solid var(--glass-line); background:var(--glass)}
+.browser-bar{-webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px)}
+.crm,.screen{border-radius:24px; box-shadow:var(--shadow-panel)}
+.browser{
+  height:var(--crm-h); container-type:inline-size; gap:12px; overflow:visible;
+  background:transparent; border:none; border-radius:0; box-shadow:none;
+}
+.browser-bar{height:46px; padding:0 20px; gap:16px; border-radius:999px; box-shadow:var(--shadow-panel)}
+.dots{gap:7px}
+.dot{width:9px; height:9px}
+.url{height:auto; padding:0; gap:9px; background:transparent; border:none; border-radius:0; font-size:13px}
+.fk-rail{background:transparent}
+.fk-list{background:var(--glass-2)}
+.fk-item.is-on{background:var(--glass)}
+@container (max-width:699px){ .fk-list{width:150px} .fk-card{padding:22px 20px} }
+@container (max-width:519px){ .fk-list{display:none} }
+@container (max-width:479px){
+  .ext{right:10px; bottom:10px; max-width:calc(100% - 20px); max-height:calc(100% - 20px)}
+  .fab{right:16px; bottom:16px}
+  .cal{width:100%; max-width:276px}
+}
+.fab::before{content:""; position:absolute; inset:0; border-radius:50%; animation:fabPulse 2.6s ease-out infinite}
+@keyframes fabPulse{0%{box-shadow:0 0 0 0 var(--accent); opacity:.45}70%,100%{box-shadow:0 0 0 18px var(--accent); opacity:0}}
+.screen{width:100%; height:var(--app-h)}
+.ph-scroll{--ph-pad:18px}
+.ph-view{padding-top:22px; padding-bottom:96px}
+.ph-nav{
+  position:absolute; left:11px; right:11px; bottom:11px; z-index:40; height:58px; padding:0 8px;
+  border:1px solid var(--glass-line); border-radius:999px; background:var(--nav-bg);
+  -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:0 16px 34px -20px rgba(0,0,0,.55);
+}
+.ph-nav::after{display:none}
+.screen::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:100px; z-index:35; pointer-events:none;
+  background:linear-gradient(to bottom, transparent, var(--fade) 72%);
+}
+.nav-b{gap:4px}
+.screen .toast-layer{top:14px !important}
+.screen .card,.screen .grp,.screen .emp-row,.screen .set-row{background-color:var(--card)}
+.grp-in{overflow-x:auto}
+@media (max-width:1359px){
+  :root{--wrap:908px; --crm-h:600px}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .phones{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .demo-cap-t{white-space:normal}
 }
 @media (max-width:899px){
+  :root{--wrap:480px; --app-h:720px; --crm-h:560px}
+  .phones{grid-template-columns:minmax(0,1fr)}
   .demo-hint-m{display:block}
-  .topbar{position:static; grid-template-columns:1fr auto; row-gap:10px}
+  .topbar{grid-template-columns:1fr auto; row-gap:12px}
   .topbar-center{grid-column:1/-1; order:3; flex-wrap:wrap}
 }
 @media (max-width:639px){
-  :root{--scr-h:720px}
-  .demo-hint{padding:12px 16px 0}
-  .stage{padding-left:12px; padding-right:12px; gap:20px}
-  .phones{grid-template-columns:var(--phone-w); gap:20px}
-  .browser{width:var(--phone-w); height:580px}
+  :root{--pad:16px; --app-h:680px; --crm-h:456px}
+  .stage{gap:24px; padding-top:24px}
+  .phones{gap:24px}
   .chip-ver{display:none}
-  .topbar{padding:10px 16px}
   .topbar .seg-btn{padding:0 8px}
-  #seg-theme{width:168px !important}
-  #seg-platform{width:190px !important}
+  #seg-theme{width:156px !important}
+  #seg-platform{width:172px !important}
+  .ph-scroll{--ph-pad:16px}
+  .tbl td:nth-child(4){max-width:58px !important}
 }
 </style>
 </head>
@@ -637,8 +700,9 @@ body{overflow-x:clip}
   </div>
 </header>
 <div class="demo-hint" id="demo-hint"><span class="badge badge--accent">Try it</span><span>Click the green button in the CRM window, pick a broker and an affiliate account, submit a conversion — the admin gets a notification right away. The mini apps are clickable too.</span><span class="demo-hint-m">The demo works best on a desktop</span></div>
-<script>demoFit()</script>
 <main class="stage">
+  <div class="demo-col">
+  <div class="demo-cap"><span class="demo-cap-k">CRM + extension</span><span class="demo-cap-t">A conversion is logged in one click</span></div>
   <section class="browser" aria-label="CRM window">
     <div class="browser-bar">
       <div class="dots"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
@@ -666,20 +730,15 @@ body{overflow-x:clip}
       <div class="ext is-hidden" id="ext" role="dialog" aria-label="Dept panel"></div>
     </div>
   </section>
+  </div>
   <section class="phones">
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="phone-notch"></div>
-        <div class="screen" id="screen-emp"></div>
-      </div>
-      <div class="phone-cap">Employee</div>
+      <div class="demo-cap"><span class="demo-cap-k">Employee</span><span class="demo-cap-t">Employee mini app — see your pay every day</span></div>
+      <div class="screen" id="screen-emp"></div>
     </div>
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="phone-notch"></div>
-        <div class="screen" id="screen-adm"></div>
-      </div>
-      <div class="phone-cap">Admin</div>
+      <div class="demo-cap"><span class="demo-cap-k">Admin</span><span class="demo-cap-t">Manager mini app — the whole team on one screen</span></div>
+      <div class="screen" id="screen-adm"></div>
     </div>
   </section>
 </main>
@@ -692,7 +751,6 @@ const $$ = (sel, root) => Array.prototype.slice.call((root || document).querySel
 function h(html){ const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; }
 function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
 function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-function fitK(el){ const w = el.offsetWidth; return w ? (el.getBoundingClientRect().width / w) || 1 : 1; }
 function mulberry32(seed){
   let a = seed >>> 0;
   return function(){
@@ -1049,10 +1107,13 @@ function createDropdown(root, opts){
     const rb = boundary.getBoundingClientRect();
     const rr = root.getBoundingClientRect();
     const need = Math.min(240, st.items.length * 38 + 12) + 10;
-    const k = fitK(root);
-    root.classList.toggle("is-up", (rb.bottom - rr.bottom) / k < need && (rr.top - rb.top) / k > need);
+    root.classList.toggle("is-up", (rb.bottom - rr.bottom) < need && (rr.top - rb.top) > need);
     root.classList.add("is-open");
     menu.classList.add("is-shown");
+    if(boundary !== document.documentElement && !root.classList.contains("is-up")){
+      const over = rr.bottom + need - rb.bottom;
+      if(over > 0) boundary.scrollBy({ top: over, behavior: "smooth" });
+    }
     trg.setAttribute("aria-expanded", "true");
     setTimeout(() => document.addEventListener("mousedown", outside), 0);
   }
@@ -1334,9 +1395,9 @@ function bindTip(wrap, selector, textFor){
     node.addEventListener("mouseenter", () => {
       const i = parseInt(node.dataset.i, 10);
       tip.innerHTML = textFor(i);
-      const wr = wrap.getBoundingClientRect(), nr = node.getBoundingClientRect(), k = fitK(wrap);
-      tip.style.left = ((nr.left + nr.width / 2 - wr.left) / k) + "px";
-      tip.style.top  = ((nr.top - wr.top) / k) + "px";
+      const wr = wrap.getBoundingClientRect(), nr = node.getBoundingClientRect();
+      tip.style.left = (nr.left + nr.width / 2 - wr.left) + "px";
+      tip.style.top  = (nr.top - wr.top) + "px";
       tip.classList.add("is-on");
     });
     node.addEventListener("mouseleave", () => tip.classList.remove("is-on"));
@@ -1720,11 +1781,6 @@ function stepDir(state, key){
 }
 function phoneShell(navItems){
   return '' +
-  '<div class="ph-status"><span>9:41</span>' +
-    '<span style="display:flex;gap:6px;align-items:center">' +
-      '<svg width="19" height="13" viewBox="0 0 19 13" fill="currentColor"><rect x="0" y="8.4" width="3.4" height="4.6" rx="1.1"/><rect x="5.1" y="6" width="3.4" height="7" rx="1.1"/><rect x="10.2" y="3.1" width="3.4" height="9.9" rx="1.1"/><rect x="15.3" y="0" width="3.4" height="13" rx="1.1" opacity=".33"/></svg>' +
-      '<svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="0.7" y="0.7" width="21.4" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.6" y="2.6" width="15" height="7.8" rx="1.7" fill="currentColor"/><path d="M24.2 4.7v3.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1.8" stroke-linecap="round"/></svg>' +
-    "</span></div>" +
   '<div class="ph-scroll" data-scroll><div data-view></div></div>' +
   '<div class="ph-nav" data-nav>' +
     navItems.map((n, i) => '<button type="button" class="nav-b' + (i === 0 ? " is-active" : "") + '" data-nav-i="' + i + '">' + icon(n.icon, 22) + "<span>" + n.title + "</span></button>").join("") +
@@ -2183,7 +2239,7 @@ function applyFilterSort(list, animate){
   if(animate && !RM){
     rows.forEach(r => {
       if(r.style.display === "none") return;
-      const dy = ((first.get(r) || 0) - r.getBoundingClientRect().top) / fitK(list);
+      const dy = (first.get(r) || 0) - r.getBoundingClientRect().top;
       if(!dy) return;
       r.style.transition = "none";
       r.style.transform = "translateY(" + dy + "px)";
@@ -2253,7 +2309,7 @@ function bindSheetDrag(){
   });
   grab.addEventListener("pointermove", e => {
     if(!on) return;
-    dy = Math.max(0, (e.clientY - y0) / fitK(admSheet));
+    dy = Math.max(0, e.clientY - y0);
     admSheet.style.transform = "translateY(" + dy + "px)";
   });
   grab.addEventListener("pointerup", () => {
@@ -2490,6 +2546,11 @@ $("#btn-fail").addEventListener("click", () => {
 renderFakeCrm();
 renderEmp();
 renderAdm();
+if(document.fonts && document.fonts.ready){
+  const refit = () => fitNumbers(document);
+  document.fonts.ready.then(refit);
+  document.fonts.addEventListener("loadingdone", refit);
+}
 setTimeout(() => empToaster.show("ok", "$42 credited for an FD", "Lead 48219 · Marvex · $250"), 3000);
 setTimeout(() => admToaster.show("info", "Daniel Brooks logged an FD of $250", "Marvex · Ryan's account"), 4600);
 </script>

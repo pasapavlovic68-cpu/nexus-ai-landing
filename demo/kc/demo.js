@@ -1,7 +1,7 @@
 /* Nexus КЦ: demo behaviour (generated, do not edit). No network, no browser-extension APIs: everything is simulated. */
 (function () {
 'use strict';
-var CFG = {"locale":"ru-RU","timeOpts":{"hour":"2-digit","minute":"2-digit"},"regions":{"africa":"Африка","latam":"Латам","arab":"Арабский регион"},"geos":{"africa":["Нигерия","ЮАР","Гана","Кения","Уганда","Камерун"],"latam":["Мексика","Колумбия","Перу","Аргентина","Чили","Бразилия","Эквадор"],"arab":["Марокко","Алжир","Египет","ОАЭ"]},"stages":{"africa":["Новый лид","Верификация","Перезвон","Дожим","Напоминание","Индивидуальный запрос"],"latam":["Новый лид","Верификация","Консультация","Перезвон","Напоминание","Индивидуальный запрос"],"arab":["Новый лид","Верификация","Перезвон","Напоминание","Индивидуальный запрос"]},"employees":{"africa":["Оператор 12 | Рет.","Оператор 07 | Рет.","Оператор 21 | Продажи"],"latam":["Оператор 31 | Рет.","Оператор 34 | Продажи"],"arab":["Оператор 41 | Рет.","Оператор 45 | Продажи"]},"statuses":{"success":"Дозвон","no-answer":"Клиент не отвечает","busy":"Занято","wrong-number":"Неправильный номер","dropped":"Сбросил","offline":"Вне сервиса"},"results":[{"s":"success","c":"Договорились созвониться завтра"},{"s":"no-answer","c":""},{"s":"success","c":"Просит перезвонить вечером"},{"s":"busy","c":""}],"seeds":[{"chat":"31905744","s":"success","c":"Просит перезвонить вечером","region":"africa","days":1,"at":"14:31"},{"chat":"60214877","s":"busy","c":"","region":"africa","days":1,"at":"13:12"},{"chat":"60377125","s":"wrong-number","c":"","region":"africa","days":2,"at":"16:05"},{"chat":"77390218","s":"no-answer","c":"","region":"latam","days":1,"at":"14:39"},{"chat":"52008341","s":"success","c":"Удобно после 18:00","region":"latam","days":1,"at":"11:47"},{"chat":"52114096","s":"dropped","c":"","region":"latam","days":2,"at":"15:20"},{"chat":"55120944","s":"busy","c":"","region":"arab","days":1,"at":"12:26"},{"chat":"58830412","s":"offline","c":"","region":"arab","days":2,"at":"10:58"}],"clients":[{"name":"Дмитрий Соколов","phone":"+234 802 55 40 118","chat":"48210573","region":"africa","geo":"Нигерия","tag":"Перезвон","time":"14:38","hue":212,"msgs":[["in","Здравствуйте! Можно, чтобы мне перезвонили? Голосом удобнее."],["out","Конечно, Дмитрий. Передаю заявку в колл-центр — вам позвонят в ближайшее время."],["in","Спасибо, жду звонка."]]},{"name":"Карлос Мендоса","phone":"+52 55 5550 0142","chat":"77390218","region":"latam","geo":"Мексика","tag":"Верификация","time":"14:21","hue":28,"msgs":[["in","Добрый день. Не получается завершить подтверждение профиля."],["out","Поможем по телефону — оформляю звонок специалиста."],["in","Хорошо, я на связи."]]},{"name":"Юсуф Бенали","phone":"+212 600 555 018","chat":"55120944","region":"arab","geo":"Марокко","tag":"Новый лид","time":"13:57","hue":158,"msgs":[["in","Здравствуйте, хочу узнать подробнее о тарифах."],["out","Расскажем голосом — закажу для вас звонок."],["in","Отлично, жду."]]},{"name":"Амина Менса","phone":"+233 24 555 0167","chat":"31905744","region":"africa","geo":"Гана","tag":"Напоминание","time":"13:40","hue":318,"msgs":[["in","Напомните мне, пожалуйста, завтра о продлении."],["out","Записал. Колл-центр наберёт вас и напомнит."],["in","Спасибо!"]]}],"activity":[["Чат создан","13:02"],["Назначен оператор","13:04"],["Добавлен тег «%TAG%»","13:11"]],"t":{"send":"Отправить","sending":"Отправка","sent":"Звонок отправлен","fillRequired":"Заполните обязательные поля: ","req":{"vcf-employee":"Сотрудник","vcf-phone":"Номер телефона","vcf-chat-id":"ID чата","vcf-geo":"ГЕО","vcf-stage":"Этап"},"autofilled":"Данные подставлены из карточки клиента","historyHint":"Запись уже в истории — значок часов в шапке панели","notifOff":"Уведомления выключены — статус записан только в историю","dupTitle":"Повторный звонок за 24 часа","pending":"Ожидает","chatId":"ID чата","ack":"Принял ✓","close":"Закрыть","template":"Тема: \nУдобное время: ","notePrefix":"КЦ"}};
+var CFG = {"locale":"ru-RU","timeOpts":{"hour":"2-digit","minute":"2-digit"},"regions":{"africa":"Африка","latam":"Латам","arab":"Арабский регион"},"geos":{"africa":["Нигерия","ЮАР","Гана","Кения","Уганда","Камерун"],"latam":["Мексика","Колумбия","Перу","Аргентина","Чили","Бразилия","Эквадор"],"arab":["Марокко","Алжир","Египет","ОАЭ"]},"stages":{"africa":["Новый лид","Верификация","Перезвон","Дожим","Напоминание","Индивидуальный запрос"],"latam":["Новый лид","Верификация","Консультация","Перезвон","Напоминание","Индивидуальный запрос"],"arab":["Новый лид","Верификация","Перезвон","Напоминание","Индивидуальный запрос"]},"employees":{"africa":["Оператор 12 | Рет.","Оператор 07 | Рет.","Оператор 21 | Продажи"],"latam":["Оператор 31 | Рет.","Оператор 34 | Продажи"],"arab":["Оператор 41 | Рет.","Оператор 45 | Продажи"]},"statuses":{"success":"Дозвон","no-answer":"Клиент не отвечает","busy":"Занято","wrong-number":"Неправильный номер","dropped":"Сбросил","offline":"Вне сервиса"},"results":[{"s":"success","c":"Договорились созвониться завтра"},{"s":"no-answer","c":""},{"s":"success","c":"Просит перезвонить вечером"},{"s":"busy","c":""}],"seeds":[{"chat":"31905744","s":"success","c":"Просит перезвонить вечером","region":"africa","days":1,"at":"14:31"},{"chat":"60214877","s":"busy","c":"","region":"africa","days":1,"at":"13:12"},{"chat":"60377125","s":"wrong-number","c":"","region":"africa","days":2,"at":"16:05"},{"chat":"77390218","s":"no-answer","c":"","region":"latam","days":1,"at":"14:39"},{"chat":"52008341","s":"success","c":"Удобно после 18:00","region":"latam","days":1,"at":"11:47"},{"chat":"52114096","s":"dropped","c":"","region":"latam","days":2,"at":"15:20"},{"chat":"55120944","s":"busy","c":"","region":"arab","days":1,"at":"12:26"},{"chat":"58830412","s":"offline","c":"","region":"arab","days":2,"at":"10:58"}],"clients":[{"name":"Дмитрий Соколов","phone":"+234 802 55 40 118","chat":"48210573","region":"africa","geo":"Нигерия","tag":"Перезвон","time":"14:38","hue":212,"msgs":[["in","Здравствуйте! Можно, чтобы мне перезвонили? Голосом удобнее."],["out","Конечно, Дмитрий. Передаю заявку в колл-центр — вам позвонят в ближайшее время."],["in","Спасибо, жду звонка."]]},{"name":"Карлос Мендоса","phone":"+52 55 5550 0142","chat":"77390218","region":"latam","geo":"Мексика","tag":"Верификация","time":"14:21","hue":28,"msgs":[["in","Добрый день. Не получается завершить подтверждение профиля."],["out","Поможем по телефону — оформляю звонок специалиста."],["in","Хорошо, я на связи."]]},{"name":"Юсуф Бенали","phone":"+212 600 555 018","chat":"55120944","region":"arab","geo":"Марокко","tag":"Новый лид","time":"13:57","hue":158,"msgs":[["in","Здравствуйте, хочу узнать подробнее о тарифах."],["out","Расскажем голосом — закажу для вас звонок."],["in","Отлично, жду."]]},{"name":"Амина Менса","phone":"+233 24 555 0167","chat":"31905744","region":"africa","geo":"Гана","tag":"Напоминание","time":"13:40","hue":318,"msgs":[["in","Напомните мне, пожалуйста, завтра о продлении."],["out","Записал. Колл-центр наберёт вас и напомнит."],["in","Спасибо!"]]}],"activity":[["Чат создан","13:02"],["Назначен оператор","13:04"],["Добавлен тег «%TAG%»","13:11"],["Сообщение от клиента","13:26"],["Оператор ответил","13:31"],["Карточка обновлена","13:35"]],"t":{"send":"Отправить","sending":"Отправка","sent":"Звонок отправлен","fillRequired":"Заполните обязательные поля: ","req":{"vcf-employee":"Сотрудник","vcf-phone":"Номер телефона","vcf-chat-id":"ID чата","vcf-geo":"ГЕО","vcf-stage":"Этап"},"autofilled":"Данные подставлены из карточки клиента","historyHint":"Запись уже в истории — значок часов в шапке панели","notifOff":"Уведомления выключены — статус записан только в историю","dupTitle":"Повторный звонок за 24 часа","pending":"Ожидает","chatId":"ID чата","ack":"Принял ✓","close":"Закрыть","template":"Тема: \nУдобное время: ","notePrefix":"КЦ"}};
 var lib = { hasFire: function () { return false; } };
 function escapeHtml(value) {
   return value
@@ -327,6 +327,7 @@ function kcRuntime(CFG, lib) {
     prefill(true)
     advance(2)
     later(() => advance(3), 2200)
+    later(() => revealSubmit(false), 320)
   }
   function hidePanel() {
     window.clearTimeout(animTimer)
@@ -356,7 +357,16 @@ function kcRuntime(CFG, lib) {
   }
   function fitSize() {
     if (state.sizeTouched || panel.hidden) return
-    while (state.size > 0.5 && panel.scrollHeight > panel.clientHeight + 12) setSize(state.size - 0.1)
+    const tooTall = () => panel.scrollHeight > panel.clientHeight + 12
+      || (!narrow.matches && (panel.clientHeight + 2) * state.size > window.innerHeight - 118)
+    while (state.size > 0.5 && tooTall()) setSize(state.size - 0.1)
+  }
+  const stage = doc.querySelector('.kc-stage')
+  function revealSubmit(toBottom) {
+    if (narrow.matches || panel.hidden || !stage) return
+    if (toBottom && panel.scrollHeight > panel.clientHeight + 12) panel.scrollTop = panel.scrollHeight
+    const delta = Math.min(panel.getBoundingClientRect().bottom - (window.innerHeight - 100), stage.getBoundingClientRect().top - 8)
+    if (delta > 4) window.scrollBy({ top: delta, behavior: 'smooth' })
   }
   q('#vcf-size-options').addEventListener('click', (event) => {
     const b = event.target.closest('.vcf-size-btn')
@@ -461,6 +471,7 @@ function kcRuntime(CFG, lib) {
         resetSubmit()
         state.busy = false
         renderDuplicates()
+        revealSubmit(true)
       }, 2000)
       later(() => deliverStatus(call, result), 3000)
     }, 900)
@@ -484,7 +495,8 @@ function kcRuntime(CFG, lib) {
     stack.id = 'vcf-toast-stack'
     stack.className = 'vcf-toast-stack vcf-toast-stack-flat'
     stack.innerHTML = '<div class="vcf-toast-stack-list"></div>'
-    doc.body.appendChild(stack)
+    const slot = narrow.matches ? null : doc.getElementById('kc-toasts')
+    ;(slot || doc.body).appendChild(stack)
     return stack
   }
   function showToast(key, chatId, comment, region) {
@@ -572,7 +584,7 @@ function kcRuntime(CFG, lib) {
   })
   resetSubmit()
   applyTheme('dark')
-  setSize(narrow.matches ? 0.8 : window.innerWidth >= 1800 ? 0.9 : window.innerWidth >= 1500 ? 0.8 : 0.7)
+  setSize(narrow.matches || window.innerWidth >= 1500 ? 0.8 : 0.7)
   renderChats()
   renderCard()
   applyRegion(current().region)
