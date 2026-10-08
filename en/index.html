@@ -353,6 +353,13 @@
   .demo-ov-title{font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
   .demo-ov-title b{font-weight:400; color:var(--accent-bright);}
+  .demo-ov-title{flex:none;}
+  /* подсказка демо — между названием и «Закрыть»; текст присылает сама страница демо (1306px = фрейм от 1280px: там демо прячет свою шапку) */
+  .demo-ov-hint{flex:1; min-width:0; display:none; align-items:center; justify-content:center; gap:12px; font-size:13px; color:#c3c9dd; white-space:nowrap;}
+  .demo-ov-hint span{overflow:hidden; text-overflow:ellipsis;}
+  .demo-ov-hint i{flex:none; font-style:normal; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.4px; text-transform:uppercase;
+    color:var(--accent-bright); padding:4px 10px; border-radius:999px; background:rgba(79,140,255,0.1); border:1px solid rgba(121,168,255,0.28);}
+  @media (min-width:1306px){ .demo-ov-hint.is-on{display:flex;} }
   .demo-ov-x{flex:none; display:inline-flex; align-items:center; gap:9px; height:36px; padding:0 14px 0 17px; border-radius:999px; cursor:pointer;
     font:500 13.5px 'Sora',sans-serif; color:var(--txt); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
     transition:transform .16s ease-out, background-color .2s ease-out, border-color .2s ease-out;}
@@ -1540,7 +1547,7 @@
       ov = document.createElement('div');
       ov.className = 'demo-ov';
       ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Live demo' + (name ? ' · ' + name : ''));
-      ov.innerHTML = '<div class="demo-ov-top"><span class="demo-ov-title">Live demo<b></b></span>' +
+      ov.innerHTML = '<div class="demo-ov-top"><span class="demo-ov-title">Live demo<b></b></span><span class="demo-ov-hint"><i></i><span></span></span>' +
         '<button type="button" class="demo-ov-x">Close<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
         '<div class="demo-ov-frame"><iframe></iframe></div>';
       if(name) ov.querySelector('.demo-ov-title b').textContent = ' · ' + name;
@@ -1563,7 +1570,16 @@
       show(a);
     });
     addEventListener('popstate', ()=> shut(true));
-    addEventListener('message', e => { if(e.origin === location.origin && e.data && e.data.nxDemo === 'close') shut(); });
+    addEventListener('message', e => {
+      if(e.origin !== location.origin || !e.data || !ov) return;
+      if(e.data.nxDemo === 'close') shut();
+      if(e.data.nxDemo === 'hint' && e.data.text){
+        const hint = ov.querySelector('.demo-ov-hint');
+        hint.querySelector('i').textContent = String(e.data.badge || '').slice(0, 30);
+        hint.querySelector('span').textContent = String(e.data.text).slice(0, 220);
+        hint.classList.add('is-on');
+      }
+    });
   })();
 
 </script>

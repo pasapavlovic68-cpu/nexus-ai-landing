@@ -7,6 +7,7 @@
 <title>Dept — живое демо · Nexus AI</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
+<script>try{ if(self !== top) document.documentElement.classList.add("nx-embed"); }catch(e){ document.documentElement.classList.add("nx-embed"); }</script>
 <style>
 :root{
   --bg:#F2F3F0;
@@ -630,6 +631,8 @@ body::after{
 .url{height:auto; padding:0; gap:9px; background:transparent; border:none; border-radius:0; font-size:13px}
 .browser-bar .link-fail{flex:none}
 .fk-rail{background:transparent}
+.fk-card,.fk-list{overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--glass-line) transparent}
+.fk-card{padding-bottom:96px}
 .fk-list{background:var(--glass-2)}
 .fk-item.is-on{background:var(--glass)}
 @container (max-width:699px){ .fk-list{width:150px} .fk-card{padding:22px 20px} }
@@ -660,12 +663,19 @@ body::after{
 .screen .card,.screen .grp,.screen .emp-row,.screen .set-row{background-color:var(--card)}
 .grp-in{overflow-x:auto}
 @media (min-width:1280px){
-  :root{--app-h:clamp(440px, calc(100vh - 206px), 760px); --crm-h:var(--app-h)}
-  .topbar{padding-top:14px}
+  :root{--chrome:206px; --app-h:clamp(440px, calc(100vh - var(--chrome)), 760px); --crm-h:var(--app-h)}
+  .topbar{padding-top:14px; grid-template-columns:minmax(max-content,1fr) minmax(0,auto) 1fr}
   .stage{padding-top:20px; padding-bottom:84px}
+  .topbar-right{
+    position:fixed; z-index:60; bottom:26px;
+    right:max(var(--pad), calc((100vw - var(--wrap) - 2 * var(--pad)) / 2 + var(--pad)));
+  }
+  html.nx-embed{--chrome:158px}
+  html.nx-embed .brand,html.nx-embed .topbar-center{display:none}
+  html.nx-embed .topbar{padding:0; min-height:0; height:0}
 }
 @supports (height:100dvh){
-  @media (min-width:1280px){ :root{--app-h:clamp(440px, calc(100dvh - 206px), 760px)} }
+  @media (min-width:1280px){ :root{--app-h:clamp(440px, calc(100dvh - var(--chrome)), 760px)} }
 }
 @media (max-width:1279px){
   :root{--wrap:908px; --crm-h:600px}
@@ -2564,6 +2574,7 @@ if(document.fonts && document.fonts.ready){
 setTimeout(() => empToaster.show("ok", "Начислено 42 $ за ФД", "Лид 48219 · Marvex · 250 $"), 3000);
 setTimeout(() => admToaster.show("info", "Илья Воронов внёс ФД 250 $", "Marvex · кабинет Стёпа"), 4600);
 </script>
+<script>try{ if(self !== top) parent.postMessage({ nxDemo: "hint", badge: "Попробуйте", text: "Нажмите зелёную кнопку в CRM, выберите брокера и кабинет, отправьте — админ сразу получит уведомление" }, location.origin); }catch(e){}</script>
 <script src="/assets/demo/bar.js?v=2" data-demo="dept" data-lang="ru" defer></script>
 </body>
 </html>
