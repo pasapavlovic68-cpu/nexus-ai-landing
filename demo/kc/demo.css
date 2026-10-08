@@ -448,6 +448,7 @@ body::before {
 }
 
 .crm-main {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -570,8 +571,6 @@ body::before {
   overflow-y: auto;
   transition: opacity 0.3s ease;
 }
-
-.kc-toasts:not(:empty) + .crm-thread { opacity: 0.28; }
 
 .crm-thread__in {
   display: flex;
@@ -760,7 +759,8 @@ body::before {
 
 .kc-toasts .vcf-toast-stack {
   position: absolute;
-  top: 16px;
+  z-index: 6;
+  top: 14px;
   left: 28px;
   width: var(--safe);
   max-width: calc(100% - 56px);
