@@ -14,7 +14,7 @@
   try{ embed = window.self !== window.top; }catch(e){ embed = true; }
   if(embed) document.documentElement.classList.add('nx-embed');
 
-  const NAMES = { dept:'Dept', kc: en ? 'Nexus CC' : 'Nexus КЦ', voronka: en ? 'AI Funnel' : 'Воронка ИИ', omnix:'Omnix', okk: en ? 'Nexus QC' : 'Nexus ОКК' };
+  const NAMES = { dept:'Dept', kc: en ? 'Call center' : 'Колл-центр', voronka: en ? 'AI Funnel' : 'Воронка ИИ', omnix:'Omnix', okk: en ? 'Quality control' : 'Контроль качества' };
   const name = NAMES[demo] || 'Nexus AI';
   const T = en
     ? { badge:'Demo data', hint:'Everything here is made up — click around freely', cta:'I want one like this', ctaS:'I want this', back:'Back to site', hide:'Hide', show:'Demo' }
