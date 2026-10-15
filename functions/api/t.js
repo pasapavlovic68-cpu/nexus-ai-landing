@@ -1,16 +1,20 @@
 // Приём событий статистики с лендинга -> D1 (привязка DB).
 import { authed } from './stats.js';
 // Тело: {sid, m?:{ref,us,um,uc,ut,lang}, ts?:'<токен Turnstile>', e:[{t,n,v}]} — sendBeacon/fetch с text/plain.
-// Без cookie и персональных данных. Роботов отсекаем в три слоя:
-//   1) User-Agent честных роботов; 2) сети дата-центров (Amazon, Google Cloud, Hetzner…);
+// Без cookie и персональных данных. Роботов отделяем от людей в три слоя:
+//   1) User-Agent честных роботов; 2) сети дата-центров (Amazon, Google Cloud, Hetzner, Meta…) —
+//      такие визиты записываются с пометкой bot и никогда не становятся «живыми»: в цифры не идут,
+//      но видны в ленте /stats с подписью, кто это;
 //   3) визит считается «живым» (human = 1), только если прошёл невидимый Cloudflare Turnstile
 //      или человек что-то сделал: листал, кликал, пробыл на странице от 5 секунд.
 
 const TYPES = new Set(['pv','scroll','section','click','works_open','video_play','video_done','video_fs','faq','leave',
   'demo','demo_use','demo_time','demo_back']);   // demo* — живые демо работ (/demo/<имя>/)
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|telegram|whatsapp|vkshare|pingdom|monitor/i;
+// имя робота для подписи в ленте
+const BOT_NAME = /googlebot|google-inspectiontool|adsbot-google|bingbot|yandex\w*|facebookexternalhit|meta-externalagent|telegrambot|whatsapp|twitterbot|linkedinbot|slackbot|discordbot|applebot|duckduckbot|baiduspider|ahrefsbot|semrushbot|petalbot|gptbot|headlesschrome|lighthouse|pingdom|vkshare/i;
 // сети хостингов и облаков: живые люди оттуда почти не заходят, сканеры и роботы — почти всегда
-const DATACENTER = /meta platforms|facebook|amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|contabo|vultr|choopa|scaleway|leaseweb|m247|datacamp|hostinger|ionos|cloudflare|fastly|zscaler|servers|hosting|colocation|data ?center|vps/i;
+const DATACENTER = /meta platforms|facebook|amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|oracle|alibaba|tencent|contabo|vultr|choopa|scaleway|leaseweb|m247|datacamp|hostinger|ionos|zscaler|servers|hosting|colocation|data ?center|vps/i;
 const MAX_EVENTS_PER_SESSION = 400;
 const YEAR = 365 * 864e5;
 
@@ -63,9 +67,11 @@ export async function onRequestPost({ request, env }){
     if(!/(^|\.)nexusnova\.app$|\.pages\.dev$|^localhost$|^127\.0\.0\.1$/.test(host)) return new Response(null, { status: 403 });
   }
   const ua = request.headers.get('user-agent') || '';
-  if(!ua || BOT.test(ua)) return ok;
+  if(!ua) return ok;
   const net = (request.cf && request.cf.asOrganization) || '';
-  if(net && DATACENTER.test(net)) return ok;
+  // робот: пишем визит с пометкой, но «живым» он не станет
+  const bot = BOT.test(ua) ? ((ua.match(BOT_NAME) || ['robot'])[0]).toLowerCase()
+    : (net && DATACENTER.test(net)) ? 'datacenter' : null;
   // владелец (вошёл в /stats в этом браузере) — его визиты в статистику не пишем
   if(await authed(request, env.STATS_PASSWORD)) return ok;
 
@@ -81,32 +87,32 @@ export async function onRequestPost({ request, env }){
 
   // защита от флуда одной вкладкой
   const cnt = await db.prepare('SELECT COUNT(*) AS c FROM events WHERE sid = ?').bind(sid).first('c');
-  if(cnt > MAX_EVENTS_PER_SESSION) return ok;
+  if(cnt > (bot ? 60 : MAX_EVENTS_PER_SESSION)) return ok;
 
   const m = body.m || {};
   const stmts = [
     db.prepare(`INSERT OR IGNORE INTO sessions
-      (sid, first_ts, last_ts, ref, utm_source, utm_medium, utm_campaign, utm_content, country, device, browser, lang, net)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
+      (sid, first_ts, last_ts, ref, utm_source, utm_medium, utm_campaign, utm_content, country, device, browser, lang, net, bot)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
       sid, now, now, cut(m.ref, 80), cut(m.us, 60), cut(m.um, 60), cut(m.uc, 80), cut(m.ut, 80),
-      cut(request.headers.get('cf-ipcountry'), 2), device(ua), browser(ua), cut(m.lang, 12), cut(net, 80)),
+      cut(request.headers.get('cf-ipcountry'), 2), device(ua), browser(ua), cut(m.lang, 12), cut(net, 80), bot),
     db.prepare('UPDATE sessions SET last_ts = ? WHERE sid = ?').bind(now, sid),
   ];
 
-  let human = await turnstileOk(env, body.ts, request.headers.get('cf-connecting-ip'));
+  let human = bot ? false : await turnstileOk(env, body.ts, request.headers.get('cf-connecting-ip'));
   for(const ev of list){
     if(!ev || !TYPES.has(ev.t)) continue;
     const name = cut(ev.n, 60);
     let value = Number(ev.v);
     value = Number.isFinite(value) ? Math.max(0, Math.min(value, 86400)) : null;
-    if(engaged(ev, value)) human = true;
+    if(!bot && engaged(ev, value)) human = true;
     stmts.push(db.prepare('INSERT INTO events (ts, sid, type, name, value) VALUES (?,?,?,?,?)').bind(now, sid, ev.t, name, value));
     if(ev.t === 'scroll' && value != null)
       stmts.push(db.prepare('UPDATE sessions SET max_scroll = MAX(max_scroll, ?) WHERE sid = ?').bind(Math.round(value), sid));
     if(ev.t === 'leave' && value != null)
       stmts.push(db.prepare('UPDATE sessions SET dur = MAX(dur, ?) WHERE sid = ?').bind(Math.round(Math.min(value, 3600)), sid));
     // любая размеченная кнопка на лендинге ведёт в Telegram — это и есть «лид»
-    if(ev.t === 'click' && name)
+    if(ev.t === 'click' && name && !bot)
       stmts.push(db.prepare('UPDATE sessions SET lead = 1 WHERE sid = ?').bind(sid));
   }
   if(human) stmts.push(db.prepare('UPDATE sessions SET human = 1 WHERE sid = ?').bind(sid));

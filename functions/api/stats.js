@@ -66,11 +66,11 @@ export async function onRequestGet({ request, env }){
     /*16 */ S(`SELECT device AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY device ORDER BY visits DESC`, from),
     /*17 */ S(`SELECT COALESCE(country,'??') AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY name ORDER BY visits DESC LIMIT 12`, from),
     /*18 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'faq' AND ts >= ? GROUP BY name ORDER BY count DESC`, from),
-    /*19 */ S(`SELECT sid, first_ts, last_ts, country, device, browser, ref, utm_source, utm_campaign, lead, dur, max_scroll
-               FROM sessions WHERE human = 1 ORDER BY last_ts DESC LIMIT ${FEED_VISITS}`),
+    /*19 */ S(`SELECT sid, first_ts, last_ts, country, device, browser, ref, utm_source, utm_campaign, lead, dur, max_scroll, human, net, bot
+               FROM sessions ORDER BY last_ts DESC LIMIT ${FEED_VISITS}`),   // в ленте и роботы — с подписью, кто это
     /*20 */ S(`SELECT COUNT(*) AS c FROM sessions WHERE human = 0 AND first_ts >= ?`, from),   // отсеянные роботы
     /*21 */ S(`SELECT sid, ts, type, name, value FROM events
-               WHERE sid IN (SELECT sid FROM sessions WHERE human = 1 ORDER BY last_ts DESC LIMIT ${FEED_VISITS}) ORDER BY id`),
+               WHERE sid IN (SELECT sid FROM sessions ORDER BY last_ts DESC LIMIT ${FEED_VISITS}) ORDER BY id`),
   ]);
   const rows = i => r[i].results || [];
   const one = i => rows(i)[0] || {};
@@ -147,8 +147,54 @@ function feedVisits(sessions, events){
     k: String(s.sid).slice(0, 12),          // ключ строки в ленте; полный идентификатор визита наружу не отдаём
     first: s.first_ts, last: s.last_ts, country: s.country, device: s.device, browser: s.browser,
     ref: s.ref, us: s.utm_source, uc: s.utm_campaign, lead: s.lead, dur: s.dur, scroll: s.max_scroll,
+    who: whoIs(s, bySid.get(s.sid) || []),
     events: (bySid.get(s.sid) || []).slice(-FEED_EVENTS),
   }));
+}
+
+// кто это был: человек, робот (чей) или не подтверждён — с коротким пояснением для ленты
+const NOT_HUMAN = 'В цифры статистики не входит.';
+const ORGS = [
+  [/meta platforms|facebook/i, 'Робот Meta', 'Facebook, Instagram и Messenger сами открывают ссылку, когда её публикуют или по ней переходят, — проверяют, что страница безопасна.'],
+  [/google/i, 'Робот Google', 'Google проверяет сайт для поиска или рекламы.'],
+  [/microsoft|azure/i, 'Робот Microsoft', 'Bing, Outlook или Teams проверяют ссылку.'],
+  [/yandex/i, 'Робот Яндекса', 'Яндекс проверяет сайт для поиска.'],
+  [/apple/i, 'Робот Apple', 'Apple проверяет ссылку (превью в iMessage или поиск Siri).'],
+  [/amazon|aws/i, 'Сервер Amazon', 'Программа на облачном сервере Amazon — сканер или сервис проверки сайтов.'],
+];
+const UA_BOTS = [
+  [/googlebot|google-inspectiontool|adsbot-google/, 'Робот Google', 'Google обходит сайт для поиска или проверки рекламы.'],
+  [/bingbot/, 'Робот Bing', 'Поиск Microsoft обходит сайт.'],
+  [/yandex/, 'Робот Яндекса', 'Яндекс обходит сайт для поиска.'],
+  [/facebookexternalhit|meta-externalagent/, 'Робот Meta', 'Facebook или Instagram делают превью ссылки.'],
+  [/telegrambot/, 'Telegram', 'Telegram делает превью ссылки, которую кто-то отправил.'],
+  [/whatsapp/, 'WhatsApp', 'WhatsApp делает превью ссылки, которую кто-то отправил.'],
+  [/twitterbot|linkedinbot|slackbot|discordbot|vkshare/, 'Превью ссылки', 'Соцсеть или мессенджер делает карточку ссылки.'],
+  [/applebot/, 'Робот Apple', 'Apple обходит сайт для поиска Siri и Spotlight.'],
+  [/ahrefsbot|semrushbot|petalbot|duckduckbot|baiduspider/, 'Поисковый сканер', 'Сервис SEO или поисковик обходит сайт.'],
+  [/gptbot/, 'Робот OpenAI', 'OpenAI обходит сайт.'],
+  [/headlesschrome|lighthouse|pingdom/, 'Автоматическая проверка', 'Программа проверяет скорость или доступность сайта.'],
+];
+function whoIs(s, events){
+  const net = String(s.net || '').trim();
+  // «пролистал» несколько разделов в одну и ту же секунду — человек так не листает
+  const perTs = new Map();
+  for(const e of events) if(e.type === 'section') perTs.set(e.ts, (perTs.get(e.ts) || 0) + 1);
+  const burst = Math.max(0, ...perTs.values());
+  const word = (burst % 10 >= 2 && burst % 10 <= 4 && (burst % 100 < 12 || burst % 100 > 14)) ? 'раздела' : 'разделов';
+  const fast = burst >= 4 ? ` Пролистал ${burst} ${word} за одну секунду — так листает программа, а не человек.` : '';
+  if(Number(s.human) === 1)
+    return { kind:'human', title:'Человек', desc:'Живой посетитель: ' + (net ? 'обычный интернет-провайдер (' + net + ') и ' : '') + 'действия как у человека — листал, нажимал или прошёл проверку Cloudflare.' };
+  const bot = String(s.bot || '').toLowerCase();
+  if(bot && bot !== 'datacenter'){
+    const m = UA_BOTS.find(([re]) => re.test(bot));
+    return { kind:'bot', title: m ? m[1] : 'Робот', desc: (m ? m[2] : 'Программа, которая сама представилась роботом (' + bot + ').') + fast + ' ' + NOT_HUMAN };
+  }
+  const org = ORGS.find(([re]) => re.test(net));
+  if(org) return { kind:'bot', title: org[1], desc: org[2] + ' Заход из сети ' + net + ', а не от обычного провайдера.' + fast + ' ' + NOT_HUMAN };
+  if(bot === 'datacenter')
+    return { kind:'bot', title:'Сервер в дата-центре', desc:'Заход с сервера хостинга' + (net ? ' (' + net + ')' : '') + ', а не от домашнего или мобильного интернета, — обычно сканер или бот.' + fast + ' ' + NOT_HUMAN };
+  return { kind:'unknown', title:'Не подтверждён', desc:'Не прошёл проверку Cloudflare и ничего не сделал — не листал и не нажимал. Скорее всего робот или человек сразу закрыл страницу.' + fast + ' ' + NOT_HUMAN };
 }
 
 export function onRequest(){ return new Response(null, { status: 405 }); }

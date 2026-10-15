@@ -436,6 +436,18 @@
   .fv.is-lead .fd-ic{color:#fff; background:linear-gradient(135deg,#8fb6ff,var(--accent) 55%,var(--accent-deep)); border-color:transparent; box-shadow:0 4px 16px rgba(79,140,255,.35);}
   .fv-tag{display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; vertical-align:1px;
     color:#fff; background:linear-gradient(135deg,#5b95ff,#2f5fe0);}
+  /* кто это: человек / робот / не подтверждён */
+  .fv-who{display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:500; vertical-align:1px; white-space:nowrap;}
+  .fv-who.k-human{color:#7ee2b0; background:rgba(62,207,142,.12); border:1px solid rgba(62,207,142,.28);}
+  .fv-who.k-bot{color:#b8bfd6; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);}
+  .fv-who.k-unknown{color:#f2c879; background:rgba(245,184,74,.1); border:1px solid rgba(245,184,74,.26);}
+  .fv.is-bot .fv-h, .fv.is-unknown .fv-h{opacity:.72;}
+  .fv.is-bot .fd-ic, .fv.is-unknown .fd-ic{color:var(--muted); background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.1);}
+  .fv-note{margin:0 0 10px -22px; padding:10px 12px; border-radius:12px; font-size:12.5px; line-height:1.5; color:var(--muted);
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);}
+  .fv-note b{color:var(--txt); font-weight:600;}
+  .fv.is-bot .fv-ev.is-lead, .fv.is-unknown .fv-ev.is-lead{font-weight:inherit;}
+  .fv.is-bot .fv-ev.is-lead::before, .fv.is-unknown .fv-ev.is-lead::before{opacity:.55; box-shadow:none;}
   .fv-chev{color:var(--muted-2); transition:transform .3s var(--ease-out), color .2s ease; display:grid; place-items:center;}
   .fv.open .fv-chev{transform:rotate(180deg); color:var(--accent2);}
   .fv-more{display:grid; grid-template-rows:0fr; transition:grid-template-rows .36s var(--ease-out);}
@@ -443,7 +455,8 @@
   .fv-more > div{min-height:0; overflow:hidden;}
   .fv-list{position:relative; margin:0 14px 0 30px; padding:2px 0 12px 22px; opacity:0; transform:translateY(-4px); transition:opacity .25s ease, transform .3s var(--ease-out);}
   .fv.open .fv-list{opacity:1; transform:none; transition-delay:.06s;}
-  .fv-list::before{content:''; position:absolute; left:6px; top:8px; bottom:16px; width:1px; background:rgba(121,168,255,.22);}
+  .fv-evs{position:relative;}
+  .fv-evs::before{content:''; position:absolute; left:-16px; top:8px; bottom:4px; width:1px; background:rgba(121,168,255,.22);}
   .fv-ev{position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:6px 0; font-size:13px;}
   .fv-ev::before{content:''; position:absolute; left:-19px; top:12px; width:7px; height:7px; border-radius:50%; background:var(--accent2); opacity:.55;}
   .fv-ev.is-lead{font-weight:600;}
@@ -1955,20 +1968,31 @@
     function fillVisit(r, v){
       const evs = Array.isArray(v.events) ? v.events : [];
       const lead = !!num(v.lead) || evs.some(isLeadEv);
-      r.classList.toggle('is-lead', lead);
+      const who = v.who && typeof v.who === 'object' ? v.who : { kind:'human', title:'Человек', desc:'' };
+      const kind = ['human','bot','unknown'].includes(who.kind) ? who.kind : 'unknown';
+      r.classList.toggle('is-lead', lead && kind === 'human');
+      r.classList.toggle('is-bot', kind === 'bot');
+      r.classList.toggle('is-unknown', kind === 'unknown');
       r._ts = num(v.last) || num(evs.length ? evs[evs.length - 1].ts : 0);
       const cc = String(v.country || '').toUpperCase();
-      const who = (cc ? flag(cc) + ' ' + countryName(cc) : 'Страна неизвестна');
+      const place = (cc ? flag(cc) + ' ' + countryName(cc) : 'Страна неизвестна');
       const t = r.querySelector('.fd-t');
-      t.textContent = who;
-      if(lead) t.insertAdjacentHTML('beforeend', '<span class="fv-tag">Заявка</span>');
+      t.textContent = place;
+      const tag = document.createElement('span');
+      tag.className = 'fv-who k-' + kind; tag.textContent = String(who.title || '');
+      t.appendChild(tag);
+      if(lead && kind === 'human') t.insertAdjacentHTML('beforeend', '<span class="fv-tag">Заявка</span>');
+      t.title = place + ' · ' + (who.title || '');
+      const note = r.querySelector('.fv-note');
+      note.innerHTML = '<b>Кто это:</b> ';
+      note.append(String(who.desc || who.title || ''));
       const shown = evs.filter(e => e.type !== 'pv').length;
       const dur = Math.max(num(v.dur), Math.round((r._ts - num(v.first)) / 1000));
       r.querySelector('.fd-m').textContent = [DEVICES[v.device] || v.device || '', shown + NBSP + plural(shown, ['действие','действия','действий']),
         dur > 0 ? durText(dur) : '', visitSource(v)].filter(Boolean).join(' · ');
       r.querySelector('.fd-time').textContent = relTime(r._ts);
       // список действий: перестраиваем, только если что-то добавилось; новые строки мягко проявляются
-      const list = r.querySelector('.fv-list');
+      const list = r.querySelector('.fv-evs');
       const had = r._n || 0;
       if(evs.length !== had){
         const frag = document.createDocumentFragment();
@@ -1993,7 +2017,7 @@
       const added = [];
       keyed(box, items, v => v.k,
         v => {
-          const r = el(`<div class="fv"><button type="button" class="fv-h" aria-expanded="false"><div class="fd-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC.pv}</svg></div><div style="min-width:0"><div class="fd-t"></div><div class="fd-m"></div></div><span class="fd-time"></span><span class="fv-chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button><div class="fv-more"><div><div class="fv-list"></div></div></div></div>`);
+          const r = el(`<div class="fv"><button type="button" class="fv-h" aria-expanded="false"><div class="fd-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC.pv}</svg></div><div style="min-width:0"><div class="fd-t"></div><div class="fd-m"></div></div><span class="fd-time"></span><span class="fv-chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button><div class="fv-more"><div><div class="fv-list"><div class="fv-note"></div><div class="fv-evs"></div></div></div></div></div>`);
           const btn = r.querySelector('.fv-h');
           btn.addEventListener('click', () => {
             const open = r.classList.toggle('open');
