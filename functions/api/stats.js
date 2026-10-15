@@ -161,6 +161,10 @@ const ORGS = [
   [/yandex/i, 'Робот Яндекса', 'Яндекс проверяет сайт для поиска.'],
   [/apple/i, 'Робот Apple', 'Apple проверяет ссылку (превью в iMessage или поиск Siri).'],
   [/amazon|aws/i, 'Сервер Amazon', 'Программа на облачном сервере Amazon — сканер или сервис проверки сайтов.'],
+  [/palo alto|zscaler|fortinet|forcepoint|cisco|checkpoint|check point|proofpoint|barracuda|sophos|kaspersky|norton|mcafee/i, 'Сканер безопасности',
+    'Компания по кибербезопасности сама проверяет новые сайты на вирусы и мошенничество — для фильтров в офисах и браузерах.'],
+  [/ucloud|alibaba|tencent|huawei|baidu/i, 'Сервер в Китае', 'Облачный сервер китайского хостинга — обычно сканер или сборщик сайтов.'],
+  [/web services|hosting|cloud|server|data ?cent|vps|colo/i, 'Сервер в дата-центре', 'Заход с сервера хостинга, а не от домашнего или мобильного интернета, — обычно сканер или бот.'],
 ];
 const UA_BOTS = [
   [/googlebot|google-inspectiontool|adsbot-google/, 'Робот Google', 'Google обходит сайт для поиска или проверки рекламы.'],
