@@ -10,7 +10,7 @@ const TYPES = new Set(['pv','scroll','section','click','works_open','video_play'
   'demo','demo_use','demo_time','demo_back']);   // demo* — живые демо работ (/demo/<имя>/)
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|telegram|whatsapp|vkshare|pingdom|monitor/i;
 // сети хостингов и облаков: живые люди оттуда почти не заходят, сканеры и роботы — почти всегда
-const DATACENTER = /amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|contabo|vultr|choopa|scaleway|leaseweb|m247|datacamp|hostinger|ionos|cloudflare|fastly|zscaler|servers|hosting|colocation|data ?center|vps/i;
+const DATACENTER = /meta platforms|facebook|amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|contabo|vultr|choopa|scaleway|leaseweb|m247|datacamp|hostinger|ionos|cloudflare|fastly|zscaler|servers|hosting|colocation|data ?center|vps/i;
 const MAX_EVENTS_PER_SESSION = 400;
 const YEAR = 365 * 864e5;
 

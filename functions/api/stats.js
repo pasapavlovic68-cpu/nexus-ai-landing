@@ -66,9 +66,11 @@ export async function onRequestGet({ request, env }){
     /*16 */ S(`SELECT device AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY device ORDER BY visits DESC`, from),
     /*17 */ S(`SELECT COALESCE(country,'??') AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY name ORDER BY visits DESC LIMIT 12`, from),
     /*18 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'faq' AND ts >= ? GROUP BY name ORDER BY count DESC`, from),
-    /*19 */ S(`SELECT e.ts, e.type, e.name, e.value, s.country, s.device
-               FROM events e JOIN sessions s ON s.sid = e.sid AND s.human = 1 ORDER BY e.id DESC LIMIT 40`),
+    /*19 */ S(`SELECT sid, first_ts, last_ts, country, device, browser, ref, utm_source, utm_campaign, lead, dur, max_scroll
+               FROM sessions WHERE human = 1 ORDER BY last_ts DESC LIMIT ${FEED_VISITS}`),
     /*20 */ S(`SELECT COUNT(*) AS c FROM sessions WHERE human = 0 AND first_ts >= ?`, from),   // отсеянные роботы
+    /*21 */ S(`SELECT sid, ts, type, name, value FROM events
+               WHERE sid IN (SELECT sid FROM sessions WHERE human = 1 ORDER BY last_ts DESC LIMIT ${FEED_VISITS}) ORDER BY id`),
   ]);
   const rows = i => r[i].results || [];
   const one = i => rows(i)[0] || {};
@@ -128,8 +130,25 @@ export async function onRequestGet({ request, env }){
     devices: rows(16),
     countries: rows(17),
     faq: rows(18),
-    recent: rows(19),
+    visits: feedVisits(rows(19), rows(21)),
   });
+}
+
+// лента действий: последние заходы, у каждого — его действия по порядку (для раскрывающегося списка в /stats)
+const FEED_VISITS = 25, FEED_EVENTS = 80;
+function feedVisits(sessions, events){
+  const bySid = new Map();
+  for(const e of events){
+    let list = bySid.get(e.sid);
+    if(!list) bySid.set(e.sid, list = []);
+    list.push({ ts: e.ts, type: e.type, name: e.name, value: e.value });
+  }
+  return sessions.map(s => ({
+    k: String(s.sid).slice(0, 12),          // ключ строки в ленте; полный идентификатор визита наружу не отдаём
+    first: s.first_ts, last: s.last_ts, country: s.country, device: s.device, browser: s.browser,
+    ref: s.ref, us: s.utm_source, uc: s.utm_campaign, lead: s.lead, dur: s.dur, scroll: s.max_scroll,
+    events: (bySid.get(s.sid) || []).slice(-FEED_EVENTS),
+  }));
 }
 
 export function onRequest(){ return new Response(null, { status: 405 }); }
