@@ -376,10 +376,9 @@
   .about{display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:clamp(28px,5vw,64px); align-items:start;}
   .about:not(:has(.about-photo)){grid-template-columns:minmax(0,760px); justify-content:center;}
   .about-photo{position:relative; margin:0;}
-  .about-photo img{display:block; width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:24px; border:1px solid var(--border);
+  .about-photo img{display:block; width:100%; height:auto; aspect-ratio:4/5; object-fit:cover; border-radius:24px; border:1px solid var(--border);
     box-shadow:0 30px 80px -30px rgba(79,140,255,0.45);}
-  .about-photo figcaption{position:absolute; left:14px; right:14px; bottom:14px; padding:12px 16px; border-radius:16px;
-    background:rgba(8,10,20,0.62); border:1px solid rgba(255,255,255,0.1); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);}
+  .about-photo figcaption{margin-top:14px; padding:0 4px;}
   .about-photo figcaption b{display:block; font-size:18px; font-weight:600; letter-spacing:-.2px;}
   .about-photo figcaption span{font-size:13px; color:var(--muted); font-weight:300;}
   .about-body .tag{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:.8;}
@@ -940,6 +939,10 @@
 <section class="section" id="about">
   <div class="container">
     <div class="about">
+      <figure class="about-photo reveal">
+        <img src="/assets/img/pavel-work.webp" width="760" height="950" alt="Pavel at work" loading="lazy" decoding="async">
+        <figcaption><b>Pavel</b><span>founder of Nexus AI</span></figcaption>
+      </figure>
       <div class="about-body reveal">
         <span class="tag">Who’s behind it</span>
         <h2>I build what I use myself</h2>
