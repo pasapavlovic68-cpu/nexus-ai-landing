@@ -374,6 +374,7 @@
   @media (prefers-reduced-motion:reduce){ .demo-ov,.demo-ov-frame{transition:none;} }
   /* ---------- основатель ---------- */
   .about{display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:clamp(28px,5vw,64px); align-items:start;}
+  .about:not(:has(.about-photo)){grid-template-columns:minmax(0,760px); justify-content:center;}
   .about-photo{position:relative; margin:0;}
   .about-photo img{display:block; width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:24px; border:1px solid var(--border);
     box-shadow:0 30px 80px -30px rgba(79,140,255,0.45);}
@@ -939,10 +940,6 @@
 <section class="section" id="about">
   <div class="container">
     <div class="about">
-      <figure class="about-photo reveal">
-        <img src="/assets/img/pavel.webp" width="560" height="700" alt="Pavel — founder of Nexus AI" loading="lazy" decoding="async">
-        <figcaption><b>Pavel</b><span>founder of Nexus AI</span></figcaption>
-      </figure>
       <div class="about-body reveal">
         <span class="tag">Who’s behind it</span>
         <h2>I build what I use myself</h2>
