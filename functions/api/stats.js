@@ -100,7 +100,7 @@ export async function onRequestGet({ request, env }){
     if(x.type === 'video_fs') v.fs = x.c;
   }
   const sc = one(13);
-  const ORDER = ['results','services','portfolio','process','why','pricing','faq','contact'];
+  const ORDER = ['results','services','portfolio','about','process','why','pricing','faq','contact'];
 
   return json({
     range: { days, from, to: now },

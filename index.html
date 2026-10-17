@@ -370,6 +370,36 @@
   .demo-ov-frame iframe{display:block; width:100%; height:100%; border:0; background:#05060a;}
   @media (max-width:640px){ .demo-ov{padding:0 6px 6px;} .demo-ov-top{height:48px;} .demo-ov-frame{border-radius:16px;} }
   @media (prefers-reduced-motion:reduce){ .demo-ov,.demo-ov-frame{transition:none;} }
+  /* ---------- основатель ---------- */
+  .about{display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:clamp(28px,5vw,64px); align-items:start;}
+  .about-photo{position:relative; margin:0;}
+  .about-photo img{display:block; width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:24px; border:1px solid var(--border);
+    box-shadow:0 30px 80px -30px rgba(79,140,255,0.45);}
+  .about-photo figcaption{position:absolute; left:14px; right:14px; bottom:14px; padding:12px 16px; border-radius:16px;
+    background:rgba(8,10,20,0.62); border:1px solid rgba(255,255,255,0.1); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);}
+  .about-photo figcaption b{display:block; font-size:18px; font-weight:600; letter-spacing:-.2px;}
+  .about-photo figcaption span{font-size:13px; color:var(--muted); font-weight:300;}
+  .about-body .tag{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); opacity:.8;}
+  .about-body h2{font-size:clamp(28px,4vw,40px); font-weight:700; letter-spacing:-1px; margin:12px 0 16px; line-height:1.15;}
+  .about-lead{color:var(--muted); font-weight:300; font-size:16px; line-height:1.65; max-width:620px;}
+  .about-lead b{color:var(--txt); font-weight:500;}
+  .about-path{list-style:none; margin:28px 0 0; padding:0 0 0 22px; position:relative; display:grid; gap:16px;}
+  .about-path::before{content:''; position:absolute; left:5px; top:8px; bottom:8px; width:1px; background:linear-gradient(180deg,rgba(121,168,255,.55),rgba(121,168,255,.12));}
+  .about-path li{position:relative; font-size:14.5px; line-height:1.55; color:var(--muted); font-weight:300;}
+  .about-path li::before{content:''; position:absolute; left:-21px; top:7px; width:9px; height:9px; border-radius:50%; background:var(--bg,#05060a); border:2px solid var(--accent-bright);}
+  .about-path li:last-child::before{background:var(--accent-bright); box-shadow:0 0 14px rgba(121,168,255,.8);}
+  .about-path li b{color:var(--txt); font-weight:600;}
+  .about-path .when{display:block; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent-bright); margin-bottom:2px;}
+  .about-facts{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:28px;}
+  .about-fact{background:var(--glass-2); border:1px solid var(--border); border-radius:18px; padding:16px 18px;}
+  .about-fact b{display:block; font-size:26px; font-weight:700; letter-spacing:-.5px;}
+  .about-fact span{display:block; font-size:12.5px; color:var(--muted); font-weight:300; line-height:1.4; margin-top:4px;}
+  .about-cta{margin-top:26px;}
+  @media(max-width:900px){
+    .about{grid-template-columns:1fr;}
+    .about-photo{max-width:320px; margin:0 auto;}
+  }
+  @media(max-width:520px){ .about-facts{grid-template-columns:1fr;} .about-fact{display:flex; align-items:baseline; gap:12px;} .about-fact span{margin-top:0;} }
   .work-cta{display:inline-flex; align-items:center; gap:8px; color:var(--accent2); font-weight:600; font-size:15px; text-decoration:none;
     border-bottom:1px solid rgba(121,168,255,0.35); padding-bottom:2px; transition:color .2s, border-color .2s, gap .2s cubic-bezier(.2,.8,.2,1);}
   @media (hover:hover) and (pointer:fine){ .work-cta:hover{color:#fff; border-color:#fff; gap:12px;} }
@@ -898,6 +928,37 @@
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ОСНОВАТЕЛЬ -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="about">
+      <figure class="about-photo reveal">
+        <img src="/assets/img/pavel.webp" width="560" height="700" alt="Павел — основатель Nexus AI" loading="lazy" decoding="async">
+        <figcaption><b>Павел</b><span>основатель Nexus AI</span></figcaption>
+      </figure>
+      <div class="about-body reveal">
+        <span class="tag">Кто за этим стоит</span>
+        <h2>Делаю то, чем пользуюсь сам</h2>
+        <p class="about-lead">Я сам работал с клиентами в CRM и начал с того, что мешало мне в работе. <b>Каждый инструмент сначала проверен на живом отделе продаж</b>, а не придуман в теории: сначала для себя, потом для команды, потом для отделов целиком.</p>
+        <ol class="about-path">
+          <li><span class="when">Октябрь 2025 · старт</span><b>Переводчик голосовых.</b> Расширение для CRM: голосовое от клиента сразу становится текстом на нужном языке — быстро и бесплатно.</li>
+          <li><b>Звонки в колл-центр в один клик</b> — уже для всей команды: данные клиента подставляются сами.</li>
+          <li><b>Подсказки по диалогу.</b> Расширение читает переписку и предлагает, какой пуш или рассылку отправить клиенту.</li>
+          <li><b>ИИ-ассистент.</b> Отвечает на сообщения и сразу сообщает, когда клиент дошёл до оплаты.</li>
+          <li><b>Отдел целиком.</b> Расчёт зарплаты, контроль качества, анализ рекламы по самим чатам — почему реклама работает или нет.</li>
+          <li><span class="when">Сейчас</span><b>Своя CRM Omnix.</b> Всё, что нужно команде, в одном окне — вместо нескольких разных сервисов.</li>
+        </ol>
+        <div class="about-facts">
+          <div class="about-fact"><b>1 год</b><span>от первого расширения до своей CRM</span></div>
+          <div class="about-fact"><b>8+</b><span>инструментов в работе у отделов продаж</span></div>
+          <div class="about-fact"><b>2</b><span>крупные команды работают на этих инструментах</span></div>
+        </div>
+        <a href="https://t.me/Ppasha69" target="_blank" rel="noopener" class="work-cta about-cta" data-track="tg_about">Написать Павлу в Telegram <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1525,7 +1586,7 @@
     const io = new IntersectionObserver(es => es.forEach(e=>{
       if(e.isIntersecting && !seen.has(e.target.id)){ seen.add(e.target.id); track('section', e.target.id); io.unobserve(e.target); }
     }), {threshold:.25});
-    ['results','services','portfolio','process','why','pricing','faq','contact'].forEach(id=>{
+    ['results','services','portfolio','about','process','why','pricing','faq','contact'].forEach(id=>{
       const el = document.getElementById(id); if(el) io.observe(el);
     });
 
