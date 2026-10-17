@@ -757,7 +757,7 @@
       <div class="works-in">
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="voronka" muted loop playsinline preload="none" poster="assets/video/voronka-ii-poster.webp" aria-label="Видеообзор расширения «Воронка ИИ»">
+        <video class="work-video" data-v="voronka" muted playsinline preload="none" poster="assets/video/voronka-ii-poster.webp?v=2" aria-label="Видеообзор расширения «Воронка ИИ»">
           <source src="assets/video/voronka-ii.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -817,7 +817,7 @@
 
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="okk" muted loop playsinline preload="none" poster="assets/video/okk-poster.webp?v=2" aria-label="Видеообзор сервиса контроля качества">
+        <video class="work-video" data-v="okk" muted playsinline preload="none" poster="assets/video/okk-poster.webp?v=3" aria-label="Видеообзор сервиса контроля качества">
           <source src="assets/video/okk.mp4?v=2" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -846,7 +846,7 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" data-v="kc" muted loop playsinline preload="none" poster="assets/video/kc-poster.webp?v=3" aria-label="Видеообзор расширения для колл-центра">
+        <video class="work-video" data-v="kc" muted playsinline preload="none" poster="assets/video/kc-poster.webp?v=4" aria-label="Видеообзор расширения для колл-центра">
           <source src="assets/video/kc.mp4?v=2" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -880,7 +880,7 @@
 
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="dept" muted loop playsinline preload="none" poster="assets/video/dept-poster.webp" aria-label="Видеообзор прототипа Dept">
+        <video class="work-video" data-v="dept" muted playsinline preload="none" poster="assets/video/dept-poster.webp?v=2" aria-label="Видеообзор прототипа Dept">
           <source src="assets/video/dept.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -914,7 +914,7 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" data-v="payroll" muted loop playsinline preload="none" poster="assets/video/payroll-poster.webp" aria-label="Видеообзор сервиса расчёта зарплаты отдела продаж">
+        <video class="work-video" data-v="payroll" muted playsinline preload="none" poster="assets/video/payroll-poster.webp?v=2" aria-label="Видеообзор сервиса расчёта зарплаты отдела продаж">
           <source src="assets/video/payroll.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Воспроизвести видео">
@@ -1535,14 +1535,13 @@
   // ---------- видео в портфолио: грузится и играет, только когда на экране ----------
   document.querySelectorAll('.work-media').forEach(box=>{
     const v = box.querySelector('video'), bar = box.querySelector('.work-progress i');
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let userPaused = false, raf = 0, played = false, done = false;
+    let raf = 0, played = false, done = false;
     const vname = v.dataset.v || 'video';
     const tick = ()=>{ if(v.duration) bar.style.transform = 'scaleX(' + (v.currentTime / v.duration) + ')'; raf = requestAnimationFrame(tick); };
     v.addEventListener('play',  ()=>{ box.classList.add('playing'); cancelAnimationFrame(raf); tick(); if(!played){ played = true; track('video_play', vname); } });
     v.addEventListener('timeupdate', ()=>{ if(!done && v.duration && v.currentTime / v.duration > .95){ done = true; track('video_done', vname); } });
     v.addEventListener('pause', ()=>{ box.classList.remove('playing'); cancelAnimationFrame(raf); });
-    const toggle = ()=>{ if(v.paused){ userPaused = false; v.play().catch(()=>{}); } else { userPaused = true; v.pause(); } };
+    const toggle = ()=>{ if(v.paused) v.play().catch(()=>{}); else v.pause(); };
     v.addEventListener('click', toggle);
     box.querySelector('.work-play').addEventListener('click', toggle);
     // на весь экран — с родными контролами (на iPhone — системный плеер)
@@ -1565,13 +1564,9 @@
     if(snd) snd.addEventListener('click', ()=>{ if(v.muted){ setSound(true); track('video_sound', vname); } else setSound(false); });
     document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement) v.controls = false; });
     v.addEventListener('webkitendfullscreen', ()=>{ v.controls = false; });
-    // автозапуск в зоне видимости без звука (кроме роликов с музыкой — те только по «плей»), пауза вне экрана
+    // ролики не крутятся сами — только по «плей»; ушёл с экрана — пауза
     new IntersectionObserver(([e])=>{
-      if(e.isIntersecting){
-        if(film) return;
-        if(v.preload !== 'auto'){ v.preload = 'auto'; v.load(); }
-        if(!reduce && !userPaused) v.play().catch(()=>{});
-      } else if(!v.paused && !document.fullscreenElement){ v.pause(); }
+      if(!e.isIntersecting && !v.paused && !document.fullscreenElement) v.pause();
     }, {threshold:.4}).observe(box);
   });
 

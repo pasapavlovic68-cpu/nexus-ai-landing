@@ -748,7 +748,7 @@
       <div class="works-in">
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="voronka" muted loop playsinline preload="none" poster="/assets/video/voronka-ii-en-poster.webp" aria-label="Video overview of the AI Funnel extension">
+        <video class="work-video" data-v="voronka" muted playsinline preload="none" poster="/assets/video/voronka-ii-en-poster.webp?v=2" aria-label="Video overview of the AI Funnel extension">
           <source src="/assets/video/voronka-ii-en.mp4?v=2" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Play video">
@@ -777,7 +777,7 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" data-v="omnix" muted loop playsinline preload="none" poster="/assets/video/omnix-en-poster.webp" aria-label="Video overview of the Omnix CRM">
+        <video class="work-video" data-v="omnix" muted playsinline preload="none" poster="/assets/video/omnix-en-poster.webp?v=2" aria-label="Video overview of the Omnix CRM">
           <source src="/assets/video/omnix-en.mp4?v=2" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Play video">
@@ -807,7 +807,7 @@
 
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="okk" muted loop playsinline preload="none" poster="/assets/video/okk-en-poster.webp?v=3" aria-label="Video overview of the quality control service">
+        <video class="work-video" data-v="okk" muted playsinline preload="none" poster="/assets/video/okk-en-poster.webp?v=4" aria-label="Video overview of the quality control service">
           <source src="/assets/video/okk-en.mp4?v=3" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Play video">
@@ -836,7 +836,7 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" data-v="kc" muted loop playsinline preload="none" poster="/assets/video/kc-en-poster.webp?v=2" aria-label="Video overview of the call center extension">
+        <video class="work-video" data-v="kc" muted playsinline preload="none" poster="/assets/video/kc-en-poster.webp?v=3" aria-label="Video overview of the call center extension">
           <source src="/assets/video/kc-en.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Play video">
@@ -870,7 +870,7 @@
 
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="dept" muted loop playsinline preload="none" poster="/assets/video/dept-en-poster.webp" aria-label="Video overview of the Dept prototype">
+        <video class="work-video" data-v="dept" muted playsinline preload="none" poster="/assets/video/dept-en-poster.webp?v=2" aria-label="Video overview of the Dept prototype">
           <source src="/assets/video/dept-en.mp4?v=2" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Play video">
@@ -904,7 +904,7 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" data-v="payroll" muted loop playsinline preload="none" poster="/assets/video/payroll-en-poster.webp" aria-label="Video overview of the sales team payroll service">
+        <video class="work-video" data-v="payroll" muted playsinline preload="none" poster="/assets/video/payroll-en-poster.webp?v=2" aria-label="Video overview of the sales team payroll service">
           <source src="/assets/video/payroll-en.mp4" type="video/mp4">
         </video>
         <button class="work-play" type="button" aria-label="Play video">
@@ -1525,14 +1525,13 @@
   // ---------- видео в портфолио: грузится и играет, только когда на экране ----------
   document.querySelectorAll('.work-media').forEach(box=>{
     const v = box.querySelector('video'), bar = box.querySelector('.work-progress i');
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let userPaused = false, raf = 0, played = false, done = false;
+    let raf = 0, played = false, done = false;
     const vname = v.dataset.v || 'video';
     const tick = ()=>{ if(v.duration) bar.style.transform = 'scaleX(' + (v.currentTime / v.duration) + ')'; raf = requestAnimationFrame(tick); };
     v.addEventListener('play',  ()=>{ box.classList.add('playing'); cancelAnimationFrame(raf); tick(); if(!played){ played = true; track('video_play', vname); } });
     v.addEventListener('timeupdate', ()=>{ if(!done && v.duration && v.currentTime / v.duration > .95){ done = true; track('video_done', vname); } });
     v.addEventListener('pause', ()=>{ box.classList.remove('playing'); cancelAnimationFrame(raf); });
-    const toggle = ()=>{ if(v.paused){ userPaused = false; v.play().catch(()=>{}); } else { userPaused = true; v.pause(); } };
+    const toggle = ()=>{ if(v.paused) v.play().catch(()=>{}); else v.pause(); };
     v.addEventListener('click', toggle);
     box.querySelector('.work-play').addEventListener('click', toggle);
     // на весь экран — с родными контролами (на iPhone — системный плеер)
@@ -1545,12 +1544,9 @@
     });
     document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement) v.controls = false; });
     v.addEventListener('webkitendfullscreen', ()=>{ v.controls = false; });
-    // автозапуск в зоне видимости (без звука — в ролике его нет), пауза вне экрана
+    // ролики не крутятся сами — только по «плей»; ушёл с экрана — пауза
     new IntersectionObserver(([e])=>{
-      if(e.isIntersecting){
-        if(v.preload !== 'auto'){ v.preload = 'auto'; v.load(); }
-        if(!reduce && !userPaused) v.play().catch(()=>{});
-      } else if(!v.paused && !document.fullscreenElement){ v.pause(); }
+      if(!e.isIntersecting && !v.paused && !document.fullscreenElement) v.pause();
     }, {threshold:.4}).observe(box);
   });
 
