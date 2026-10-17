@@ -8,7 +8,7 @@ import { authed } from './stats.js';
 //   3) визит считается «живым» (human = 1), только если прошёл невидимый Cloudflare Turnstile
 //      или человек что-то сделал: листал, кликал, пробыл на странице от 5 секунд.
 
-const TYPES = new Set(['pv','scroll','section','click','works_open','video_play','video_done','video_fs','faq','leave',
+const TYPES = new Set(['pv','scroll','section','click','works_open','video_play','video_done','video_fs','video_sound','faq','leave',
   'demo','demo_use','demo_time','demo_back']);   // demo* — живые демо работ (/demo/<имя>/)
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|telegram|whatsapp|vkshare|pingdom|monitor/i;
 // имя робота для подписи в ленте
