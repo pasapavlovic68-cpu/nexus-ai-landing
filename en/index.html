@@ -304,6 +304,19 @@
   @media (max-width:560px){ .work-play{width:60px; height:60px;} .work-play svg{width:28px; height:28px;} }
   .work-media.playing .work-play{opacity:0; transform:translate(-50%,-50%) scale(.85); pointer-events:none;}
   .work-full{right:12px; top:12px; width:36px; height:36px; border-radius:10px; opacity:.0;}
+  /* кнопка звука — только у роликов с музыкой (data-sound): ролик запускается по «плей» сразу со звуком,
+     кнопка выключает/включает звук; видна, пока ролик идёт, и только при наведении (на телефоне — пока идёт) */
+  .work-sound{position:absolute; z-index:2; left:12px; bottom:14px; opacity:0; pointer-events:none; display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 14px 0 12px; border-radius:999px; cursor:pointer;
+    font:600 13px/1 'Sora',system-ui,sans-serif; color:#fff; background:rgba(8,10,18,.62); border:1px solid rgba(255,255,255,.18);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); transition:opacity .25s ease, background-color .2s ease, border-color .2s ease, transform .16s ease-out;}
+  .work-media.started:hover .work-sound,.work-media.started .work-sound:focus-visible{opacity:1; pointer-events:auto;}
+  @media (hover:none){ .work-media.playing .work-sound{opacity:.9; pointer-events:auto;} }
+  .work-sound:active{transform:scale(.96);}
+  .work-sound:focus-visible{outline:2px solid var(--accent-bright); outline-offset:2px;}
+  .work-sound .ws-on{display:none;}
+  .work-sound[aria-pressed="true"]{background:rgba(79,140,255,.28); border-color:rgba(121,168,255,.6);}
+  .work-sound[aria-pressed="true"] .ws-on{display:block;} .work-sound[aria-pressed="true"] .ws-off{display:none;}
+  @media (hover:hover) and (pointer:fine){ .work-sound:hover{background:rgba(79,140,255,.22); border-color:rgba(121,168,255,.5);} }
   .work-media:hover .work-full,.work-full:focus-visible{opacity:1;}
   @media (hover:none){ .work-full{opacity:.85;} }
   @media (hover:hover) and (pointer:fine){
@@ -807,9 +820,10 @@
 
     <article class="work">
       <div class="work-media">
-        <video class="work-video" data-v="okk" muted playsinline preload="none" poster="/assets/video/okk-en-poster.webp?v=4" aria-label="Video overview of the quality control service">
-          <source src="/assets/video/okk-en.mp4?v=3" type="video/mp4">
+        <video class="work-video" data-v="okk" data-sound="1" muted playsinline preload="none" poster="/assets/video/quality-film-en-poster.webp" aria-label="Film about the quality control service">
+          <source src="/assets/video/quality-film-en.mp4" type="video/mp4">
         </video>
+        <button class="work-sound" type="button" aria-label="Mute" aria-pressed="true"><svg class="ws-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6M17 9l6 6"/></svg><svg class="ws-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><span class="ws-t">Sound on</span></button>
         <button class="work-play" type="button" aria-label="Play video">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
         </button>
@@ -904,9 +918,10 @@
 
     <article class="work work--rev">
       <div class="work-media">
-        <video class="work-video" data-v="payroll" muted playsinline preload="none" poster="/assets/video/payroll-en-poster.webp?v=2" aria-label="Video overview of the sales team payroll service">
-          <source src="/assets/video/payroll-en.mp4" type="video/mp4">
+        <video class="work-video" data-v="payroll" data-sound="1" muted playsinline preload="none" poster="/assets/video/payroll-film-en-poster.webp" aria-label="Film about the sales team payroll service">
+          <source src="/assets/video/payroll-film-en.mp4" type="video/mp4">
         </video>
+        <button class="work-sound" type="button" aria-label="Mute" aria-pressed="true"><svg class="ws-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6M17 9l6 6"/></svg><svg class="ws-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><span class="ws-t">Sound on</span></button>
         <button class="work-play" type="button" aria-label="Play video">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
         </button>
@@ -1542,6 +1557,16 @@
       else if(v.webkitEnterFullscreen) v.webkitEnterFullscreen();
       if(v.paused) v.play().catch(()=>{});
     });
+    // ролики с музыкой (data-sound): сами не крутятся — только по «плей», и сразу со звуком; кнопка звука выключает/включает его
+    const film = !!v.dataset.sound;
+    const snd = box.querySelector('.work-sound'), sndLabel = snd && snd.querySelector('.ws-t');
+    const setSound = on => { v.muted = !on; if(snd){ snd.setAttribute('aria-pressed', String(on)); snd.setAttribute('aria-label', on ? 'Mute' : 'Unmute'); if(sndLabel) sndLabel.textContent = on ? 'Sound on' : 'Sound off'; } };
+    if(film){
+      let soundSet = false;   // первый запуск — со звуком; дальше звук остаётся таким, как выбрал человек
+      v.addEventListener('play', ()=>{ box.classList.add('started'); if(!soundSet){ soundSet = true; setSound(true); } });
+      box.querySelector('.work-full').addEventListener('click', ()=>{ soundSet = true; setSound(true); });
+    }
+    if(snd) snd.addEventListener('click', ()=>{ if(v.muted){ setSound(true); track('video_sound', vname); } else setSound(false); });
     document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement) v.controls = false; });
     v.addEventListener('webkitendfullscreen', ()=>{ v.controls = false; });
     // ролики не крутятся сами — только по «плей»; ушёл с экрана — пауза
