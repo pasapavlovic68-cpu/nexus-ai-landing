@@ -1579,6 +1579,11 @@
     v.addEventListener('play',  ()=>{ box.classList.add('playing'); cancelAnimationFrame(raf); tick(); if(!played){ played = true; track('video_play', vname); } });
     v.addEventListener('timeupdate', ()=>{ if(!done && v.duration && v.currentTime / v.duration > .95){ done = true; track('video_done', vname); } });
     v.addEventListener('pause', ()=>{ box.classList.remove('playing'); cancelAnimationFrame(raf); });
+    // досмотрел до конца — вернуть обложку с «плей» (как до запуска), а не чёрный последний кадр
+    v.addEventListener('ended', ()=>{
+      if(document.fullscreenElement === v && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+      v.load(); bar.style.transform = 'scaleX(0)';
+    });
     const toggle = ()=>{ if(v.paused) v.play().catch(()=>{}); else v.pause(); };
     v.addEventListener('click', toggle);
     box.querySelector('.work-play').addEventListener('click', toggle);
