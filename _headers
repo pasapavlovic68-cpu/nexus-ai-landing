@@ -16,3 +16,7 @@
 /en/demo/*
   Cache-Control: no-cache
   X-Robots-Tag: noindex
+
+# картинки для соцсетей (аватар, обложка) — можно загрузить с других сайтов
+/assets/img/social/*
+  Access-Control-Allow-Origin: *
