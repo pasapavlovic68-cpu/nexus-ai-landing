@@ -422,6 +422,13 @@
   /* ---------- лента действий ---------- */
   /* лента — окно фиксированной высоты с прокруткой внутри: системной полосы нет (вместо неё мини-эквалайзер справа,
      как у страницы), сверху и снизу список мягко растворяется — обрезанная карточка под заголовком не торчит */
+  .feed-head{display:flex; align-items:flex-end; justify-content:space-between; gap:10px 16px; flex-wrap:wrap; margin:6px 0 16px;}
+  .feed-head h2{font-size:clamp(22px,2.6vw,30px); font-weight:800; letter-spacing:-.8px; line-height:1.1;
+    background:linear-gradient(180deg,#fff,#aeb6d4); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+  .feed-head p{color:var(--muted); font-size:14px; font-weight:300; margin-top:6px;}
+  .feed-head .kicker{margin-bottom:6px;}
+  .feed-card{padding:10px 16px;}
+  @media(max-width:520px){ .feed-card{padding:8px 10px;} .feed-head p{font-size:13px;} }
   .feed-wrap{position:relative; margin:0 -8px;}
   .feed{max-height:560px; overflow-y:auto; overscroll-behavior:contain; padding:14px 30px 14px 8px;
     scrollbar-width:none; -webkit-overflow-scrolling:touch;
@@ -1062,11 +1069,16 @@
     </section>
   </div>
 
-  <!-- ЛЕНТА -->
-  <section class="card" style="--i:16">
-    <div class="card-h"><div><h2>Лента посетителей</h2><p>Последние люди — нажмите, чтобы увидеть их визиты и что они делали</p></div><span class="chip" id="feed-cnt">live</span></div>
+  <!-- ЛЕНТА: заголовок раздела над окном (как на основном сайте), в карточке — только список -->
+  <div class="feed-sec">
+    <div class="feed-head">
+      <div><div class="kicker">Лента</div><h2>Посетители</h2><p>Последние люди — нажмите, чтобы увидеть их визиты и что они делали</p></div>
+      <span class="chip" id="feed-cnt">live</span>
+    </div>
+    <section class="card feed-card" style="--i:16">
     <div class="feed-wrap"><div class="feed" id="feed"></div><div class="eq-mini" id="feed-eq" aria-hidden="true" hidden></div></div>
-  </section>
+    </section>
+  </div>
 
   <p class="foot">Данные обновляются каждые 30 секунд · время по вашему часовому поясу</p>
 </main>
