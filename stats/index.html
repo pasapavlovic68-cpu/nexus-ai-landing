@@ -420,9 +420,9 @@
   .dev-leg .row .pct{margin-left:0;}
 
   /* ---------- лента действий ---------- */
-  .feed{max-height:560px; overflow-y:auto; overscroll-behavior:contain; margin:0 -8px; padding:0 8px;
-    mask-image:linear-gradient(180deg,#000 calc(100% - 40px),transparent); -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 40px),transparent);
-    scrollbar-width:thin; scrollbar-color:rgba(121,168,255,.25) transparent;}
+  /* лента — часть страницы, без своей прокрутки: листается общей колонкой-эквалайзером справа,
+     без системной полосы и без заголовка карточки, под который уезжает список (и на телефоне так же) */
+  .feed{margin:0 -8px; padding:0 8px;}
   .fd{display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:12px; padding:10px 8px; border-radius:12px;
     transition:transform .3s var(--ease-out), opacity .3s var(--ease-out), background-color 1.2s ease;}
   .fd + .fd{box-shadow:inset 0 1px 0 rgba(255,255,255,0.045);}
