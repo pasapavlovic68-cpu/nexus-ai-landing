@@ -1,6 +1,8 @@
 // Приём событий статистики с лендинга -> D1 (привязка DB).
 import { authed } from './stats.js';
-// Тело: {sid, m?:{ref,us,um,uc,ut,lang}, ts?:'<токен Turnstile>', e:[{t,n,v}]} — sendBeacon/fetch с text/plain.
+// Тело: {sid, vid?, m?:{ref,us,um,uc,ut,lang}, ts?:'<токен Turnstile>', e:[{t,n,v}]} — sendBeacon/fetch с text/plain.
+// sid — номер визита (сменяется после 30 мин тишины), vid — постоянный случайный номер браузера:
+// по нему /stats считает людей, а не заходы. Посетителей из hidden_visitors («это я») не пишем.
 // Без cookie и персональных данных. Роботов отделяем от людей в три слоя:
 //   1) User-Agent честных роботов; 2) сети дата-центров (Amazon, Google Cloud, Hetzner, Meta…) —
 //      такие визиты записываются с пометкой bot и никогда не становятся «живыми»: в цифры не идут,
@@ -80,23 +82,31 @@ export async function onRequestPost({ request, env }){
   let body;
   try{ body = JSON.parse(raw); }catch(e){ return ok; }
   const sid = typeof body.sid === 'string' && /^[a-f0-9]{16,32}$/.test(body.sid) ? body.sid : null;
+  const vid = typeof body.vid === 'string' && /^[a-f0-9]{16,32}$/.test(body.vid) ? body.vid : null;
   const list = Array.isArray(body.e) ? body.e.slice(0, 40) : [];
   if(!sid || (!list.length && !body.ts)) return ok;   // подпись Turnstile может прийти отдельным запросом
 
   const db = env.DB, now = Date.now();
 
-  // защита от флуда одной вкладкой
-  const cnt = await db.prepare('SELECT COUNT(*) AS c FROM events WHERE sid = ?').bind(sid).first('c');
+  // защита от флуда одной вкладкой + «это я»: посетителя, скрытого владельцем, не пишем
+  // (ключ скрытого — его vid, а у старых визитов без vid — номер визита)
+  const [rc, rh] = await db.batch([
+    db.prepare('SELECT COUNT(*) AS c FROM events WHERE sid = ?').bind(sid),
+    db.prepare('SELECT 1 AS h FROM hidden_visitors WHERE vid IN (?, ?) LIMIT 1').bind(vid || sid, sid),
+  ]);
+  if((rh.results || []).length) return ok;
+  const cnt = ((rc.results || [])[0] || {}).c || 0;
   if(cnt > (bot ? 60 : MAX_EVENTS_PER_SESSION)) return ok;
 
   const m = body.m || {};
   const stmts = [
     db.prepare(`INSERT OR IGNORE INTO sessions
-      (sid, first_ts, last_ts, ref, utm_source, utm_medium, utm_campaign, utm_content, country, device, browser, lang, net, bot)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
+      (sid, first_ts, last_ts, ref, utm_source, utm_medium, utm_campaign, utm_content, country, device, browser, lang, net, bot, vid)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
       sid, now, now, cut(m.ref, 80), cut(m.us, 60), cut(m.um, 60), cut(m.uc, 80), cut(m.ut, 80),
-      cut(request.headers.get('cf-ipcountry'), 2), device(ua), browser(ua), cut(m.lang, 12), cut(net, 80), bot),
-    db.prepare('UPDATE sessions SET last_ts = ? WHERE sid = ?').bind(now, sid),
+      cut(request.headers.get('cf-ipcountry'), 2), device(ua), browser(ua), cut(m.lang, 12), cut(net, 80), bot, vid),
+    // визит, начатый до появления vid (старая версия страницы в открытой вкладке), получает его при первой возможности
+    db.prepare('UPDATE sessions SET last_ts = ?, vid = COALESCE(vid, ?) WHERE sid = ?').bind(now, vid, sid),
   ];
 
   let human = bot ? false : await turnstileOk(env, body.ts, request.headers.get('cf-connecting-ip'));

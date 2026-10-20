@@ -3,7 +3,7 @@
      <script src="/assets/demo/bar.js" data-demo="dept" data-lang="ru" defer></script>
    Что делает: плавающая «пилюля» внизу — пометка «Демо-данные», кнопка заявки, ссылка назад на сайт;
    пишет события в ту же статистику, что и лендинг (/api/t): открытие демо, время в демо, клик по заявке.
-   Без cookie; визит общий с лендингом (localStorage nexus_visit, 30 минут).
+   Без cookie; визит общий с лендингом (localStorage nexus_visit, 30 минут), номер браузера — тоже (nexus_vid).
    Если демо открыто поверх лендинга (во фрейме) — ссылки «На сайт» нет: окно закрывает сам лендинг. */
 (function(){
   'use strict';
@@ -26,13 +26,19 @@
 
   /* ---------- статистика ---------- */
   const track = (function(){
-    let off = false, sid = '', q = [], timer = 0, meta = null;
+    let off = false, sid = '', vid = '', q = [], timer = 0, meta = null;
     try{
       const p = new URLSearchParams(location.search);
       const nt = p.get('notrack');
       if(nt === '0') localStorage.removeItem('nexus_notrack');
       else if(nt !== null) localStorage.setItem('nexus_notrack', '1');
       off = !!localStorage.getItem('nexus_notrack');
+      // постоянный случайный номер браузера: создаётся один раз и не меняется — по нему считаем людей, а не заходы
+      vid = localStorage.getItem('nexus_vid') || '';
+      if(!off && !/^[a-f0-9]{24}$/.test(vid)){
+        vid = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2,'0')).join('');
+        localStorage.setItem('nexus_vid', vid);
+      }
       const hasUtm = [...p.keys()].some(k => k.startsWith('utm_'));
       let st = null;
       try{ st = JSON.parse(localStorage.getItem('nexus_visit') || 'null'); }catch(e){}
@@ -55,7 +61,7 @@
       clearTimeout(timer);
       if(off){ q = []; return; }
       if(!q.length) return;
-      const body = JSON.stringify(Object.assign({ sid, e:q.splice(0, 40) }, meta ? { m:meta } : {}));
+      const body = JSON.stringify(Object.assign({ sid, vid, e:q.splice(0, 40) }, meta ? { m:meta } : {}));
       meta = null;
       const blob = new Blob([body], { type:'text/plain' });
       if(!(beacon && navigator.sendBeacon && navigator.sendBeacon('/api/t', blob)))

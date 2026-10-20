@@ -20,9 +20,19 @@ CREATE TABLE IF NOT EXISTS sessions (
   lead         INTEGER NOT NULL DEFAULT 0,  -- 1 = нажал кнопку Telegram
   human        INTEGER NOT NULL DEFAULT 0,  -- 1 = живой визит (Turnstile или действия человека)
   net          TEXT,                        -- сеть провайдера (cf.asOrganization)
-  bot          TEXT                         -- робот: имя из User-Agent или 'datacenter'; NULL — не опознан как робот
+  bot          TEXT,                        -- робот: имя из User-Agent или 'datacenter'; NULL — не опознан как робот
+  vid          TEXT                         -- постоянный случайный номер браузера (localStorage nexus_vid): один человек = один vid
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_first ON sessions(first_ts);
+CREATE INDEX IF NOT EXISTS idx_sessions_vid ON sessions(vid);
+
+-- «это я / свои»: посетители, которых владелец исключил из статистики кнопкой в /stats.
+-- vid — ключ посетителя = COALESCE(sessions.vid, sessions.sid) (у старых визитов без vid — номер визита)
+CREATE TABLE IF NOT EXISTS hidden_visitors (
+  vid     TEXT PRIMARY KEY,
+  label   TEXT,
+  created INTEGER NOT NULL
+);
 
 -- все действия внутри визита
 CREATE TABLE IF NOT EXISTS events (
@@ -84,3 +94,5 @@ CREATE TABLE IF NOT EXISTS links (
 
 -- миграция 2026-10-16 для уже созданной базы:
 -- ALTER TABLE sessions ADD COLUMN bot TEXT;
+
+-- миграция 2026-10-21 для уже созданной базы (посетители и «это я»): migrations/0001_visitors.sql

@@ -1,6 +1,8 @@
 // Данные для дашборда /stats. Только для вошедших (cookie ns_auth, см. login.js).
 // GET /api/stats?days=1|7|30|90&tz=<Date.getTimezoneOffset() в минутах>
 // Считаются только живые визиты (sessions.human = 1, см. t.js); отсеянные роботы — kpi.bots.
+// Посетитель = постоянный номер браузера sessions.vid (у старых визитов без vid — сам визит): COALESCE(vid, sid).
+// Посетители, которых владелец пометил «это я» (таблица hidden_visitors), не входят ни в одну цифру.
 
 const enc = new TextEncoder();
 
@@ -36,11 +38,29 @@ export async function onRequestGet({ request, env }){
 
   const db = env.DB;
   const S = (sql, ...b) => db.prepare(sql).bind(...b);
-  const kpiSql = `SELECT COUNT(*) AS visits, COALESCE(SUM(lead),0) AS leads,
+  // живой визит, не скрытый владельцем; LIVE_SID — то же для таблицы событий
+  const LIVE = `human = 1 AND ${PERSON} NOT IN (SELECT vid FROM hidden_visitors)`;
+  const LIVE_SID = `sid IN (SELECT sid FROM sessions WHERE ${LIVE})`;
+  const kpiSql = `SELECT COUNT(*) AS visits, COUNT(DISTINCT ${PERSON}) AS visitors, COALESCE(SUM(lead),0) AS leads,
                          COALESCE(ROUND(AVG(CASE WHEN dur > 0 THEN dur END)),0) AS avgDur
-                  FROM sessions WHERE human = 1 AND first_ts >= ? AND first_ts < ?`;
-  const cntEv = `SELECT COUNT(*) AS c FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = ? AND ts >= ? AND ts < ?`;
-  const uniqSec = `SELECT COUNT(DISTINCT sid) AS c FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'section' AND name = ? AND ts >= ? AND ts < ?`;
+                  FROM sessions WHERE ${LIVE} AND first_ts >= ? AND first_ts < ?`;
+  // вернувшиеся: посетители периода, у которых был живой визит раньше начала периода или ≥2 визитов за период
+  // (у старых визитов без vid ключ — сам визит, раньше его быть не может: s2.vid = x.p их просто не находит)
+  const backSql = `SELECT COUNT(*) AS c FROM (
+                     SELECT ${PERSON} AS p, COUNT(*) AS n FROM sessions WHERE ${LIVE} AND first_ts >= ? AND first_ts < ? GROUP BY p
+                   ) x WHERE x.n >= 2 OR EXISTS (SELECT 1 FROM sessions s2 WHERE s2.vid = x.p AND s2.human = 1 AND s2.first_ts < ?)`;
+  const cntEv = `SELECT COUNT(*) AS c FROM events WHERE ${LIVE_SID} AND type = ? AND ts >= ? AND ts < ?`;
+  const uniqSec = `SELECT COUNT(DISTINCT sid) AS c FROM events WHERE ${LIVE_SID} AND type = 'section' AND name = ? AND ts >= ? AND ts < ?`;
+  // лента: последние посетители (вместе с роботами и скрытыми — у них своя пометка)
+  const peopleSql = `SELECT ${PERSON} AS p, MAX(last_ts) AS last FROM sessions GROUP BY p ORDER BY last DESC LIMIT ${FEED_PEOPLE}`;
+  // их визиты: последние FEED_VISITS + самый первый (откуда человек пришёл впервые); n — сколько визитов всего
+  const feedVis = `WITH ppl AS (${peopleSql}),
+    v AS (SELECT s.*, ${PERSON} AS p,
+            ROW_NUMBER() OVER (PARTITION BY ${PERSON} ORDER BY first_ts DESC) AS rd,
+            ROW_NUMBER() OVER (PARTITION BY ${PERSON} ORDER BY first_ts ASC) AS ra,
+            COUNT(*) OVER (PARTITION BY ${PERSON}) AS n,
+            MAX(lead) OVER (PARTITION BY ${PERSON}) AS plead
+          FROM sessions s WHERE s.vid IN (SELECT p FROM ppl) OR s.sid IN (SELECT p FROM ppl))`;
 
   const r = await db.batch([
     /* 0 */ S(kpiSql, from, now + 1),
@@ -49,28 +69,34 @@ export async function onRequestGet({ request, env }){
     /* 3 */ S(cntEv, 'video_play', pFrom, from),
     /* 4 */ S(cntEv, 'works_open', from, now + 1),
     /* 5 */ S(cntEv, 'works_open', pFrom, from),
-    /* 6 */ S(`SELECT ${localDay} AS d, COUNT(*) AS visits, COALESCE(SUM(lead),0) AS leads
-               FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY d ORDER BY d`, from),
+    /* 6 */ S(`SELECT ${localDay} AS d, COUNT(*) AS visits, COUNT(DISTINCT ${PERSON}) AS visitors, COALESCE(SUM(lead),0) AS leads
+               FROM sessions WHERE ${LIVE} AND first_ts >= ? GROUP BY d ORDER BY d`, from),
     /* 7 */ S(uniqSec, 'portfolio', from, now + 1),
     /* 8 */ S(uniqSec, 'results', from, now + 1),
     /* 9 */ S(uniqSec, 'pricing', from, now + 1),
-    /*10 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'click' AND ts >= ? GROUP BY name ORDER BY count DESC LIMIT 20`, from),
-    /*11 */ S(`SELECT COALESCE(utm_source, ref, 'Прямой заход') AS name, COUNT(*) AS visits, COALESCE(SUM(lead),0) AS leads
-               FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY name ORDER BY visits DESC LIMIT 15`, from),
+    /*10 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE ${LIVE_SID} AND type = 'click' AND ts >= ? GROUP BY name ORDER BY count DESC LIMIT 20`, from),
+    // источники и страны — по людям (один человек из двух источников есть в обоих); визиты — рядом
+    /*11 */ S(`SELECT COALESCE(utm_source, ref, 'Прямой заход') AS name, COUNT(DISTINCT ${PERSON}) AS visitors, COUNT(*) AS visits, COALESCE(SUM(lead),0) AS leads
+               FROM sessions WHERE ${LIVE} AND first_ts >= ? GROUP BY name ORDER BY visitors DESC, visits DESC LIMIT 15`, from),
     /*12 */ S(`SELECT utm_campaign AS campaign, COALESCE(utm_source,'—') AS source, COUNT(*) AS visits, COALESCE(SUM(lead),0) AS leads
-               FROM sessions WHERE human = 1 AND first_ts >= ? AND utm_campaign IS NOT NULL GROUP BY campaign, source ORDER BY visits DESC LIMIT 20`, from),
+               FROM sessions WHERE ${LIVE} AND first_ts >= ? AND utm_campaign IS NOT NULL GROUP BY campaign, source ORDER BY visits DESC LIMIT 20`, from),
     /*13 */ S(`SELECT SUM(max_scroll >= 25) AS s25, SUM(max_scroll >= 50) AS s50, SUM(max_scroll >= 75) AS s75, SUM(max_scroll >= 100) AS s100
-               FROM sessions WHERE human = 1 AND first_ts >= ?`, from),
-    /*14 */ S(`SELECT name, COUNT(DISTINCT sid) AS sessions FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'section' AND ts >= ? GROUP BY name`, from),
-    /*15 */ S(`SELECT name, type, COUNT(*) AS c FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND (type IN ('video_play','video_done','video_fs','demo','demo_use') OR (type = 'click' AND name LIKE 'demo_cta_%')) AND ts >= ? GROUP BY name, type`, from),
-    /*16 */ S(`SELECT device AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY device ORDER BY visits DESC`, from),
-    /*17 */ S(`SELECT COALESCE(country,'??') AS name, COUNT(*) AS visits FROM sessions WHERE human = 1 AND first_ts >= ? GROUP BY name ORDER BY visits DESC LIMIT 12`, from),
-    /*18 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE sid IN (SELECT sid FROM sessions WHERE human = 1) AND type = 'faq' AND ts >= ? GROUP BY name ORDER BY count DESC`, from),
-    /*19 */ S(`SELECT sid, first_ts, last_ts, country, device, browser, ref, utm_source, utm_campaign, lead, dur, max_scroll, human, net, bot
-               FROM sessions ORDER BY last_ts DESC LIMIT ${FEED_VISITS}`),   // в ленте и роботы — с подписью, кто это
-    /*20 */ S(`SELECT COUNT(*) AS c FROM sessions WHERE human = 0 AND first_ts >= ?`, from),   // отсеянные роботы
-    /*21 */ S(`SELECT sid, ts, type, name, value FROM events
-               WHERE sid IN (SELECT sid FROM sessions ORDER BY last_ts DESC LIMIT ${FEED_VISITS}) ORDER BY id`),
+               FROM sessions WHERE ${LIVE} AND first_ts >= ?`, from),
+    /*14 */ S(`SELECT name, COUNT(DISTINCT sid) AS sessions FROM events WHERE ${LIVE_SID} AND type = 'section' AND ts >= ? GROUP BY name`, from),
+    /*15 */ S(`SELECT name, type, COUNT(*) AS c FROM events WHERE ${LIVE_SID} AND (type IN ('video_play','video_done','video_fs','demo','demo_use') OR (type = 'click' AND name LIKE 'demo_cta_%')) AND ts >= ? GROUP BY name, type`, from),
+    /*16 */ S(`SELECT device AS name, COUNT(*) AS visits FROM sessions WHERE ${LIVE} AND first_ts >= ? GROUP BY device ORDER BY visits DESC`, from),
+    /*17 */ S(`SELECT COALESCE(country,'??') AS name, COUNT(DISTINCT ${PERSON}) AS visitors, COUNT(*) AS visits FROM sessions WHERE ${LIVE} AND first_ts >= ? GROUP BY name ORDER BY visitors DESC, visits DESC LIMIT 12`, from),
+    /*18 */ S(`SELECT name, COUNT(*) AS count FROM events WHERE ${LIVE_SID} AND type = 'faq' AND ts >= ? GROUP BY name ORDER BY count DESC`, from),
+    // в ленте и роботы, и скрытые «это я» — с подписью, кто это
+    /*19 */ S(`${feedVis} SELECT v.sid, v.p, v.n, v.rd, v.first_ts, v.last_ts, v.country, v.device, v.browser, v.ref, v.utm_source, v.utm_campaign,
+                 v.lead, v.plead, v.dur, v.max_scroll, v.human, v.net, v.bot,
+                 CASE WHEN h.vid IS NULL THEN NULL ELSE COALESCE(h.label, 'Это я') END AS hidden
+               FROM v LEFT JOIN hidden_visitors h ON h.vid = v.p WHERE v.rd <= ${FEED_VISITS} OR v.ra = 1`),
+    /*20 */ S(`SELECT COUNT(*) AS c FROM sessions WHERE human = 0 AND first_ts >= ? AND ${PERSON} NOT IN (SELECT vid FROM hidden_visitors)`, from),   // отсеянные роботы
+    /*21 */ S(`${feedVis} SELECT sid, ts, type, name, value FROM events
+               WHERE sid IN (SELECT sid FROM v WHERE rd <= ${FEED_VISITS} OR ra = 1) ORDER BY id`),
+    /*22 */ S(backSql, from, now + 1, from),
+    /*23 */ S(backSql, pFrom, from, pFrom),
   ]);
   const rows = i => r[i].results || [];
   const one = i => rows(i)[0] || {};
@@ -84,7 +110,7 @@ export async function onRequestGet({ request, env }){
   for(let i = 0; i < days; i++){
     const d = new Date(from - off + i * DAY + DAY / 2).toISOString().slice(0, 10);
     const x = byDay.get(d);
-    daily.push({ d, visits: x ? x.visits : 0, leads: x ? x.leads : 0 });
+    daily.push({ d, visits: x ? x.visits : 0, visitors: x ? x.visitors : 0, leads: x ? x.leads : 0 });
   }
 
   const vids = {};
@@ -105,9 +131,11 @@ export async function onRequestGet({ request, env }){
   return json({
     range: { days, from, to: now },
     kpi: {
+      visitors: k.visitors || 0, returning: one(22).c || 0,
       visits: k.visits || 0, leads: k.leads || 0, conv: conv(k.leads, k.visits), avgDur: k.avgDur || 0,
       videoPlays: one(2).c || 0, worksOpens: one(4).c || 0, bots: one(20).c || 0,
       prev: {
+        visitors: kp.visitors || 0, returning: one(23).c || 0,
         visits: kp.visits || 0, leads: kp.leads || 0, conv: conv(kp.leads, kp.visits), avgDur: kp.avgDur || 0,
         videoPlays: one(3).c || 0, worksOpens: one(5).c || 0,
       },
@@ -130,26 +158,59 @@ export async function onRequestGet({ request, env }){
     devices: rows(16),
     countries: rows(17),
     faq: rows(18),
-    visits: feedVisits(rows(19), rows(21)),
+    people: feedPeople(rows(19), rows(21)),
   });
 }
 
-// лента действий: последние заходы, у каждого — его действия по порядку (для раскрывающегося списка в /stats)
-const FEED_VISITS = 25, FEED_EVENTS = 80;
-function feedVisits(sessions, events){
+// ключ посетителя: постоянный номер браузера, а у старых визитов без него — номер визита
+const PERSON = 'COALESCE(vid, sid)';
+// лента по людям: последние посетители, у каждого — его визиты по времени, у визита — действия по порядку
+const FEED_PEOPLE = 20, FEED_VISITS = 8, FEED_EVENTS = 80;
+const KIND_RANK = { human: 0, unknown: 1, bot: 2 };
+function feedPeople(sessions, events){
   const bySid = new Map();
   for(const e of events){
     let list = bySid.get(e.sid);
     if(!list) bySid.set(e.sid, list = []);
     list.push({ ts: e.ts, type: e.type, name: e.name, value: e.value });
   }
-  return sessions.map(s => ({
-    k: String(s.sid).slice(0, 12),          // ключ строки в ленте; полный идентификатор визита наружу не отдаём
-    first: s.first_ts, last: s.last_ts, country: s.country, device: s.device, browser: s.browser,
-    ref: s.ref, us: s.utm_source, uc: s.utm_campaign, lead: s.lead, dur: s.dur, scroll: s.max_scroll,
-    who: whoIs(s, bySid.get(s.sid) || []),
-    events: (bySid.get(s.sid) || []).slice(-FEED_EVENTS),
-  }));
+  const byP = new Map();
+  for(const s of sessions){
+    let list = byP.get(s.p);
+    if(!list) byP.set(s.p, list = []);
+    list.push(s);
+  }
+  const src = s => ({ ref: s.ref, us: s.utm_source, uc: s.utm_campaign });
+  const out = [];
+  for(const [p, list] of byP){
+    list.sort((a, b) => a.first_ts - b.first_ts);        // по времени: первый визит — сверху
+    const visits = list.map(s => {
+      const evs = bySid.get(s.sid) || [];
+      return {
+        k: String(s.sid).slice(0, 12),        // ключ визита в ленте; полный номер визита наружу не отдаём
+        first: s.first_ts, last: s.last_ts, country: s.country, device: s.device, browser: s.browser,
+        ref: s.ref, us: s.utm_source, uc: s.utm_campaign, lead: s.lead, dur: s.dur, scroll: s.max_scroll,
+        who: whoIs(s, evs),
+        events: evs.slice(-FEED_EVENTS),
+      };
+    });
+    const firstS = list[0], lastS = list[list.length - 1];
+    // кто это в целом: если хоть один визит живой — человек; иначе пояснение «самого понятного» визита
+    const best = visits.slice().sort((a, b) => KIND_RANK[a.who.kind] - KIND_RANK[b.who.kind] || b.last - a.last)[0];
+    out.push({
+      // id — полный ключ посетителя: нужен кнопке «Это я», отдаётся только вошедшему владельцу (весь /api/stats за входом)
+      id: p, k: String(p).slice(0, 12),
+      n: firstS.n,                           // визитов всего (в списке — первый и последние FEED_VISITS)
+      first: firstS.first_ts, last: Math.max(...list.map(s => s.last_ts)),
+      firstSrc: src(firstS), lastSrc: src(lastS),
+      country: lastS.country, device: lastS.device,
+      lead: Number(firstS.plead) === 1 ? 1 : 0,   // нажимал Telegram хоть в одном визите
+      hidden: firstS.hidden || null,               // подпись «Это я», если владелец скрыл посетителя из цифр
+      who: best.who,
+      visits,
+    });
+  }
+  return out.sort((a, b) => b.last - a.last);
 }
 
 // кто это был: человек, робот (чей) или не подтверждён — с коротким пояснением для ленты
