@@ -81,13 +81,16 @@
     transition:opacity .4s cubic-bezier(.2,.8,.2,1), transform .4s cubic-bezier(.2,.8,.2,1);
   }
   nav.scrolled .nav-in::before{opacity:1; transform:none;}
-  /* планшет и телефон: шапка закреплена во всю ширину — под ней сплошная подложка от самого верха экрана,
-     чтобы над стеклянной плашкой не просвечивало содержимое */
+  /* планшет и телефон: шапка жёстко закреплена вверху (fixed, не sticky — во встроенных браузерах iOS sticky
+     съезжает при инерционной прокрутке), под ней отступ ровно по её высоте (--navh считает скрипт).
+     Подложка — плотный цвет без размытия: backdrop-filter на iOS мерцает при прокрутке. Плашка не двигается, только проявляется. */
   @media(max-width:1024px){
+    nav{position:fixed; top:0; left:0; right:0; transform:translateZ(0);}
+    body{padding-top:var(--navh, 128px);}
     nav::before{content:''; position:absolute; inset:0; z-index:-2; pointer-events:none;
-      background:rgba(5,6,10,0.86); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-      border-bottom:1px solid rgba(255,255,255,0.06); opacity:0; transition:opacity .3s ease;}
+      background:rgba(5,6,10,0.97); border-bottom:1px solid rgba(255,255,255,0.07); opacity:0; transition:opacity .25s ease;}
     nav.scrolled::before{opacity:1;}
+    .nav-in::before{display:none;}
   }
   .brand{display:flex; align-items:center; gap:12px; font-weight:700; font-size:20px; letter-spacing:-.5px; text-decoration:none; color:inherit; white-space:nowrap;}
   .brand .w{color:#fff} .brand .x{color:var(--accent)}
@@ -1348,6 +1351,10 @@
     const nav = document.querySelector('nav');
     let on = null;
     function upd(){ const v = scrollY > 8; if(v !== on){ on = v; nav.classList.toggle('scrolled', v); } }
+    // высота закреплённой шапки -> отступ страницы (телефон/планшет), без скачков при смене экрана входа/дашборда
+    const setH = () => document.documentElement.style.setProperty('--navh', Math.round(nav.getBoundingClientRect().height) + 'px');
+    setH();
+    if(window.ResizeObserver) new ResizeObserver(setH).observe(nav); else addEventListener('resize', setH);
     // экранная клавиатура на телефоне: видимая область заметно ниже окна -> компактный вход, страница к верху
     if(window.visualViewport){
       let kbOn = false;
