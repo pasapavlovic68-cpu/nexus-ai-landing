@@ -1,0 +1,50 @@
+[
+ {
+  "service": "Сервер станции (Contabo)",
+  "last_month": 9.3,
+  "after": 9.3,
+  "note": "8 €"
+ },
+ {
+  "service": "Сервер мини-аппа",
+  "last_month": null,
+  "after": 0,
+  "note": "цену видно в вашем кабинете; после переезда закрываем"
+ },
+ {
+  "service": "Новый сервер (Contabo)",
+  "last_month": 0,
+  "after": 8,
+  "note": "ещё не куплен"
+ },
+ {
+  "service": "Cloudflare, тариф Workers Paid",
+  "last_month": 5,
+  "after": 0,
+  "note": "после переезда сайтам хватит бесплатного тарифа"
+ },
+ {
+  "service": "Cloudflare, перерасход базы склада",
+  "last_month": 330,
+  "after": 0,
+  "note": "списание не прошло; утечку закрыли 22.10"
+ },
+ {
+  "service": "Railway (5 проектов)",
+  "last_month": null,
+  "after": 0,
+  "note": "суммы видно в вашем кабинете"
+ },
+ {
+  "service": "Supabase (2 проекта)",
+  "last_month": 0,
+  "after": 0,
+  "note": "бесплатный тариф"
+ },
+ {
+  "service": "Vercel",
+  "last_month": 0,
+  "after": 0,
+  "note": "бесплатный тариф"
+ }
+]

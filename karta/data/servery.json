@@ -1,0 +1,44 @@
+[
+ {
+  "id": "nexus",
+  "name": "Сервер станции",
+  "provider": "Contabo (Азия)",
+  "cpu": 4,
+  "ram_gb": 7.8,
+  "disk_gb": 96,
+  "disk_used_gb": 9.7,
+  "cost_usd": 9.3,
+  "cost_note": "8 € в месяц, оплата 13-го",
+  "status": "работает",
+  "runs": "Chrome со станцией Jarvis, роботы Chatterfy, сторож, Nexus Discord",
+  "future": "остаётся: здесь только Chrome и роботы"
+ },
+ {
+  "id": "po",
+  "name": "Сервер мини-аппа PocketOption",
+  "provider": "хостинг в сети Scalaxy",
+  "cpu": 3,
+  "ram_gb": 3.8,
+  "disk_gb": 59,
+  "disk_used_gb": 7.8,
+  "cost_usd": null,
+  "cost_note": "цену видно в вашем кабинете",
+  "status": "работает",
+  "runs": "бэкенд и бот мини-аппа, админка, секретарь Discord, VIP-бот",
+  "future": "переезжает на новый сервер, потом закрываем"
+ },
+ {
+  "id": "new",
+  "name": "Новый сервер для данных",
+  "provider": "Contabo Cloud VPS 20",
+  "cpu": 6,
+  "ram_gb": 12,
+  "disk_gb": 100,
+  "disk_used_gb": null,
+  "cost_usd": 8,
+  "cost_note": "около 8 $ помесячно, 6–6,5 $ при оплате за год",
+  "status": "не куплен",
+  "runs": "склад и сайт ОКК, зарплата, выводы, журнал постбэков, мини-апп",
+  "future": "сюда переезжает всё платное"
+ }
+]

@@ -1,0 +1,122 @@
+[
+ {
+  "id": "sklad",
+  "name": "Склад ОКК",
+  "where": "Cloudflare D1",
+  "project": "ОКК",
+  "size_mb": 1440,
+  "growth": "держится около 3 ГБ: хранит 2 последних месяца",
+  "step": 1,
+  "note": "из-за неё списание 330 $; утечку закрыли 22.10"
+ },
+ {
+  "id": "zhurnal",
+  "name": "Журнал постбэков и таблицы расширения",
+  "where": "Supabase",
+  "project": "Автоматизация",
+  "size_mb": 95,
+  "growth": "около 45 МБ в месяц",
+  "step": 5,
+  "note": "оценка по открытым таблицам: 54 тыс. событий, 116 тыс. записей атрибуции; размер 9 закрытых таблиц не знаем"
+ },
+ {
+  "id": "vip",
+  "name": "VIP-бот",
+  "where": "файл на сервере мини-аппа",
+  "project": "VIP-бот",
+  "size_mb": 70,
+  "growth": "мало",
+  "step": 6,
+  "note": ""
+ },
+ {
+  "id": "salary",
+  "name": "Зарплата (tl-salary)",
+  "where": "Cloudflare D1",
+  "project": "Зарплата",
+  "size_mb": 59.9,
+  "growth": "мало",
+  "step": 3,
+  "note": "читает около 75 млн строк в сутки"
+ },
+ {
+  "id": "miniapp",
+  "name": "Мини-апп PocketOption",
+  "where": "Supabase",
+  "project": "PocketOption",
+  "size_mb": 5,
+  "growth": "мало",
+  "step": 6,
+  "note": "оценка: 8 пользователей, 10 тыс. событий, 19 сделок"
+ },
+ {
+  "id": "otzyvy",
+  "name": "Отзывы",
+  "where": "Cloudflare D1",
+  "project": "другой проект",
+  "size_mb": 2.9,
+  "growth": "мало",
+  "step": null,
+  "note": ""
+ },
+ {
+  "id": "bmw",
+  "name": "Розыгрыш BMW",
+  "where": "Cloudflare D1",
+  "project": "другой проект",
+  "size_mb": 1.4,
+  "growth": "мало",
+  "step": null,
+  "note": ""
+ },
+ {
+  "id": "nummo",
+  "name": "Nummo",
+  "where": "Cloudflare D1",
+  "project": "другой проект",
+  "size_mb": 0.5,
+  "growth": "мало",
+  "step": null,
+  "note": ""
+ },
+ {
+  "id": "verdikt",
+  "name": "Вердикт",
+  "where": "Cloudflare D1",
+  "project": "другой проект",
+  "size_mb": 0.19,
+  "growth": "мало",
+  "step": null,
+  "note": ""
+ },
+ {
+  "id": "landing",
+  "name": "Статистика лендинга",
+  "where": "Cloudflare D1",
+  "project": "другой проект",
+  "size_mb": 0.11,
+  "growth": "мало",
+  "step": null,
+  "note": ""
+ },
+ {
+  "id": "vyvody",
+  "name": "Выводы",
+  "where": "Cloudflare D1",
+  "project": "Выводы",
+  "size_mb": 0.1,
+  "growth": "мало",
+  "step": 4,
+  "note": ""
+ },
+ {
+  "id": "omnix",
+  "name": "Вход Omnix",
+  "where": "Cloudflare D1",
+  "project": "другой проект",
+  "size_mb": 0.04,
+  "growth": "мало",
+  "step": null,
+  "note": ""
+ }
+]

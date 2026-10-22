@@ -1,0 +1,122 @@
+[
+ {
+  "id": "glavnaya",
+  "name": "Nexus AI — главная",
+  "url": "https://nexusnova.app/",
+  "group": "domain",
+  "access": "всем",
+  "what": "Сайт нашей студии: автоматизация CRM, Telegram-боты и сайты. Сюда приходят заявки клиентов."
+ },
+ {
+  "id": "glavnaya-en",
+  "name": "Nexus AI — English",
+  "url": "https://nexusnova.app/en/",
+  "group": "domain",
+  "access": "всем",
+  "what": "Та же главная страница на английском, для зарубежных клиентов."
+ },
+ {
+  "id": "demo-kc",
+  "name": "Демо «Колл-центр»",
+  "url": "https://nexusnova.app/demo/kc/",
+  "group": "domain",
+  "access": "всем",
+  "what": "Живое демо для клиентов: заявка на звонок из CRM в колл-центр в один клик. Данные вымышленные."
+ },
+ {
+  "id": "demo-dept",
+  "name": "Демо «Dept»",
+  "url": "https://nexusnova.app/demo/dept/",
+  "group": "domain",
+  "access": "всем",
+  "what": "Второе живое демо для клиентов, открывается с главной страницы. Данные вымышленные."
+ },
+ {
+  "id": "cv",
+  "name": "Резюме Павла",
+  "url": "https://nexusnova.app/cv/",
+  "group": "domain",
+  "access": "всем",
+  "what": "Резюме на русском: опыт, проекты, контакты. Ссылку даём работодателям."
+ },
+ {
+  "id": "cv-en",
+  "name": "Резюме Павла — English",
+  "url": "https://nexusnova.app/cv/en/",
+  "group": "domain",
+  "access": "всем",
+  "what": "То же резюме на английском."
+ },
+ {
+  "id": "stats",
+  "name": "Статистика сайта",
+  "url": "https://nexusnova.app/stats/",
+  "group": "domain",
+  "access": "по паролю",
+  "what": "Кто заходит на наши страницы, откуда пришёл и по каким коротким ссылкам."
+ },
+ {
+  "id": "karta",
+  "name": "Карта системы",
+  "url": "https://nexusnova.app/karta/",
+  "group": "domain",
+  "access": "по паролю",
+  "what": "Эта страница: серверы, базы, место, расходы, шаги переезда и все наши сайты."
+ },
+ {
+  "id": "privacy",
+  "name": "Политика конфиденциальности",
+  "url": "https://nexusnova.app/privacy",
+  "group": "domain",
+  "access": "всем",
+  "what": "Обязательная страница для сайта: как мы обращаемся с данными посетителей."
+ },
+ {
+  "id": "kangs",
+  "name": "Сайт юриста KANGS",
+  "url": "https://kangs-concept.fxc55bg8rd.workers.dev/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Концепт сайта юридической фирмы. Образец стиля для наших сайтов."
+ },
+ {
+  "id": "g63",
+  "name": "Конкурс «Гонка за G 63»",
+  "url": "https://mercedes-g63.fxc55bg8rd.workers.dev/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Конкурс для лидов: гонка за G 63 Brabus 900. Старый адрес конкурса BMW ведёт сюда же."
+ },
+ {
+  "id": "tony",
+  "name": "Сайт Тони",
+  "url": "https://tony-trader.fxc55bg8rd.workers.dev/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Дневник трейдера и наставничество."
+ },
+ {
+  "id": "verdikt",
+  "name": "Вердикт",
+  "url": "https://verdikt.fxc55bg8rd.workers.dev/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Отзывы о трейдерах."
+ },
+ {
+  "id": "zhurnal",
+  "name": "Журнал работ",
+  "url": "https://nexus-zhurnal.pages.dev/",
+  "group": "temp",
+  "access": null,
+  "what": "Ваши задачи и время по таймеру ▶ / ⏸ / «Завершить»."
+ },
+ {
+  "id": "zarplata",
+  "name": "Зарплата NEXUS",
+  "url": "https://nexus-salary.pages.dev/",
+  "group": "temp",
+  "access": null,
+  "what": "Витрина зарплаты команды."
+ }
+]
