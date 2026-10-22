@@ -126,6 +126,21 @@ a.card{cursor:pointer}
 /* базы: ряды карточек выровнены по строкам (subgrid) — полоска размера на одном уровне, даже если название в две строки */
 #bz>.card{grid-row:span 5;grid-template-rows:subgrid}
 #bz>.card .szbar{align-self:center}
+/* подробности базы прячутся под кнопку и выпадают поверх, не меняя размер карточки */
+#bz>.card{overflow:visible}
+#bz>.card h4{min-height:2.5em}
+#bz>.card::after{border-radius:inherit}
+#bz>.card.is-open{z-index:6}
+.more{position:relative;justify-self:start}
+.more-btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--ln2);background:transparent;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;
+  transition:background-color .25s var(--ez),border-color .25s var(--ez),color .2s,box-shadow .25s var(--ez)}
+.more-btn:hover,.more-btn[aria-expanded="true"]{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
+.more-btn svg{width:14px;height:14px;transition:transform .3s var(--ez)}
+.more-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.more-pop{position:absolute;left:0;top:calc(100% + 8px);width:min(340px,calc(100vw - 48px));z-index:7;padding:16px 18px;border-radius:16px;border:1px solid var(--ln2);background:var(--glass);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);box-shadow:0 18px 50px -12px rgba(0,0,0,.45);
+  opacity:0;transform:translateY(-6px) scale(.98);transform-origin:20px 0;visibility:hidden;transition:opacity .25s ease-out,transform .3s var(--ez),visibility 0s .3s}
+.more-pop.open{opacity:1;transform:none;visibility:visible;transition:opacity .25s ease-out,transform .3s var(--ez),visibility 0s}
 .cards.tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
 .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
@@ -383,6 +398,15 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
     spot = e;
   }, { passive: true });
 
+  /* ── «Подробнее» в карточках баз: открыта одна, закрывается кликом мимо и Esc ── */
+  const closeMore = (except) => $$('.more-btn[aria-expanded="true"]').forEach((b) => { if (b === except) return; b.setAttribute('aria-expanded', 'false'); b.nextElementSibling.classList.remove('open'); b.closest('.card').classList.remove('is-open'); });
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-more]');
+    if (b) { const open = b.getAttribute('aria-expanded') !== 'true'; closeMore(b); b.setAttribute('aria-expanded', String(open)); b.nextElementSibling.classList.toggle('open', open); b.closest('.card').classList.toggle('is-open', open); return; }
+    if (!e.target.closest('.more-pop')) closeMore();
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(); });
+
   /* ── данные ── */
   const NAMES = { servery: 'серверы', bazy: 'базы', pereezd: 'шаги переезда', rashody: 'расходы', zapolnenie: 'прогноз места', saity: 'сайты' };
   const load = (n) => fetch('data/' + n + '.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(n); return r.json(); });
@@ -466,7 +490,10 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
         const bar = el('div', 'szbar'), i = el('i'); i.style.width = Math.max(1.5, (b.size_mb / max) * 100) + '%'; bar.append(i); c.append(bar);
         const dl = el('dl', 'dl'); const d1 = el('div'); d1.append(el('dt', null, 'Рост'), el('dd', null, b.growth)); dl.append(d1);
         if (b.note) { const d2 = el('div'); d2.append(el('dt', null, 'Заметка'), el('dd', null, b.note)); dl.append(d2); }
-        c.append(dl); $('#bz').append(c);
+        const more = el('div', 'more'), btn = el('button', 'more-btn'), pop = el('div', 'more-pop');
+        btn.type = 'button'; btn.setAttribute('aria-expanded', 'false'); btn.dataset.more = '';
+        btn.innerHTML = 'Подробнее <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+        pop.append(dl); more.append(btn, pop); c.append(more); $('#bz').append(c);
       }
     }
 
