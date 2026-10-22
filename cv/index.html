@@ -232,6 +232,7 @@ footer{padding:40px 0 60px;color:var(--tx3);font-size:13px;text-align:center}
   .photo .badge{right:-10px}
 }
 
+.print-only{display:none}
 /* печать / PDF: без анимаций, живое окно заменяется снимком */
 @media print{
   @page{size:A4;margin:12mm}
@@ -243,8 +244,62 @@ footer{padding:40px 0 60px;color:var(--tx3);font-size:13px;text-align:center}
   section{padding:26px 0 0;break-inside:avoid-page}
   .card,.job,.live,.stats,.final{break-inside:avoid;box-shadow:none}
   .final{margin-top:30px}
-  a[href^="http"]::after{content:" — " attr(href);font-size:9pt;color:var(--tx3)}
   .btn::after,.mark::after{content:none!important}
+  /* компактная печать (22.10): страница A4 узкая, поэтому возвращаем «компьютерные» колонки и мельчим всё */
+  html,body{background:#fff!important}
+  .print-only{display:block!important;flex-basis:100%;margin-top:2px;color:var(--tx1)}
+  .final{display:none!important}
+  .print-name{font-size:19pt;font-weight:600;letter-spacing:-.02em;color:var(--tx);margin:0 0 6px}
+  *,*::before,*::after{filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;text-shadow:none!important}
+  .live::after,.card::before,.final{background-image:none!important}
+  .live::after,.card::before{display:none!important}
+  .live,.final{background:#fff!important}
+  .skill.card{padding:7px 10px!important}
+  .format .card{padding:8px 10px!important}
+  .job li{line-height:1.38}
+  body{font-size:8.6pt;line-height:1.45}
+  .wrap{padding:0!important;max-width:none}
+  .hero{padding:0 0 10px!important}
+  .hero-in{grid-template-columns:1fr 128px!important;gap:22px!important}
+  .photo{order:0!important;justify-self:end!important;max-width:128px!important}
+  .photo .badge{display:none}
+  .pill{font-size:8pt;padding:3px 9px}
+  h1{font-size:25pt;margin-top:8px}
+  .lead{font-size:9.6pt;margin-top:8px}
+  .cta{margin-top:12px}.cta .btn{padding:6px 12px;font-size:8.5pt}
+  .facts{margin-top:10px;font-size:8.2pt}
+  .stats{grid-template-columns:repeat(4,1fr)!important;margin-top:8px}
+  .stat{padding:9px 12px!important;border-right:1px solid var(--ln)!important;border-bottom:0!important}
+  .stat b{font-size:20pt}.stat span{font-size:7.8pt;margin-top:4px}
+  section{padding:14px 0 0!important;break-inside:auto}
+  .kicker{font-size:7pt}
+  h2{font-size:15pt;margin-top:4px}
+  .sub{font-size:8.5pt;margin-top:4px}
+  .about,.projects{grid-template-columns:repeat(3,1fr)!important;gap:8px!important;margin-top:10px!important}
+  .format{grid-template-columns:repeat(4,1fr)!important;gap:8px!important;margin-top:10px!important}
+  .skills{grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:10px!important}
+  .skill{grid-template-columns:96px 1fr!important;gap:8px!important}
+  .card,.job{padding:10px 12px!important;border-radius:10px}
+  .card h3{font-size:10pt;margin:4px 0}
+  .card p,.card span{font-size:8pt}
+  .card .n{font-size:6.8pt}
+  .format .card b{font-size:13pt}
+  .proj .ico{width:22px;height:22px;border-radius:7px}.proj .ico svg{width:12px;height:12px}
+  .proj .own{top:8px;right:8px;font-size:6.5pt;padding:2px 5px}
+  .stack{margin-top:6px;gap:3px}.stack span{font-size:6.8pt;padding:2px 5px}
+  .chips{gap:3px}.chips span{font-size:7.6pt;padding:2px 7px}
+  .timeline{gap:8px;margin-top:10px}
+  .job{grid-template-columns:110px 1fr!important;gap:12px!important}
+  .job h3{font-size:12pt}.job .role{font-size:11pt}
+  .job p{margin-top:5px;font-size:8.4pt}
+  .job ul{margin-top:6px;gap:3px}.job li{font-size:8.2pt;padding-left:16px}
+  .job li::before{width:8px}
+  .live{grid-template-columns:1fr 1.2fr!important;gap:14px!important;padding:10px!important;margin-top:10px!important}
+  .browser{border-radius:8px}
+  .live h3{font-size:12pt;margin-top:4px}.live p{font-size:8.2pt;margin:6px 0 8px}
+  .final{margin-top:14px!important;padding:14px!important;border-radius:12px}
+  .final h2{font-size:14pt}.final p{font-size:8.4pt;margin-top:6px}
+  footer{padding:10px 0 0;font-size:7.5pt}
 }
 </style>
 </head>
@@ -275,6 +330,7 @@ footer{padding:40px 0 60px;color:var(--tx3);font-size:13px;text-align:center}
     <section class="hero" id="hero" style="padding-top:150px">
       <div class="hero-in">
         <div>
+          <div class="print-only print-name">Павел Павлович</div>
           <span class="pill rv"><span class="dot"></span>Открыт к предложениям · удалённо</span>
           <h1 class="rv d1">Full‑Stack / AI‑first <span class="serif">разработчик</span></h1>
           <p class="lead rv d2">Строю инструменты, которыми отделы продаж пользуются каждый день: Telegram Mini Apps и боты, Chrome-расширения для CRM, интеграции и автоматизация — от идеи и архитектуры до деплоя и поддержки.</p>
@@ -289,6 +345,7 @@ footer{padding:40px 0 60px;color:var(--tx3);font-size:13px;text-align:center}
             <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>Нячанг, Вьетнам · UTC+7</span>
             <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18"/></svg>Full-time или проектно</span>
             <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-6.5 7h13M5.5 15h13M12 2c2.5 2.7 3.8 6 3.8 10s-1.3 7.3-3.8 10c-2.5-2.7-3.8-6-3.8-10S9.5 4.7 12 2Z"/></svg>Русский · английский</span>
+            <span class="print-only"><b>Telegram:</b>&nbsp;@Ppasha69 · <b>Портфолио:</b>&nbsp;nexusnova.app/#portfolio · <b>Резюме онлайн:</b>&nbsp;nexusnova.app/cv · <b>GitHub:</b>&nbsp;pasapavlovic68-cpu</span>
           </div>
         </div>
         <div class="photo rv d2">
