@@ -62,7 +62,9 @@
 
   /* ── когорта: считается на лету из списка игроков под выбранные дни регистрации ── */
   let kpErr = '', вид = '';
-  const сегодня = () => (KP ? String(KP.upd).slice(0, 10) : '2026-10-31');
+  const днейОбн = () => (KP ? String(KP.upd).slice(0, 10) : '2026-10-31');
+  const сегодня = () => (днейОбн() > '2026-10-31' ? '2026-10-31' : днейОбн());      // регистрации когорты — только октябрь
+  const доFD = () => (днейОбн() > '2026-11-10' ? '2026-11-10' : днейОбн());          // её депозиты — до конца докатки
   let kОт = '2026-10-01', kДо = '';
   const вПериоде = (r) => { const d = String(r[4]); return d >= kОт && d <= (kДо || сегодня()); };
   const нуль = () => ({ regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0 });
@@ -85,7 +87,7 @@
     }
     const поДеньгам = (a, b) => (b.ftd_sum + b.rd_sum) - (a.ftd_sum + a.rd_sum) || b.regs - a.regs;
     const дни = (до) => { const out = []; for (let d = new Date(kОт + 'T00:00:00Z'); d.toISOString().slice(0, 10) <= до; d.setUTCDate(d.getUTCDate() + 1)) { const k = d.toISOString().slice(0, 10); out.push(Д.get(k) || { day: k, regs: 0, regsF: 0, ftd: 0, fs: 0 }); } return out; };
-    const days = дни(kДо || сегодня()), daysF = дни(сегодня());   // регистрации — в выбранные дни, первые депозиты — от первого дня по сегодня
+    const days = дни(kДо || сегодня()), daysF = дни(доFD());   // регистрации — в выбранные дни, первые депозиты — от первого дня по сегодня
     return { rows, total, days, daysF,
       emps: [...E.values()].map((e) => Object.assign(e, { bots: [...e.botsSet] })).sort((a, b) => (a.name === 'Сотрудник не определён') - (b.name === 'Сотрудник не определён') || поДеньгам(a, b)),
       bots: [...B.values()].sort(поДеньгам), spaces: [...S.values()].sort((a, b) => (a.name === 'Спейс не определён') - (b.name === 'Спейс не определён') || поДеньгам(a, b)) };
@@ -147,7 +149,7 @@
     const пн = (() => { const d = new Date(сег + 'T00:00:00Z'); return сдвиг(сег, -((d.getUTCDay() + 6) % 7)); })();
     const пресет = (txt, a, b) => `<button type="button" class="cal-p${kОт === a && до === b ? ' on' : ''}" data-cal="${a}|${b}">${txt}</button>`;
     return `<div class="cal-wrap"><button type="button" class="btn cal-btn" data-calbtn="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Регистрации: ${дм(kОт)}${kОт === до ? '' : ' — ' + дм(до)}<svg class="cal-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div class="cal-pop${calOpen ? ' open' : ''}"><div class="cal-ps">${пресет('Весь месяц', нач, сег)}${пресет('Эта неделя', пн < нач ? нач : пн, сег)}${пресет('Вчера', сдвиг(сег, -1), сдвиг(сег, -1))}${пресет('Сегодня', сег, сег)}</div>
+      <div class="cal-pop${calOpen ? ' open' : ''}"><div class="cal-ps">${пресет('Весь месяц', нач, сег)}${днейОбн() > сег ? '' : пресет('Эта неделя', пн < нач ? нач : пн, сег) + пресет('Вчера', сдвиг(сег, -1), сдвиг(сег, -1)) + пресет('Сегодня', сег, сег)}</div>
       <div class="cal-m">${МЕС[9]} 2026</div><div class="cal-g">${клетки}</div><p class="cal-h">${calПик ? 'Выберите последний день' : 'Нажмите первый день, затем последний'}</p></div></div>`;
   }
   const перерисовать = () => { if (вид !== 'kogorta') return; const y = scrollY; $('#app').innerHTML = V.kogorta(); scrollTo({ top: y, behavior: 'instant' }); };
@@ -245,6 +247,8 @@
     },
     sverka() {
       const o = D.check.okk, p = D.check.pp;
+      if (!p) return `<section class="view"><div class="head-blk"><div class="kicker">Проверка цифр</div><h2>Сверка с <span class="serif">партнёркой</span></h2></div>
+        <div class="err">При последнем обновлении (${esc(String(D.period.upd).slice(0, 16).replace('T', ' '))} UTC) партнёрка не ответила — сверка НЕ проведена. Это не «расхождений нет»: цифры отчёта со склада ОКК, сравнить их сейчас не с чем. Следующая попытка — при ночном обновлении.</div></section>`;
       const r = (nm, a, b, f) => { const d = Math.round((b - a) * 100) / 100; return `<div>${nm}</div><div class="r">${f(a)}</div><div class="r">${f(b)}</div><div class="r ${d === 0 ? 'd0' : 'd1'}">${d === 0 ? 'совпадает' : (d > 0 ? '+' : '') + f(d)}</div>`; };
       return `<section class="view"><div class="head-blk"><div class="kicker">Проверка цифр</div><h2>Сверка с <span class="serif">партнёркой</span></h2><p class="lead">Отчёт собран со склада ОКК. Итоги сравнены с ответом API партнёрки PocketOption за тот же период.</p></div>
         <div class="card"><div class="check"><div class="h">Показатель</div><div class="h r">Отчёт</div><div class="h r">Партнёрка</div><div class="h r">Разница</div>
@@ -384,7 +388,7 @@
 
   fetch('data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(async (d) => {
     D = d;
-    $('#foot').textContent = 'Nexus · отчёт за ' + period() + ' · склад ОКК от ' + String(d.period.upd).slice(0, 16).replace('T', ' ') + ' UTC, сверен с партнёркой';
+    $('#foot').textContent = 'Nexus · отчёт за ' + period() + ' · склад ОКК от ' + String(d.period.upd).slice(0, 16).replace('T', ' ') + ' UTC' + (d.check.pp ? ', сверен с партнёркой' : ' · сверка с партнёркой не проведена');
     был = location.hash; show(); addEventListener('hashchange', go);
   }).catch((e) => { $('#app').innerHTML = '<div class="err">Отчёт не загрузился (' + esc(e.message) + '). Это не «данных нет» — обновите страницу; если не помогает, войдите заново.</div>'; });
 })();
