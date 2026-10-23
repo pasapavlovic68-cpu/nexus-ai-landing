@@ -79,16 +79,44 @@
       плюс(B.get(bid), r);
       if (!S.has(sp)) S.set(sp, Object.assign(нуль(), { name: sp }));
       плюс(S.get(sp), r);
-      const d = String(r[4]); if (!Д.has(d)) Д.set(d, { day: d, regs: 0, ftd: 0 }); Д.get(d).regs++;
-      const fd = String(r[10] || ''); if (fd && r[5]) { if (!Д.has(fd)) Д.set(fd, { day: fd, regs: 0, ftd: 0 }); Д.get(fd).ftd += r[5]; }
+      const день = (x) => { if (!Д.has(x)) Д.set(x, { day: x, regs: 0, regsF: 0, ftd: 0, fs: 0 }); return Д.get(x); };
+      const d = день(String(r[4])); d.regs++; if (r[5]) d.regsF++;
+      const fd = String(r[10] || ''); if (fd && r[5]) { const x = день(fd); x.ftd += r[5]; x.fs += r[6]; }
     }
     const поДеньгам = (a, b) => (b.ftd_sum + b.rd_sum) - (a.ftd_sum + a.rd_sum) || b.regs - a.regs;
-    const дни = (до) => { const out = []; for (let d = new Date(kОт + 'T00:00:00Z'); d.toISOString().slice(0, 10) <= до; d.setUTCDate(d.getUTCDate() + 1)) { const k = d.toISOString().slice(0, 10); out.push(Д.get(k) || { day: k, regs: 0, ftd: 0 }); } return out; };
+    const дни = (до) => { const out = []; for (let d = new Date(kОт + 'T00:00:00Z'); d.toISOString().slice(0, 10) <= до; d.setUTCDate(d.getUTCDate() + 1)) { const k = d.toISOString().slice(0, 10); out.push(Д.get(k) || { day: k, regs: 0, regsF: 0, ftd: 0, fs: 0 }); } return out; };
     const days = дни(kДо || сегодня()), daysF = дни(сегодня());   // регистрации — в выбранные дни, первые депозиты — от первого дня по сегодня
     return { rows, total, days, daysF,
       emps: [...E.values()].map((e) => Object.assign(e, { bots: [...e.botsSet] })).sort((a, b) => (a.name === 'Сотрудник не определён') - (b.name === 'Сотрудник не определён') || поДеньгам(a, b)),
       bots: [...B.values()].sort(поДеньгам), spaces: [...S.values()].sort((a, b) => (a.name === 'Спейс не определён') - (b.name === 'Спейс не определён') || поДеньгам(a, b)) };
   }
+  /* ── график когорты: свои подсказки при наведении (без системного title) ── */
+  const ДН = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+  const kChart = (title, note, daily, f, fmt, color, подсказка) => {
+    const W = 640, H = 170, Pd = { l: 6, r: 6, t: 14, b: 22 }, vals = daily.map(f), max = Math.max(1, ...vals), bw = (W - Pd.l - Pd.r) / daily.length;
+    const bars = daily.map((d, i) => { const h = (vals[i] / max) * (H - Pd.t - Pd.b); const x = Pd.l + i * bw + bw * .15, y = H - Pd.b - h;
+      const [a, b] = подсказка(d), дн = ДН[new Date(d.day + 'T00:00:00Z').getUTCDay()];
+      return `<g class="kb-g" data-ki="${i}" data-t="${esc(дм(d.day) + ', ' + дн)}" data-a="${esc(a)}" data-b="${esc(b || '')}"><rect class="kb-hit" x="${(Pd.l + i * bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H - Pd.b}" fill="transparent"/><rect class="kb-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw * .7).toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3" fill="${color}"/></g>`; }).join('');
+    const шаг = daily.length > 16 ? 3 : 1;
+    const ticks = daily.map((d, i) => (i % шаг === 0 || i === daily.length - 1) ? `<text class="ax" x="${(Pd.l + i * bw + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${d.day.slice(8)}</text>` : '').join('');
+    const mi = vals.indexOf(max);
+    const peak = `<text class="ax" x="${(Pd.l + mi * bw + bw / 2).toFixed(1)}" y="${(Pd.t - 3).toFixed(1)}" text-anchor="middle" style="fill:var(--tx2)">${fmt(max)}</text>`;
+    return `<div class="chart kch"><div class="tt"><b>${esc(title)}</b><small>${esc(note)}</small></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}"><line x1="0" x2="${W}" y1="${H - Pd.b}" y2="${H - Pd.b}" stroke="var(--ln2)"/>${bars}${peak}${ticks}</svg><div class="k-tip" aria-hidden="true"><small></small><b></b><span></span></div></div>`;
+  };
+  const kCharts = (k) => `<div class="charts k-charts">${kChart('Регистрации когорты по дням', 'партнёрка', k.days, (d) => d.regs, (v) => ru(v), 'var(--or2)', (d) => [ru(d.regs) + ' рег', d.regs ? 'из них с FD: ' + ru(d.regsF) + ' · ' + pct(d.regsF, d.regs) : ''])}${kChart('Первые депозиты когорты по дням', 'по дню FD, до сегодня', k.daysF, (d) => d.ftd, (v) => ru(v), 'var(--ok)', (d) => [ru(d.ftd) + ' FD', d.ftd ? 'на ' + usd2(d.fs) : ''])}</div>`;
+  const kОтметить = (g) => {
+    const box = g.closest('.kch'), tip = box.querySelector('.k-tip'), svg = box.querySelector('svg');
+    svg.querySelectorAll('.kb-g.on').forEach((x) => x !== g && x.classList.remove('on')); g.classList.add('on'); svg.classList.add('hov');
+    tip.querySelector('small').textContent = g.dataset.t; tip.querySelector('b').textContent = g.dataset.a; tip.querySelector('span').textContent = g.dataset.b; tip.querySelector('span').hidden = !g.dataset.b;
+    const rb = box.getBoundingClientRect(), rg = g.querySelector('.kb-bar').getBoundingClientRect(), rs = svg.getBoundingClientRect();
+    tip.classList.add('on');
+    const w = tip.offsetWidth, x = Math.min(Math.max(rg.left + rg.width / 2 - rb.left - w / 2, 8), rb.width - w - 8);
+    tip.style.left = x + 'px'; tip.style.top = Math.max(rs.top - rb.top, Math.min(rg.top, rs.bottom - 22) - rb.top - tip.offsetHeight - 8) + 'px';
+  };
+  const kСнять = (box) => { box.querySelector('.k-tip').classList.remove('on'); box.querySelector('svg').classList.remove('hov'); box.querySelectorAll('.kb-g.on').forEach((x) => x.classList.remove('on')); };
+  document.addEventListener('pointerover', (e) => { const g = e.target.closest && e.target.closest('.kch .kb-g'); if (g) kОтметить(g); });
+  document.addEventListener('pointerout', (e) => { const box = e.target.closest && e.target.closest('.kch'); if (box && !box.contains(e.relatedTarget)) kСнять(box); });
+
   const чек = (x) => (x && x.ftd ? usd2((x.ftd_sum + x.rd_sum) / x.ftd) : '—');
   const kTiles = (t) => `<div class="tiles n6">
     <div class="tile"><b>${ru(t.regs)}</b><span>Регистрации</span><small>игроков в когорте</small></div>
@@ -105,7 +133,8 @@
   /* ── свой календарь (без системного): дни регистрации, промежуток двумя нажатиями, быстрые кнопки ── */
   const дм = (iso) => iso.slice(8, 10) + '.' + iso.slice(5, 7);
   const МЕС = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-  let calOpen = false, calПик = '';
+  let calOpen = false, calПик = '', kСписок = '';
+  const шеврон = '<svg class="k-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
   const сдвиг = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
   function календарь() {
     const до = kДо || сегодня(), сег = сегодня();
@@ -123,6 +152,13 @@
   }
   const перерисовать = () => { if (вид !== 'kogorta') return; const y = scrollY; $('#app').innerHTML = V.kogorta(); scrollTo({ top: y, behavior: 'instant' }); };
   document.addEventListener('click', (e) => {
+    const сп = e.target.closest('[data-klist]');
+    if (сп) { kСписок = kСписок === сп.dataset.klist ? '' : сп.dataset.klist;
+      document.querySelectorAll('[data-klist]').forEach((b) => b.classList.toggle('on', b.dataset.klist === kСписок));
+      document.querySelectorAll('.k-pane').forEach((x) => x.classList.toggle('on', x.dataset.pane === kСписок));
+      const f = $('.k-fold'); if (f) f.classList.toggle('open', !!kСписок);
+      const h = $('.k-sw-h'); if (h) h.textContent = kСписок ? 'нажмите строку — справа откроются подробности' : 'нажмите, чтобы раскрыть список';
+      return; }
     const кн = e.target.closest('[data-calbtn]');
     if (кн) { calOpen = !calOpen; calПик = ''; $('.cal-pop') && $('.cal-pop').classList.toggle('open', calOpen); return; }
     const пр = e.target.closest('[data-cal]');
@@ -196,11 +232,14 @@
         <p class="lead">Игроки, которые <b>зарегистрировались в выбранные дни</b>, и все их депозиты по сегодняшний день (для октябрьских — до 10 ноября). Средний чек = (сумма FD + сумма RD) ÷ количество FD.</p>
         <div class="bar" style="justify-content:flex-start">${календарь()}</div></div>
         ${kTiles(t)}
-        <div class="charts">${chart('Регистрации когорты по дням', 'партнёрка', k.days, (d) => d.regs, (v) => ru(v), 'var(--or2)')}${chart('Первые депозиты когорты по дням', 'по дню FD, до сегодня', k.daysF, (d) => d.ftd, (v) => ru(v), 'var(--ok)')}</div>
-        <div class="bar"><h3 class="sub" style="margin:0">Сотрудники — нажмите, справа откроются игроки когорты</h3>${поиск('#k-emps', 'Найти сотрудника')}</div>
-        ${kHead('Сотрудник')}<div class="rows" id="k-emps">${k.emps.map((e) => kRow(e.name, ботов(e.bots.length) + ' · FD/рег ' + pct(e.ftd, e.regs), e, 'k:' + e.name)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div>
-        <div class="bar"><h3 class="sub" style="margin:0">Боты</h3>${поиск('#k-bots', 'Найти бота')}</div>
-        ${kHead('Бот')}<div class="rows" id="k-bots">${k.bots.map((b) => kRow(b.name, b.space + ' · FD/рег ' + pct(b.ftd, b.regs), b, 'kb:' + b.id)).join('')}</div>
+        ${kCharts(k)}
+        <div class="k-sw"><button type="button" class="chip-b${kСписок === 'e' ? ' on' : ''}" data-klist="e">Сотрудники <em>${ru(k.emps.length)}</em>${шеврон}</button><button type="button" class="chip-b${kСписок === 'b' ? ' on' : ''}" data-klist="b">Боты <em>${ru(k.bots.length)}</em>${шеврон}</button><span class="k-sw-h">${kСписок ? 'нажмите строку — справа откроются подробности' : 'нажмите, чтобы раскрыть список'}</span></div>
+        <div class="k-fold${kСписок ? ' open' : ''}"><div>
+          <div class="k-pane${kСписок === 'e' ? ' on' : ''}" data-pane="e"><div class="bar"><span></span>${поиск('#k-emps', 'Найти сотрудника')}</div>
+            ${kHead('Сотрудник')}<div class="rows" id="k-emps">${k.emps.map((e) => kRow(e.name, ботов(e.bots.length) + ' · FD/рег ' + pct(e.ftd, e.regs), e, 'k:' + e.name)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div></div>
+          <div class="k-pane${kСписок === 'b' ? ' on' : ''}" data-pane="b"><div class="bar"><span></span>${поиск('#k-bots', 'Найти бота')}</div>
+            ${kHead('Бот')}<div class="rows" id="k-bots">${k.bots.map((b) => kRow(b.name, b.space + ' · FD/рег ' + pct(b.ftd, b.regs), b, 'kb:' + b.id)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div></div>
+        </div></div>
         <h3 class="sub">Спейсы</h3>${kHead('Спейс')}<div class="rows">${k.spaces.map((x) => kRow(x.name, 'FD/рег ' + pct(x.ftd, x.regs), x, '')).join('')}</div>
         <p class="note">Источник — прямые данные партнёрки PocketOption (склад ОКК, обновлено ${esc(String(KP.upd).slice(0, 16).replace('T', ' '))} UTC). Игроки других платформ (Бинариум и т.п.) сюда не входят. Сотрудник — по постбэку и тегу чата; бот и спейс — по чату игрока.</p></section>`;
     },
@@ -249,7 +288,7 @@
       if (!KP) return null;
       const k = кДанные((r) => KP.e[r[1]] === name), e = k.emps[0]; if (!e) return null;
       const html = `<div class="head-blk"><div class="kicker">Когорта · регистрации ${период()} · сотрудник</div><h2>${esc(name)}</h2>
-        <div class="conv"><span class="pill">средний чек <b>${чек(e)}</b></span><span class="pill">FD из регистраций <b>${pct(e.ftd, e.regs)}</b></span></div></div>${kTiles(e)}
+        <div class="conv"><span class="pill">средний чек <b>${чек(e)}</b></span><span class="pill">FD из регистраций <b>${pct(e.ftd, e.regs)}</b></span></div></div>${kTiles(e)}${kCharts(k)}
         <h3 class="sub">По ботам</h3>${kHead('Бот')}<div class="rows">${k.bots.map((x) => kRow(x.name, x.space, x, 'kb:' + x.id)).join('')}</div>
         <h3 class="sub">Игроки когорты</h3><div id="d-pl"></div>`;
       return { t: 'Когорта · ' + name, html, после: () => списокК($('#d-pl'), (r) => KP.e[r[1]] === name, 'e') };
@@ -258,7 +297,7 @@
       if (!KP) return null;
       const k = кДанные((r) => KP.b[r[2]] === id), b = k.bots[0]; if (!b) return null;
       const html = `<div class="head-blk"><div class="kicker">Когорта · регистрации ${период()} · бот · ${esc(b.space)}</div><h2>${esc(b.name)}</h2>
-        <div class="conv"><span class="pill">средний чек <b>${чек(b)}</b></span><span class="pill">FD из регистраций <b>${pct(b.ftd, b.regs)}</b></span></div></div>${kTiles(b)}
+        <div class="conv"><span class="pill">средний чек <b>${чек(b)}</b></span><span class="pill">FD из регистраций <b>${pct(b.ftd, b.regs)}</b></span></div></div>${kTiles(b)}${kCharts(k)}
         <h3 class="sub">Сотрудники</h3>${kHead('Сотрудник')}<div class="rows">${k.emps.map((x) => kRow(x.name, '', x, 'k:' + x.name)).join('')}</div>
         <h3 class="sub">Игроки когорты</h3><div id="d-pl"></div>`;
       return { t: 'Когорта · ' + b.name, html, после: () => списокК($('#d-pl'), (r) => KP.b[r[2]] === id, 'b') };
