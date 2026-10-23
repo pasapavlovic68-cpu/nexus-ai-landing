@@ -138,11 +138,14 @@ footer{position:relative;z-index:1;padding-block:26px 50px;color:var(--tx3);font
 @media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}.s-nav,.brand,.card{transition:none}}
 
 /* печать / PDF: все страницы подряд, каждая с новой страницы, светлая тема */
+@page{margin:14mm 12mm}
 @media print{
-  :root{--bg:#fff;--tx:#111;--tx1:#222;--tx2:#444;--tx3:#777;--or:#C9560D;--or2:#C9560D;--ln:#e5ddd5;--ln2:#d5cabf;--card:#fff;--card2:#faf6f2;--ok:#1E8E5A;--warn:#A86A10;--blue:#2F6FD6;color-scheme:light}
+  :root,:root[data-theme]{--bg:#fff;--tx:#111;--tx1:#222;--tx2:#444;--tx3:#777;--or:#C9560D;--or2:#C9560D;--ln:#e5ddd5;--ln2:#d5cabf;--card:#fff;--card2:#faf6f2;--ok:#1E8E5A;--warn:#A86A10;--blue:#2F6FD6;color-scheme:light}
   .aura,.grid,.s-nav,.no-print{display:none!important}main{padding-top:0}
   .view{break-before:page;display:grid!important}.view:first-child{break-before:auto}
-  .card,.row,.tile,.chart{break-inside:avoid}a.card:hover,.row:hover{transform:none}
+  .card,.row,.tile,.chart{break-inside:avoid}
+  .charts{grid-template-columns:1fr 1fr}.chart svg{max-height:150px}
+  .row{padding:7px 12px;border-radius:10px}.rows{gap:5px}a.card:hover,.row:hover{transform:none}
 }
 </style>
 </head>
@@ -257,7 +260,7 @@ footer{position:relative;z-index:1;padding-block:26px 50px;color:var(--tx3);font
         <div class="chips no-print">${соседи.map((x) => `<a class="chip-b${x.id === id ? ' on' : ''}" href="#b/${enc(x.id)}">${esc(x.name)}</a>`).join('')}</div>`}
         <div class="head-blk"><div class="kicker">Бот · ${esc(b.space)} · ${period()}</div><h2>${esc(b.name)}</h2>
         <div class="conv"><span class="pill">регистрация из лида <b>${pct(b.t.regs, b.t.leads)}</b></span><span class="pill">FD из регистраций <b>${pct(b.t.ftd, b.t.regs)}</b></span><span class="pill">средний FD <b>${b.t.ftd ? usd2(b.t.ftd_sum / b.t.ftd) : '—'}</b></span></div></div>
-        ${tiles(b.t)}${charts(b.daily)}
+        ${tiles(b.t)}${inner ? '' : charts(b.daily)}
         <h3 class="sub">Сотрудники бота</h3>
         ${b.emp.length ? rowHead('Сотрудник') + '<div class="rows">' + b.emp.map((e) => row(e.name, '', e, '#e/' + enc(e.name), true)).join('') + '</div>' : '<p class="lead">По этому боту за период денег и регистраций нет.</p>'}
         <p class="note">Лиды по сотрудникам Chatterfy не делит — у бота они общие. Регистрации и деньги — по сотруднику, к которому записан игрок.</p></section>`;
@@ -304,7 +307,18 @@ footer{position:relative;z-index:1;padding-block:26px 50px;color:var(--tx3);font
     D = d;
     $('#foot').textContent = 'Nexus · отчёт за ' + period() + ' · склад ОКК от ' + String(d.period.upd).slice(0, 16).replace('T', ' ') + ' UTC, сверен с партнёркой';
     if (PRINT) {   // для PDF: все страницы подряд
-      $('#app').innerHTML = V.obzor() + V.sverka() + D.spaces.map((s, i) => V.space(i)).join('') + V.sotrudniki() + D.employees.map((e) => V.emp(e.name)).join('');
+      $('#app').innerHTML = V.obzor() + V.sverka() + D.spaces.map((s, i) => V.space(i)).join('') + V.sotrudniki();   // в PDF сотрудники — одной таблицей, без отдельной страницы на каждого
+      /* в PDF ссылки ведут внутрь документа: спейс → его раздел, бот → его страница, «↑» → обзор */
+      const безоп = (x) => String(x).replace(/[^a-zA-Z0-9-]/g, '-');
+      $$('#app > section.view').forEach((sec, i) => { if (i === 0) sec.id = 'top'; });
+      $$('#app section.view').forEach((sec) => { const h = sec.querySelector('h2'); const k = sec.querySelector('.kicker'); if (!h || !k) return;
+        if (/^Спейс/.test(k.textContent)) sec.id = 'ps-' + D.spaces.findIndex((s) => s.name === h.textContent);
+        if (/^Бот/.test(k.textContent)) { const b = Object.values(D.bots).find((x) => x.name === h.textContent && k.textContent.includes(x.space)); if (b) sec.id = 'pb-' + безоп(b.id); }
+        if (sec.id !== 'top') { const up = document.createElement('a'); up.href = '#top'; up.className = 'pill'; up.textContent = '↑ к обзору'; up.style.justifySelf = 'start'; sec.prepend(up); } });
+      $$('#app a[href]').forEach((a) => { const h = decodeURIComponent(a.getAttribute('href')); let m;
+        if ((m = /^#s\/(\d+)$/.exec(h))) a.setAttribute('href', '#ps-' + m[1]);
+        else if ((m = /^#b\/(.+)$/.exec(h))) a.setAttribute('href', '#pb-' + безоп(m[1]));
+        else if (/^#e\//.test(h)) a.removeAttribute('href'); });
       document.documentElement.dataset.theme = 'light'; window.__ready = true; return;
     }
     cur_ = location.hash; show(); addEventListener('hashchange', go);
