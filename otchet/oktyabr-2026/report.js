@@ -9,7 +9,7 @@
   const pct = (a, b) => (b ? ru((a / b) * 100, 1) + '%' : '—');
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const ботов = (n) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'бот' : ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'бота' : 'ботов'));
-  let D = null, P = null, pLoad = null;
+  let D = null, P = null, pLoad = null, KP = null, kpLoad = null;
 
   /* ── тема ── */
   const cur = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
@@ -60,6 +60,108 @@
     <div class="v leads" data-l="Лиды">${wl ? ru(t.leads) : ''}</div><div class="v" data-l="Рег">${ru(t.regs)}</div><div class="v" data-l="FD">${ru(t.ftd)}</div>
     <div class="v" data-l="FD, $">${usd(t.ftd_sum)}</div><div class="v" data-l="RD, $">${usd(t.rd_sum)}<small>${ru(t.rd)} деп</small></div><div class="v" data-l="Выводы">${usd(t.wdr)}</div></button>`;
 
+  /* ── когорта: считается на лету из списка игроков под выбранные дни регистрации ── */
+  let kpErr = '', вид = '';
+  const сегодня = () => (KP ? String(KP.upd).slice(0, 10) : '2026-10-31');
+  let kОт = '2026-10-01', kДо = '';
+  const вПериоде = (r) => { const d = String(r[4]); return d >= kОт && d <= (kДо || сегодня()); };
+  const нуль = () => ({ regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0 });
+  const плюс = (a, r) => { a.regs++; a.ftd += r[5]; a.ftd_sum += r[6]; a.rd += r[7]; a.rd_sum += r[8]; a.wdr += r[9]; return a; };
+  function кДанные(фильтр) {
+    const rows = KP.rows.filter((r) => вПериоде(r) && фильтр(r));
+    const total = нуль(), E = new Map(), B = new Map(), S = new Map(), Д = new Map();
+    for (const r of rows) {
+      плюс(total, r);
+      const имя = KP.e[r[1]], bid = KP.b[r[2]], sp = KP.bs[r[2]];
+      if (!E.has(имя)) E.set(имя, Object.assign(нуль(), { name: имя, botsSet: new Set() }));
+      плюс(E.get(имя), r).botsSet.add(bid);
+      if (!B.has(bid)) B.set(bid, Object.assign(нуль(), { id: bid, name: KP.bn[r[2]], space: sp }));
+      плюс(B.get(bid), r);
+      if (!S.has(sp)) S.set(sp, Object.assign(нуль(), { name: sp }));
+      плюс(S.get(sp), r);
+      const d = String(r[4]); if (!Д.has(d)) Д.set(d, { day: d, regs: 0, ftd: 0 }); Д.get(d).regs++;
+      const fd = String(r[10] || ''); if (fd && r[5]) { if (!Д.has(fd)) Д.set(fd, { day: fd, regs: 0, ftd: 0 }); Д.get(fd).ftd += r[5]; }
+    }
+    const поДеньгам = (a, b) => (b.ftd_sum + b.rd_sum) - (a.ftd_sum + a.rd_sum) || b.regs - a.regs;
+    const дни = (до) => { const out = []; for (let d = new Date(kОт + 'T00:00:00Z'); d.toISOString().slice(0, 10) <= до; d.setUTCDate(d.getUTCDate() + 1)) { const k = d.toISOString().slice(0, 10); out.push(Д.get(k) || { day: k, regs: 0, ftd: 0 }); } return out; };
+    const days = дни(kДо || сегодня()), daysF = дни(сегодня());   // регистрации — в выбранные дни, первые депозиты — от первого дня по сегодня
+    return { rows, total, days, daysF,
+      emps: [...E.values()].map((e) => Object.assign(e, { bots: [...e.botsSet] })).sort((a, b) => (a.name === 'Сотрудник не определён') - (b.name === 'Сотрудник не определён') || поДеньгам(a, b)),
+      bots: [...B.values()].sort(поДеньгам), spaces: [...S.values()].sort((a, b) => (a.name === 'Спейс не определён') - (b.name === 'Спейс не определён') || поДеньгам(a, b)) };
+  }
+  const чек = (x) => (x && x.ftd ? usd2((x.ftd_sum + x.rd_sum) / x.ftd) : '—');
+  const kTiles = (t) => `<div class="tiles n6">
+    <div class="tile"><b>${ru(t.regs)}</b><span>Регистрации</span><small>игроков в когорте</small></div>
+    <div class="tile ok"><b>${ru(t.ftd)}</b><span>Первые депозиты</span><small>${usd2(t.ftd_sum)} · ${pct(t.ftd, t.regs)} от рег</small></div>
+    <div class="tile"><b>${ru(t.rd)}</b><span>Повторные депозиты</span><small>${usd2(t.rd_sum)}</small></div>
+    <div class="tile"><b>${usd(t.ftd_sum + t.rd_sum)}</b><span>Все депозиты</span><small>FD ${usd(t.ftd_sum)} + RD ${usd(t.rd_sum)}</small></div>
+    <div class="tile or"><b>${чек(t)}</b><span>Средний чек</span><small>(FD $ + RD $) ÷ кол-во FD</small></div>
+    <div class="tile"><b>${usd(t.wdr)}</b><span>Выводы</span><small>исполненные</small></div></div>`;
+  const kHead = (first) => `<div class="row hd wl"><div>${first}</div><div class="v">Рег</div><div class="v">FD</div><div class="v">FD, $</div><div class="v">RD, $</div><div class="v">Все, $</div><div class="v">Ср. чек</div></div>`;
+  const kRow = (name, sub, t, open) => `<${open ? `button type="button" data-open="${esc(open)}"` : 'div'} class="row wl"><div class="nm">${esc(name)}${sub ? '<small>' + esc(sub) + '</small>' : ''}</div>
+    <div class="v" data-l="Рег">${ru(t.regs)}</div><div class="v" data-l="FD">${ru(t.ftd)}</div><div class="v" data-l="FD, $">${usd(t.ftd_sum)}</div>
+    <div class="v" data-l="RD, $">${usd(t.rd_sum)}<small>${ru(t.rd)} деп</small></div><div class="v" data-l="Все, $">${usd(t.ftd_sum + t.rd_sum)}</div><div class="v" data-l="Ср. чек"><b>${чек(t)}</b></div></${open ? 'button' : 'div'}>`;
+
+  /* ── свой календарь (без системного): дни регистрации, промежуток двумя нажатиями, быстрые кнопки ── */
+  const дм = (iso) => iso.slice(8, 10) + '.' + iso.slice(5, 7);
+  const МЕС = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  let calOpen = false, calПик = '';
+  const сдвиг = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  function календарь() {
+    const до = kДо || сегодня(), сег = сегодня();
+    const нач = '2026-10-01', перв = new Date(нач + 'T00:00:00Z'), сдв = (перв.getUTCDay() + 6) % 7;
+    let клетки = '<span class="cal-wd">Пн</span><span class="cal-wd">Вт</span><span class="cal-wd">Ср</span><span class="cal-wd">Чт</span><span class="cal-wd">Пт</span><span class="cal-wd">Сб</span><span class="cal-wd">Вс</span>' + '<span></span>'.repeat(сдв);
+    for (let i = 0; i < 31; i++) {
+      const d = сдвиг(нач, i), нет = d > сег, вн = d >= kОт && d <= до, край = d === kОт || d === до || d === calПик;
+      клетки += `<button type="button" class="cal-d${вн ? ' in' : ''}${край ? ' edge' : ''}${d === сег ? ' today' : ''}" data-day="${d}" ${нет ? 'disabled' : ''}>${i + 1}</button>`;
+    }
+    const пн = (() => { const d = new Date(сег + 'T00:00:00Z'); return сдвиг(сег, -((d.getUTCDay() + 6) % 7)); })();
+    const пресет = (txt, a, b) => `<button type="button" class="cal-p${kОт === a && до === b ? ' on' : ''}" data-cal="${a}|${b}">${txt}</button>`;
+    return `<div class="cal-wrap"><button type="button" class="btn cal-btn" data-calbtn="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Регистрации: ${дм(kОт)}${kОт === до ? '' : ' — ' + дм(до)}<svg class="cal-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="cal-pop${calOpen ? ' open' : ''}"><div class="cal-ps">${пресет('Весь месяц', нач, сег)}${пресет('Эта неделя', пн < нач ? нач : пн, сег)}${пресет('Вчера', сдвиг(сег, -1), сдвиг(сег, -1))}${пресет('Сегодня', сег, сег)}</div>
+      <div class="cal-m">${МЕС[9]} 2026</div><div class="cal-g">${клетки}</div><p class="cal-h">${calПик ? 'Выберите последний день' : 'Нажмите первый день, затем последний'}</p></div></div>`;
+  }
+  const перерисовать = () => { if (вид !== 'kogorta') return; const y = scrollY; $('#app').innerHTML = V.kogorta(); scrollTo({ top: y, behavior: 'instant' }); };
+  document.addEventListener('click', (e) => {
+    const кн = e.target.closest('[data-calbtn]');
+    if (кн) { calOpen = !calOpen; calПик = ''; $('.cal-pop') && $('.cal-pop').classList.toggle('open', calOpen); return; }
+    const пр = e.target.closest('[data-cal]');
+    if (пр) { [kОт, kДо] = пр.dataset.cal.split('|'); calOpen = false; calПик = ''; перерисовать(); return; }
+    const дн = e.target.closest('[data-day]');
+    if (дн) { const d = дн.dataset.day;
+      if (!calПик) { calПик = d; kОт = d; kДо = d; перерисовать(); return; }
+      [kОт, kДо] = d < calПик ? [d, calПик] : [calПик, d]; calПик = ''; calOpen = false; перерисовать(); return; }
+    if (calOpen && !e.target.closest('.cal-pop')) { calOpen = false; calПик = ''; $('.cal-pop') && $('.cal-pop').classList.remove('open'); }
+  });
+
+  const игрокиК = () => kpLoad || (kpLoad = fetch('../oktyabr-2026-kogorta-pl/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((j) => (KP = j), (e) => { kpErr = String(e.message || e); throw e; }));
+  const строкаК = (r, режим) => {
+    const [t, ei, bi, ch, рег, f, fs, rd, rs] = r, bid = KP.b[bi], настоящий = !String(bid).startsWith('нет:');
+    const чат = настоящий && ch ? 'https://v2.chatterfy.ai/bots/' + encodeURIComponent(bid) + '/chats?chat=' + encodeURIComponent(ch) : '';
+    const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
+    return `<div class="pl"><div class="id">${esc(t)}<small>${esc(режим === 'e' ? KP.bn[bi] : KP.e[ei])} · рег ${esc(дм(String(рег)))}</small></div>
+      <div class="v">${f ? usd2(fs) : '—'}<small>${f ? 'FD' : 'без FD'}</small></div><div class="v">${usd(rs)}<small>${ru(rd)} RD</small></div><div class="v">${usd(fs + rs)}<small>всего</small></div>
+      <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">📋 Jarvis</a><a class="lnk${чат ? '' : ' off'}" ${чат ? `href="${чат}" target="_blank" rel="noopener"` : 'aria-disabled="true" title=""'}>💬 Chatterfy</a></div></div>`;
+  };
+  async function списокК(место, фильтр, режим) {
+    место.innerHTML = '<p class="lead">Загружаю игроков когорты…</p>';
+    try { await игрокиК(); } catch (e) { место.innerHTML = '<div class="err">Игроки когорты не загрузились (' + esc(e.message) + '). Это не «игроков нет» — обновите страницу.</div>'; return; }
+    const все = KP.rows.filter((r) => вПериоде(r) && фильтр(r));
+    let показ = ПОКАЗ, q = '', толькоFD = false;
+    const нарисовать = () => {
+      let видно = толькоFD ? все.filter((r) => r[5] > 0) : все;
+      if (q) видно = видно.filter((r) => (r[0] + ' ' + KP.e[r[1]] + ' ' + KP.bn[r[2]]).toLowerCase().includes(q));
+      место.innerHTML = `<div class="bar"><span class="conv"><span class="pill">игроков <b>${ru(видно.length)}</b></span><button type="button" class="pill fd-t${толькоFD ? ' on' : ''}" data-fd="1">${толькоFD ? '✓ ' : ''}только с депозитом</button></span>${поиск('#pl-x', 'ID, сотрудник или бот')}</div>
+        <div class="rows">${видно.slice(0, показ).map((r) => строкаК(r, режим)).join('')}</div>${видно.length > показ ? `<button type="button" class="btn more" data-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, видно.length - показ))} из ${ru(видно.length - показ)}</button>` : ''}`;
+      const inp = место.querySelector('.sx input'); inp.value = q; if (q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(q.length, q.length); }
+      inp.addEventListener('input', () => { q = inp.value.trim().toLowerCase(); показ = ПОКАЗ; нарисовать(); });
+      место.querySelector('[data-fd]').addEventListener('click', () => { толькоFD = !толькоFD; показ = ПОКАЗ; нарисовать(); });
+      const m = место.querySelector('[data-more]'); if (m) m.addEventListener('click', () => { показ += ПОКАЗ; нарисовать(); });
+    };
+    нарисовать();
+  }
+  const период = () => дм(kОт) + (kОт === (kДо || сегодня()) ? '' : ' — ' + дм(kДо || сегодня()));
+
   /* ── главные страницы ── */
   const V = {
     obzor() {
@@ -84,6 +186,23 @@
       return `<section class="view"><div class="head-blk"><div class="kicker">Сотрудники · ${period()}</div><h2>Все <span class="serif">сотрудники</span></h2><p class="lead">Нажмите на сотрудника — справа откроются его боты и все его игроки с кнопками в Jarvis и Chatterfy. Лиды сотрудника — чаты с его именным тегом в Chatterfy.</p></div>
         <div class="bar"><span></span>${поиск('#emps', 'Найти сотрудника')}</div>
         ${rowHead('Сотрудник', true)}<div class="rows" id="emps">${D.employees.map((e) => row(e.name, ботов(e.bots.length) + (e.t.leads ? ' · рег/лид ' + pct(e.t.regs, e.t.leads) : ''), e.t, 'e:' + e.name, true)).join('')}</div></section>`;
+    },
+    kogorta() {
+      if (!KP) { if (!kpErr) игрокиК().then(перерисовать, перерисовать);
+        return kpLoad && kpErr ? `<section class="view"><div class="head-blk"><h2>Когорта</h2></div><div class="err">Данные когорты не загрузились (${esc(kpErr)}). Это не «данных нет» — обновите страницу.</div></section>`
+          : `<section class="view"><div class="head-blk"><div class="kicker">Когорта</div><h2>Когорта <span class="serif">октября</span></h2><p class="lead">Загружаю игроков когорты…</p></div></section>`; }
+      const k = кДанные((r) => true), t = k.total;
+      return `<section class="view"><div class="head-blk"><div class="kicker">Когорта · по сегодняшний день</div><h2>Когорта <span class="serif">октября</span></h2>
+        <p class="lead">Игроки, которые <b>зарегистрировались в выбранные дни</b>, и все их депозиты по сегодняшний день (для октябрьских — до 10 ноября). Средний чек = (сумма FD + сумма RD) ÷ количество FD.</p>
+        <div class="bar" style="justify-content:flex-start">${календарь()}</div></div>
+        ${kTiles(t)}
+        <div class="charts">${chart('Регистрации когорты по дням', 'партнёрка', k.days, (d) => d.regs, (v) => ru(v), 'var(--or2)')}${chart('Первые депозиты когорты по дням', 'по дню FD, до сегодня', k.daysF, (d) => d.ftd, (v) => ru(v), 'var(--ok)')}</div>
+        <div class="bar"><h3 class="sub" style="margin:0">Сотрудники — нажмите, справа откроются игроки когорты</h3>${поиск('#k-emps', 'Найти сотрудника')}</div>
+        ${kHead('Сотрудник')}<div class="rows" id="k-emps">${k.emps.map((e) => kRow(e.name, ботов(e.bots.length) + ' · FD/рег ' + pct(e.ftd, e.regs), e, 'k:' + e.name)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div>
+        <div class="bar"><h3 class="sub" style="margin:0">Боты</h3>${поиск('#k-bots', 'Найти бота')}</div>
+        ${kHead('Бот')}<div class="rows" id="k-bots">${k.bots.map((b) => kRow(b.name, b.space + ' · FD/рег ' + pct(b.ftd, b.regs), b, 'kb:' + b.id)).join('')}</div>
+        <h3 class="sub">Спейсы</h3>${kHead('Спейс')}<div class="rows">${k.spaces.map((x) => kRow(x.name, 'FD/рег ' + pct(x.ftd, x.regs), x, '')).join('')}</div>
+        <p class="note">Источник — прямые данные партнёрки PocketOption (склад ОКК, обновлено ${esc(String(KP.upd).slice(0, 16).replace('T', ' '))} UTC). Игроки других платформ (Бинариум и т.п.) сюда не входят. Сотрудник — по постбэку и тегу чата; бот и спейс — по чату игрока.</p></section>`;
     },
     sverka() {
       const o = D.check.okk, p = D.check.pp;
@@ -126,6 +245,24 @@
   /* ── панель справа ── */
   const dr = $('#drawer'), dim = $('#dim'), стек = [];
   const панели = {
+    k(name) {
+      if (!KP) return null;
+      const k = кДанные((r) => KP.e[r[1]] === name), e = k.emps[0]; if (!e) return null;
+      const html = `<div class="head-blk"><div class="kicker">Когорта · регистрации ${период()} · сотрудник</div><h2>${esc(name)}</h2>
+        <div class="conv"><span class="pill">средний чек <b>${чек(e)}</b></span><span class="pill">FD из регистраций <b>${pct(e.ftd, e.regs)}</b></span></div></div>${kTiles(e)}
+        <h3 class="sub">По ботам</h3>${kHead('Бот')}<div class="rows">${k.bots.map((x) => kRow(x.name, x.space, x, 'kb:' + x.id)).join('')}</div>
+        <h3 class="sub">Игроки когорты</h3><div id="d-pl"></div>`;
+      return { t: 'Когорта · ' + name, html, после: () => списокК($('#d-pl'), (r) => KP.e[r[1]] === name, 'e') };
+    },
+    kb(id) {
+      if (!KP) return null;
+      const k = кДанные((r) => KP.b[r[2]] === id), b = k.bots[0]; if (!b) return null;
+      const html = `<div class="head-blk"><div class="kicker">Когорта · регистрации ${период()} · бот · ${esc(b.space)}</div><h2>${esc(b.name)}</h2>
+        <div class="conv"><span class="pill">средний чек <b>${чек(b)}</b></span><span class="pill">FD из регистраций <b>${pct(b.ftd, b.regs)}</b></span></div></div>${kTiles(b)}
+        <h3 class="sub">Сотрудники</h3>${kHead('Сотрудник')}<div class="rows">${k.emps.map((x) => kRow(x.name, '', x, 'k:' + x.name)).join('')}</div>
+        <h3 class="sub">Игроки когорты</h3><div id="d-pl"></div>`;
+      return { t: 'Когорта · ' + b.name, html, после: () => списокК($('#d-pl'), (r) => KP.b[r[2]] === id, 'b') };
+    },
     s(i) {
       const s = D.spaces[+i]; if (!s) return null;
       const боты = s.bots.map(бот);
@@ -197,16 +334,16 @@
   document.addEventListener('pointermove', (e) => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); }, { passive: true });
 
   /* ── главные страницы без перезагрузки ── */
-  const ГЛАВНЫЕ = ['obzor', 'spaces', 'sotrudniki', 'sverka'];
+  const ГЛАВНЫЕ = ['obzor', 'spaces', 'sotrudniki', 'kogorta', 'sverka'];
   let был = '';
   const show = () => { const h = decodeURIComponent(location.hash.slice(1)); const v = ГЛАВНЫЕ.includes(h) ? h : 'obzor';
-    $('#app').innerHTML = V[v](); setNav(v); scrollTo({ top: 0, behavior: 'instant' }); onScroll();
-    const m = /^(s|b|e):(.+)$/.exec(h); if (m) открыть(h, true);   // старые ссылки на спейс/бота/сотрудника открывают панель
+    вид = v; $('#app').innerHTML = V[v](); setNav(v); scrollTo({ top: 0, behavior: 'instant' }); onScroll();
+    const m = /^(s|b|e|k|kb):(.+)$/.exec(h); if (m) { if (m[1][0] === 'k' && !KP) игрокиК().then(() => открыть(h, true), () => {}); else открыть(h, true); }   // старые ссылки на спейс/бота/сотрудника открывают панель
   };
   const go = () => { if (location.hash === был) return; был = location.hash; закрыть();
     if (document.startViewTransition && !reduce) { const t = document.startViewTransition(show); t.ready.catch(() => {}); t.finished.catch(() => {}); setTimeout(() => t.skipTransition(), 450); } else show(); };
 
-  fetch('data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
+  fetch('data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(async (d) => {
     D = d;
     $('#foot').textContent = 'Nexus · отчёт за ' + period() + ' · склад ОКК от ' + String(d.period.upd).slice(0, 16).replace('T', ' ') + ' UTC, сверен с партнёркой';
     был = location.hash; show(); addEventListener('hashchange', go);
