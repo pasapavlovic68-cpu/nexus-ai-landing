@@ -315,7 +315,7 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
   const usd = (x) => '$' + num(x, 1);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const yader = (n) => n + (n % 10 === 1 && n % 100 !== 11 ? ' ядро' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? ' ядра' : ' ядер');
-  const stCls = (s) => ({ 'готово': 'c-ok', 'работает': 'c-ok', 'код готов': 'c-ok', 'идёт': 'c-warn', 'ждёт владельца': 'c-warn', 'не куплен': 'c-warn' }[s] || 'c-mut');
+  const stCls = (s) => ({ 'готово': 'c-ok', 'работает': 'c-ok', 'код готов': 'c-ok', 'идёт': 'c-warn', 'ждёт владельца': 'c-warn', 'не куплен': 'c-warn', 'оплачивается': 'c-warn' }[s] || 'c-mut');
   const chip = (s, cls) => el('span', 'chip ' + (cls || stCls(s)), s);
   const palette = ['var(--or)', 'var(--or2)', 'var(--gold)', '#B85A2A', '#D99A6C', '#8F4A22', '#C47B4A'];
   const head = $('#head'), nav = $('#nav'), ind = $('#ind'), main = $('#main');
@@ -472,7 +472,7 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
       if (s.disk_used_gb != null) {
         requestAnimationFrame(() => { f.style.width = Math.max(1, (s.disk_used_gb / s.disk_gb) * 100).toFixed(1) + '%'; });
         r.append(el('span', null, 'Диск занят'), el('b', null, num(s.disk_used_gb) + ' ГБ'), el('span', null, 'из ' + num(s.disk_gb) + ' ГБ · ' + Math.round((s.disk_used_gb / s.disk_gb) * 100) + '%'));
-      } else r.append(el('span', null, 'Ещё не куплен — прогноз в «Обзоре»'));
+      } else r.append(el('span', null, s.disk_note || 'Ещё не куплен — прогноз в «Обзоре»'));
       c.append(m, r);
       const dl = el('dl', 'dl');
       for (const [k, v] of [[s.disk_used_gb == null ? 'Будет' : 'Работает', s.runs], ['Цена', (s.cost_usd == null ? 'не знаем' : usd(s.cost_usd) + ' в месяц') + ' · ' + s.cost_note], ['Дальше', s.future]]) { const d = el('div'); d.append(el('dt', null, k), el('dd', null, v)); dl.append(d); }

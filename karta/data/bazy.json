@@ -71,13 +71,13 @@
  },
  {
   "id": "nummo",
-  "name": "Nummo",
+  "name": "NUMMO — учёт доходов",
   "where": "Cloudflare D1",
-  "project": "другой проект",
+  "project": "NUMMO",
   "size_mb": 0.5,
   "growth": "мало",
-  "step": null,
-  "note": ""
+  "step": 7,
+  "note": "Worker + D1, бот @nummo_new_ai_bot, расписание каждую минуту; переезжает на свой сервер"
  },
  {
   "id": "verdikt",
