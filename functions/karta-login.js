@@ -2,7 +2,7 @@
 // проверяет /api/login, после успеха ставится cookie ns_auth и страница просто перезагружается.
 export const KARTA_LOGIN = `<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><title>Вход · Карта системы Nexus</title><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="robots" content="noindex,nofollow"><title>Вход · Nexus</title><link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -23,7 +23,7 @@ button:hover{filter:brightness(1.08);box-shadow:0 10px 28px -8px var(--glow)}but
 .sw:hover{filter:none;box-shadow:none;color:var(--tx);background:color-mix(in srgb,var(--or) 10%,transparent)}
 .msg{min-height:20px;font-size:13.5px;color:var(--bad)}
 </style></head><body><div class="aura"></div>
-<form id="f" autocomplete="off"><div class="mk">N</div><h1>Карта <i>системы</i></h1>
+<form id="f" autocomplete="off"><div class="mk">N</div><h1>Закрытый <i>раздел</i></h1>
 <p id="hint">Вход тот же, что у статистики сайта.</p>
 <input id="v" inputmode="numeric" maxlength="6" placeholder="PIN из 6 цифр" aria-label="PIN" required>
 <button type="submit">Войти</button><div class="msg" id="m" role="alert"></div>
