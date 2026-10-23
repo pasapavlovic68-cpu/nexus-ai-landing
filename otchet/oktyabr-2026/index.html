@@ -137,6 +137,53 @@ footer{position:relative;z-index:1;padding-block:26px 50px;color:var(--tx3);font
 @keyframes vtOut{to{opacity:0;transform:translateY(-10px)}}@keyframes vtIn{from{opacity:0;transform:translateY(14px)}}
 @media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}.s-nav,.brand,.card{transition:none}}
 
+
+/* ═════ панель справа: спейс, бот, сотрудник открываются сбоку, страница остаётся на месте ═════ */
+.dim{position:fixed;inset:0;z-index:40;background:rgba(8,6,5,.5);opacity:0;pointer-events:none;transition:opacity .35s ease-out}
+.dim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:41;top:0;right:0;bottom:0;width:min(max(50vw,600px),100vw);background:var(--bg);border-left:1px solid var(--ln2);box-shadow:-30px 0 80px -30px rgba(0,0,0,.6);
+  transform:translateX(102%);transition:transform .45s var(--ez);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.on{transform:none}
+.drawer::before{content:"";position:absolute;inset:0 0 auto 0;height:260px;background:radial-gradient(60% 100% at 80% 0%,var(--glow),transparent 70%);pointer-events:none;opacity:.7}
+.dr-hd{position:relative;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 16px) 18px 14px;border-bottom:1px solid var(--ln)}
+.dr-hd .t{flex:1;min-width:0;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;border:1px solid var(--ln2);background:transparent;cursor:pointer;color:var(--tx1);transition:background-color .25s var(--ez),border-color .25s var(--ez),box-shadow .25s var(--ez),color .2s}
+.ic:hover{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
+.ic svg{width:17px;height:17px}
+.dr-bd{position:relative;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:20px 20px 40px;display:grid;gap:18px;align-content:start;scrollbar-width:thin;scrollbar-color:var(--ln2) transparent}
+.dr-bd h2{font-size:clamp(26px,3vw,36px)}
+.dr-bd .tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr))}.dr-bd .tile b{font-size:30px}
+.dr-bd .charts{grid-template-columns:1fr 1fr}@media (max-width:700px){.dr-bd .charts{grid-template-columns:1fr}}
+.dr-bd .row{grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr))}
+.dr-bd .row .v.leads{display:none}.dr-bd .row.wl{grid-template-columns:minmax(0,1.5fr) repeat(6,minmax(0,1fr))}.dr-bd .row.wl .v.leads{display:block}
+@media (max-width:760px){.dr-bd .row,.dr-bd .row.wl{grid-template-columns:repeat(3,minmax(0,1fr))}}
+body.lock{overflow:hidden}
+button.row{width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit}
+button.row:hover,button.card:hover{border-color:color-mix(in srgb,var(--or2) 45%,transparent)}
+button.card{text-align:left;cursor:pointer;font:inherit;color:inherit;width:100%}
+button.card:hover{transform:translateY(-2px);box-shadow:0 18px 40px -22px var(--glow)}button.card:hover::after{opacity:1}button.card:hover .go{color:var(--or2)}
+.bu{font-family:var(--fm);font-size:12px;color:var(--or2)}
+/* игроки: строка с кнопками в Jarvis и Chatterfy (открываются в новой вкладке браузера) */
+.pl{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,.8fr)) auto;gap:10px;align-items:center;border:1px solid var(--ln);background:var(--card);border-radius:14px;padding:10px 14px;transition:border-color .25s var(--ez)}
+.pl:hover{border-color:color-mix(in srgb,var(--or2) 40%,transparent)}
+.pl .id{font-family:var(--fm);font-size:13.5px;color:var(--tx)}.pl .id small{display:block;font-family:var(--ff);font-size:12px;color:var(--tx3);overflow-wrap:anywhere}
+.pl .v{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}.pl .v small{display:block;font-size:11px;color:var(--tx3)}
+.pl .bt{display:flex;gap:6px;justify-content:flex-end}
+.lnk{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 10px;border-radius:9px;border:1px solid var(--ln2);font-size:12.5px;font-weight:500;color:var(--tx1);white-space:nowrap;transition:background-color .25s var(--ez),border-color .25s var(--ez),color .2s,box-shadow .25s var(--ez)}
+.lnk:hover{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--or) 10%,transparent)}
+.lnk.off{opacity:.35;pointer-events:none}
+@media (max-width:640px){.pl{grid-template-columns:repeat(3,minmax(0,1fr))}.pl .id{grid-column:1/-1}.pl .bt{grid-column:1/-1;justify-content:flex-start}.pl .v{text-align:left}}
+.more{justify-self:center}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+/* ═════ поиск-лупа, как в нашей CRM: квадрат 40px, при наведении плавно раскрывается, сразу можно писать ═════ */
+.sx{position:relative;display:inline-flex;align-items:center;gap:8px;height:40px;width:40px;padding:0 11px;border-radius:12px;border:1px solid var(--ln2);background:var(--card);overflow:hidden;cursor:pointer;color:var(--tx2);
+  transition:width .34s var(--ez),border-color .2s var(--ez),box-shadow .24s var(--ez),color .2s}
+.sx svg{flex:none;width:17px;height:17px}
+.sx input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--tx);font:500 14px var(--ff);opacity:0;transition:opacity .15s var(--ez)}
+.sx.on{width:min(280px,100%);cursor:text;color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
+.sx.on input{opacity:1;transition:opacity .2s .1s var(--ez)}
+.sx:hover{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent)}
+
 /* печать / PDF: все страницы подряд, каждая с новой страницы, светлая тема */
 @page{margin:14mm 12mm}
 @media print{
@@ -161,169 +208,10 @@ footer{position:relative;z-index:1;padding-block:26px 50px;color:var(--tx3);font
   </div>
 </header>
 <main id="main" tabindex="-1"><div class="wrap" id="app"><p class="lead">Загружаю отчёт…</p></div></main>
+<div class="dim" id="dim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"><div class="dr-hd"><button class="ic" id="dr-back" type="button" aria-label="Назад" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><div class="t" id="dr-t"></div><button class="ic" id="dr-x" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dr-bd" id="dr-bd"></div></aside>
 <footer><div class="wrap" id="foot">Nexus · отчёт руководству</div></footer>
 
-<script>
-(() => {
-  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const PRINT = /[?&]print=1/.test(location.search);
-  const ru = (x, d = 0) => Number(x || 0).toLocaleString('ru-RU', { maximumFractionDigits: d, minimumFractionDigits: d });
-  const usd = (x) => '$' + ru(x, 0);
-  const usd2 = (x) => '$' + ru(x, 2);
-  const pct = (a, b) => (b ? ru((a / b) * 100, 1) + '%' : '—');
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const enc = encodeURIComponent;
-  let D = null;
-
-  /* ── тема ── */
-  const cur = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-  const MOON = 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z', SUN = 'M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z';
-  const themeUi = () => { const d = cur() === 'dark'; $('#theme-t').textContent = d ? 'Светлая' : 'Тёмная'; $('#theme-ic').setAttribute('d', d ? SUN : MOON); };
-  themeUi();
-  $('#theme').addEventListener('click', () => { const n = cur() === 'dark' ? 'light' : 'dark'; const set = () => { document.documentElement.dataset.theme = n; themeUi(); }; if (document.startViewTransition && !reduce) document.startViewTransition(set); else set(); try { localStorage.setItem('km-theme', n); } catch (_) {} });
-
-  /* ── шапка ── */
-  const head = $('#head'), nav = $('#nav'), ind = $('#ind');
-  let compact = null, tick = false;
-  const onScroll = () => { const y = scrollY, c = compact ? y > 24 : y > 56; if (c !== compact) { compact = c; head.classList.toggle('compact', c); head.style.setProperty('--k', c ? 1 : 0); } };
-  addEventListener('scroll', () => { if (tick) return; tick = true; requestAnimationFrame(() => { tick = false; onScroll(); }); }, { passive: true }); onScroll();
-  let key = '';
-  const placeInd = () => { const a = key && $(`a[data-go="${key}"]`, nav); if (!a || !a.getClientRects().length) { ind.style.opacity = 0; return; } const r = a.getBoundingClientRect(), n = nav.getBoundingClientRect(); Object.assign(ind.style, { left: r.left - n.left + 'px', width: r.width + 'px', top: r.top - n.top + 'px', height: r.height + 'px', opacity: 1 }); };
-  new ResizeObserver(placeInd).observe(nav); head.addEventListener('transitionend', (e) => { if (e.target === head) placeInd(); });
-  const setNav = (k) => { key = k; $$('a[data-go]', nav).forEach((a) => a.classList.toggle('on', a.dataset.go === k)); placeInd(); };
-
-  /* ── мелочи отрисовки ── */
-  const tiles = (t, extra) => `<div class="tiles">
-    <div class="tile bl"><b>${ru(t.leads)}</b><span>Лиды</span><small>новые чаты Chatterfy</small></div>
-    <div class="tile"><b>${ru(t.regs)}</b><span>Регистрации</span><small>${pct(t.regs, t.leads)} от лидов</small></div>
-    <div class="tile ok"><b>${ru(t.ftd)}</b><span>Первые депозиты</span><small>${usd2(t.ftd_sum)} · ${pct(t.ftd, t.regs)} от рег</small></div>
-    <div class="tile or"><b>${usd(t.ftd_sum + t.rd_sum)}</b><span>Все депозиты</span><small>FD ${usd(t.ftd_sum)} + RD ${usd(t.rd_sum)}</small></div>
-    <div class="tile"><b>${ru(t.rd)}</b><span>Повторные депозиты</span><small>${usd2(t.rd_sum)}</small></div>
-    <div class="tile"><b>${usd(t.wdr)}</b><span>Выводы</span><small>исполненные</small></div>${extra || ''}</div>`;
-  const mini = (t) => `<div class="mini"><div><b>${ru(t.leads)}</b><span>лиды</span></div><div><b>${ru(t.regs)}</b><span>рег</span></div><div><b>${ru(t.ftd)}</b><span>FD</span></div></div>
-    <div class="conv"><span class="pill">депозиты <b>${usd(t.ftd_sum + t.rd_sum)}</b></span><span class="pill">рег/лид <b>${pct(t.regs, t.leads)}</b></span><span class="pill">FD/рег <b>${pct(t.ftd, t.regs)}</b></span></div>`;
-  /* столбики по дням: одна шкала, подписи из данных */
-  const chart = (title, note, daily, f, fmt, color) => {
-    const W = 640, H = 170, P = { l: 6, r: 6, t: 14, b: 22 }, vals = daily.map(f), max = Math.max(1, ...vals);
-    const bw = (W - P.l - P.r) / daily.length;
-    const bars = daily.map((d, i) => { const h = (vals[i] / max) * (H - P.t - P.b); const x = P.l + i * bw + bw * .15, y = H - P.b - h;
-      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw * .7).toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3" fill="${color}"><title>${d.day.slice(8)}.10 — ${fmt(vals[i])}</title></rect>`; }).join('');
-    const ticks = daily.map((d, i) => (i % 3 === 0 || i === daily.length - 1) ? `<text class="ax" x="${(P.l + i * bw + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${d.day.slice(8)}</text>` : '').join('');
-    const mi = vals.indexOf(max);
-    const peak = `<text class="ax" x="${(P.l + mi * bw + bw / 2).toFixed(1)}" y="${(H - P.b - (H - P.t - P.b) - 3).toFixed(1)}" text-anchor="middle" style="fill:var(--tx2)">${fmt(max)}</text>`;
-    return `<div class="chart"><div class="tt"><b>${esc(title)}</b><small>${esc(note)}</small></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}"><line x1="0" x2="${W}" y1="${H - P.b}" y2="${H - P.b}" stroke="var(--ln2)"/>${bars}${peak}${ticks}</svg></div>`;
-  };
-  const charts = (daily) => `<div class="charts">${chart('Лиды по дням', 'новые чаты, МСК', daily, (d) => d.leads, (v) => ru(v), 'var(--blue)')}${chart('Регистрации по дням', 'партнёрка', daily, (d) => d.regs, (v) => ru(v), 'var(--or2)')}${chart('Первые депозиты по дням, $', 'партнёрка', daily, (d) => d.ftd_sum, (v) => usd(v), 'var(--ok)')}${chart('Все депозиты по дням, $', 'FD + RD', daily, (d) => d.ftd_sum + d.rd_sum, (v) => usd(v), 'var(--gold)')}</div>`;
-  const rowHead = (first) => `<div class="row hd"><div>${first}</div><div class="v">Лиды</div><div class="v">Рег</div><div class="v">FD</div><div class="v">FD, $</div><div class="v">RD, $</div><div class="v">Выводы</div></div>`;
-  const row = (name, sub, t, href, noLeads) => `<${href ? 'a href="' + href + '"' : 'div'} class="row"><div class="nm">${esc(name)}${sub ? '<small>' + esc(sub) + '</small>' : ''}</div>
-    <div class="v" data-l="Лиды">${noLeads ? '—' : ru(t.leads)}</div><div class="v" data-l="Рег">${ru(t.regs)}</div><div class="v" data-l="FD">${ru(t.ftd)}</div>
-    <div class="v" data-l="FD, $">${usd(t.ftd_sum)}</div><div class="v" data-l="RD, $">${usd(t.rd_sum)}<small>${ru(t.rd)} деп</small></div><div class="v" data-l="Выводы">${usd(t.wdr)}</div></${href ? 'a' : 'div'}>`;
-  const period = () => `01–${D.period.to.slice(8)} октября 2026`;
-  const spaceIdx = (name) => D.spaces.findIndex((s) => s.name === name);
-  const spaceChips = (active) => `<div class="chips no-print">${D.spaces.map((s, i) => `<a class="chip-b${i === active ? ' on' : ''}" href="#s/${i}">${esc(s.name)} <em>${ru(s.t.ftd)} FD</em></a>`).join('')}</div>`;
-
-  /* ── страницы ── */
-  const V = {
-    obzor() {
-      const t = D.total;
-      return `<section class="view"><div class="head-blk"><div class="kicker">Nexus · отчёт руководству</div>
-        <h1>Октябрь <span class="serif">2026</span></h1>
-        <p class="lead">Все спейсы и боты за <b>${period()}</b>. Деньги и регистрации — данные партнёрки PocketOption, сверены с ней напрямую; лиды — новые чаты в Chatterfy.</p></div>
-        ${tiles(t, `<div class="tile"><b>${ru(D.players)}</b><span>Игроков с событиями</span><small>за период</small></div>`)}
-        ${charts(D.spaces.reduce((acc, s) => s.daily.map((d, i) => { const a = acc[i] || { day: d.day, leads: 0, regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0 }; for (const k of ['leads', 'regs', 'ftd', 'ftd_sum', 'rd', 'rd_sum', 'wdr']) a[k] += d[k]; return a; }), []))}
-        <h3 class="sub">Спейсы — выберите, чтобы открыть его ботов</h3>
-        <div class="cards">${D.spaces.map((s, i) => `<a class="card" href="#s/${i}"><div class="top-row"><span class="n">${s.bots.length} ${s.bots.length === 1 ? 'бот' : (s.bots.length < 5 ? 'бота' : 'ботов')}</span><span class="go">Открыть →</span></div><h3>${esc(s.name)}</h3>${mini(s.t)}</a>`).join('')}</div>
-        <p class="note">Бот определён по чату игрока. Где чат не найден, деньги собраны в строку «Бот не определён» — это ${pct(D.spaces.filter((s) => s.name === 'Спейс не определён').reduce((a, s) => a + s.t.regs, 0), t.regs)} регистраций.</p></section>`;
-    },
-    spaces() {
-      return `<section class="view"><div class="head-blk"><div class="kicker">Спейсы и боты</div><h2>Выберите <span class="serif">спейс</span></h2><p class="lead">Нажмите на спейс — откроются его боты. Внутри каждого бота — его цифры и сотрудники.</p></div>
-        ${rowHead('Спейс')}<div class="rows">${D.spaces.map((s, i) => row(s.name, s.bots.length + ' ботов', s.t, '#s/' + i)).join('')}</div></section>`;
-    },
-    space(i) {
-      const s = D.spaces[i]; if (!s) return V.obzor();
-      const bots = s.bots.map((id) => D.bots[id]).filter(Boolean);
-      return `<section class="view"><div class="crumbs no-print"><a href="#obzor">Обзор</a>›<a href="#spaces">Спейсы</a>›<span>${esc(s.name)}</span></div>
-        ${spaceChips(i)}
-        <div class="head-blk"><div class="kicker">Спейс · ${period()}</div><h2>${esc(s.name)}</h2></div>
-        ${tiles(s.t)}${charts(s.daily)}
-        <h3 class="sub">Боты спейса — выберите бота</h3>
-        <div class="chips no-print">${bots.map((b) => `<a class="chip-b" href="#b/${enc(b.id)}">${esc(b.name)} <em>${ru(b.t.ftd)} FD</em></a>`).join('')}</div>
-        ${rowHead('Бот')}<div class="rows">${bots.map((b) => row(b.name, 'рег/лид ' + pct(b.t.regs, b.t.leads) + ' · FD/рег ' + pct(b.t.ftd, b.t.regs), b.t, '#b/' + enc(b.id), b.id.startsWith('нет:'))).join('')}</div>
-        ${PRINT ? bots.map((b) => V.bot(b.id, true)).join('') : ''}</section>`;
-    },
-    bot(id, inner) {
-      const b = D.bots[id]; if (!b) return V.obzor();
-      const si = spaceIdx(b.space), s = D.spaces[si];
-      const соседи = s ? s.bots.map((x) => D.bots[x]).filter(Boolean) : [];
-      return `<section class="view"${inner ? ' style="break-before:page"' : ''}>${inner ? '' : `<div class="crumbs no-print"><a href="#obzor">Обзор</a>›<a href="#s/${si}">${esc(b.space)}</a>›<span>${esc(b.name)}</span></div>
-        <div class="chips no-print">${соседи.map((x) => `<a class="chip-b${x.id === id ? ' on' : ''}" href="#b/${enc(x.id)}">${esc(x.name)}</a>`).join('')}</div>`}
-        <div class="head-blk"><div class="kicker">Бот · ${esc(b.space)} · ${period()}</div><h2>${esc(b.name)}</h2>
-        <div class="conv"><span class="pill">регистрация из лида <b>${pct(b.t.regs, b.t.leads)}</b></span><span class="pill">FD из регистраций <b>${pct(b.t.ftd, b.t.regs)}</b></span><span class="pill">средний FD <b>${b.t.ftd ? usd2(b.t.ftd_sum / b.t.ftd) : '—'}</b></span></div></div>
-        ${tiles(b.t)}${inner ? '' : charts(b.daily)}
-        <h3 class="sub">Сотрудники бота</h3>
-        ${b.emp.length ? rowHead('Сотрудник') + '<div class="rows">' + b.emp.map((e) => row(e.name, '', e, '#e/' + enc(e.name), true)).join('') + '</div>' : '<p class="lead">По этому боту за период денег и регистраций нет.</p>'}
-        <p class="note">Лиды по сотрудникам Chatterfy не делит — у бота они общие. Регистрации и деньги — по сотруднику, к которому записан игрок.</p></section>`;
-    },
-    sotrudniki() {
-      return `<section class="view"><div class="head-blk"><div class="kicker">Сотрудники · ${period()}</div><h2>Все <span class="serif">сотрудники</span></h2><p class="lead">Нажмите на сотрудника — откроется, по каким ботам его игроки.</p></div>
-        <label class="search no-print"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Найти сотрудника" autocomplete="off"></label>
-        ${rowHead('Сотрудник')}<div class="rows" id="emps">${D.employees.map((e) => row(e.name, e.bots.length + ' ' + (e.bots.length === 1 ? 'бот' : 'ботов'), e.t, '#e/' + enc(e.name), true)).join('')}</div></section>`;
-    },
-    emp(name) {
-      const e = D.employees.find((x) => x.name === name); if (!e) return V.sotrudniki();
-      return `<section class="view"><div class="crumbs no-print"><a href="#obzor">Обзор</a>›<a href="#sotrudniki">Сотрудники</a>›<span>${esc(e.name)}</span></div>
-        <div class="head-blk"><div class="kicker">Сотрудник · ${period()}</div><h2>${esc(e.name)}</h2></div>
-        <div class="tiles"><div class="tile"><b>${ru(e.t.regs)}</b><span>Регистрации</span></div><div class="tile ok"><b>${ru(e.t.ftd)}</b><span>Первые депозиты</span><small>${usd2(e.t.ftd_sum)}</small></div>
-        <div class="tile or"><b>${usd(e.t.ftd_sum + e.t.rd_sum)}</b><span>Все депозиты</span></div><div class="tile"><b>${ru(e.t.rd)}</b><span>Повторные</span><small>${usd2(e.t.rd_sum)}</small></div><div class="tile"><b>${usd(e.t.wdr)}</b><span>Выводы</span></div></div>
-        <h3 class="sub">По ботам</h3>${rowHead('Бот')}<div class="rows">${e.bots.map((x) => { const b = D.bots[x.id] || { name: x.id, space: '' }; return row(b.name, b.space, x, '#b/' + enc(x.id), true); }).join('')}</div></section>`;
-    },
-    sverka() {
-      const o = D.check.okk, p = D.check.pp;
-      const r = (nm, a, b, f) => { const d = Math.round((b - a) * 100) / 100; return `<div>${nm}</div><div class="r">${f(a)}</div><div class="r">${f(b)}</div><div class="r ${d === 0 ? 'd0' : 'd1'}">${d === 0 ? 'совпадает' : (d > 0 ? '+' : '') + f(d)}</div>`; };
-      return `<section class="view"><div class="head-blk"><div class="kicker">Проверка цифр</div><h2>Сверка с <span class="serif">партнёркой</span></h2>
-        <p class="lead">Отчёт собран со склада ОКК. Итоги сравнены с ответом API партнёрки PocketOption за тот же период.</p></div>
-        <div class="card"><div class="check"><div class="h">Показатель</div><div class="h r">Отчёт</div><div class="h r">Партнёрка</div><div class="h r">Разница</div>
-        ${r('Регистрации', o.regs, p.regs, (v) => ru(v))}${r('Первые депозиты', o.ftd, p.ftd, (v) => ru(v))}${r('Первые депозиты, $', o.ftd_sum, p.ftd_sum, usd2)}${r('Все депозиты', o.dep, p.dep, (v) => ru(v))}${r('Все депозиты, $', o.dep_sum, p.dep_sum, usd2)}${r('Выводы, $', o.wdr, p.wdr, usd2)}</div></div>
-        <p class="note">Маленькая разница — события текущего дня, пришедшие после последнего сбора склада (${esc(String(D.period.upd).slice(0, 16).replace('T', ' '))} UTC). За закрытые дни цифры совпадают.</p>
-        <div class="card"><h4>Откуда цифры</h4><p>• <b>Регистрации, депозиты, выводы</b> — API партнёрки PocketOption, по игрокам и дням (дни — по времени партнёрки).<br>• <b>Чей игрок</b> — сотрудник из постбэка и тега чата Chatterfy.<br>• <b>Бот и спейс</b> — по чату игрока; не нашёлся чат — «Бот не определён».<br>• <b>Лиды</b> — новые чаты в Chatterfy по московскому времени.</p></div></section>`;
-    },
-  };
-
-  /* ── переходы ── */
-  let cur_ = '';
-  const route = () => { const h = decodeURIComponent(location.hash.slice(1) || 'obzor'); let m;
-    if ((m = /^s\/(\d+)$/.exec(h))) return { html: V.space(+m[1]), nav: 'spaces' };
-    if ((m = /^b\/(.+)$/.exec(h))) return { html: V.bot(m[1]), nav: 'spaces' };
-    if ((m = /^e\/(.+)$/.exec(h))) return { html: V.emp(m[1]), nav: 'sotrudniki' };
-    if (V[h] && !['space', 'bot', 'emp'].includes(h)) return { html: V[h](), nav: h };
-    return { html: V.obzor(), nav: 'obzor' }; };
-  const show = () => { const r = route(); $('#app').innerHTML = r.html; setNav(r.nav); scrollTo({ top: 0, behavior: 'instant' }); onScroll(); bindPage(); };
-  const go = () => { if (location.hash === cur_) return; cur_ = location.hash; if (document.startViewTransition && !reduce) { const t = document.startViewTransition(show); t.ready.catch(() => {}); t.finished.catch(() => {}); setTimeout(() => t.skipTransition(), 450); } else show(); };   // страховка, как у юриста: вкладка в фоне не даёт кадр для анимации
-  const bindPage = () => { const q = $('#q'); if (q) q.addEventListener('input', () => { const v = q.value.trim().toLowerCase(); $$('#emps .row').forEach((r) => { r.hidden = v && !r.textContent.toLowerCase().includes(v); }); }); };
-  document.addEventListener('pointermove', (e) => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); }, { passive: true });
-
-  fetch('data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
-    D = d;
-    $('#foot').textContent = 'Nexus · отчёт за ' + period() + ' · склад ОКК от ' + String(d.period.upd).slice(0, 16).replace('T', ' ') + ' UTC, сверен с партнёркой';
-    if (PRINT) {   // для PDF: все страницы подряд
-      $('#app').innerHTML = V.obzor() + V.sverka() + D.spaces.map((s, i) => V.space(i)).join('') + V.sotrudniki();   // в PDF сотрудники — одной таблицей, без отдельной страницы на каждого
-      /* в PDF ссылки ведут внутрь документа: спейс → его раздел, бот → его страница, «↑» → обзор */
-      const безоп = (x) => String(x).replace(/[^a-zA-Z0-9-]/g, '-');
-      $$('#app > section.view').forEach((sec, i) => { if (i === 0) sec.id = 'top'; });
-      $$('#app section.view').forEach((sec) => { const h = sec.querySelector('h2'); const k = sec.querySelector('.kicker'); if (!h || !k) return;
-        if (/^Спейс/.test(k.textContent)) sec.id = 'ps-' + D.spaces.findIndex((s) => s.name === h.textContent);
-        if (/^Бот/.test(k.textContent)) { const b = Object.values(D.bots).find((x) => x.name === h.textContent && k.textContent.includes(x.space)); if (b) sec.id = 'pb-' + безоп(b.id); }
-        if (sec.id !== 'top') { const up = document.createElement('a'); up.href = '#top'; up.className = 'pill'; up.textContent = '↑ к обзору'; up.style.justifySelf = 'start'; sec.prepend(up); } });
-      $$('#app a[href]').forEach((a) => { const h = decodeURIComponent(a.getAttribute('href')); let m;
-        if ((m = /^#s\/(\d+)$/.exec(h))) a.setAttribute('href', '#ps-' + m[1]);
-        else if ((m = /^#b\/(.+)$/.exec(h))) a.setAttribute('href', '#pb-' + безоп(m[1]));
-        else if (/^#e\//.test(h)) a.removeAttribute('href'); });
-      document.documentElement.dataset.theme = 'light'; window.__ready = true; return;
-    }
-    cur_ = location.hash; show(); addEventListener('hashchange', go);
-  }).catch((e) => { $('#app').innerHTML = '<div class="err">Отчёт не загрузился (' + esc(e.message) + '). Это не «данных нет» — обновите страницу; если не помогает, войдите заново.</div>'; });
-})();
-</script>
+<script src="report.js"></script>
 </body>
 </html>
