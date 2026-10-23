@@ -36,8 +36,8 @@
   const ЛУПА = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
   const поиск = (цель, подсказка) => `<label class="sx" data-sx="${цель}" title="">${ЛУПА}<input type="text" placeholder="${esc(подсказка)}" autocomplete="off" aria-label="${esc(подсказка)}"></label>`;
 
-  const tiles = (t, extra, безЛидов) => `<div class="tiles n${(безЛидов ? 5 : 6) + (extra ? 1 : 0)}">
-    ${безЛидов ? '' : `<div class="tile bl"><b>${ru(t.leads)}</b><span>Лиды</span><small>новые чаты Chatterfy</small></div>`}
+  const tiles = (t, extra, безЛидов, подписьЛидов) => `<div class="tiles n${(безЛидов ? 5 : 6) + (extra ? 1 : 0)}">
+    ${безЛидов ? '' : `<div class="tile bl"><b>${ru(t.leads)}</b><span>Лиды</span><small>${подписьЛидов || 'новые чаты Chatterfy'}</small></div>`}
     <div class="tile"><b>${ru(t.regs)}</b><span>Регистрации</span><small>${безЛидов ? 'партнёрка' : pct(t.regs, t.leads) + ' от лидов'}</small></div>
     <div class="tile ok"><b>${ru(t.ftd)}</b><span>Первые депозиты</span><small>${usd2(t.ftd_sum)} · ${pct(t.ftd, t.regs)} от рег</small></div>
     <div class="tile"><b>${ru(t.rd)}</b><span>Повторные депозиты</span><small>${usd2(t.rd_sum)}</small></div>
@@ -81,9 +81,9 @@
         ${rowHead('Бот', true)}<div class="rows" id="bt-rows">${Object.values(D.bots).sort((a, b) => b.t.ftd_sum - a.t.ftd_sum).map((b) => row(имяБота(b), [b.space, подБотом(b)].filter(Boolean).join(' · '), b.t, 'b:' + b.id, true)).join('')}</div></section>`;
     },
     sotrudniki() {
-      return `<section class="view"><div class="head-blk"><div class="kicker">Сотрудники · ${period()}</div><h2>Все <span class="serif">сотрудники</span></h2><p class="lead">Нажмите на сотрудника — справа откроются его боты и все его игроки с кнопками в Jarvis и Chatterfy.</p></div>
+      return `<section class="view"><div class="head-blk"><div class="kicker">Сотрудники · ${period()}</div><h2>Все <span class="serif">сотрудники</span></h2><p class="lead">Нажмите на сотрудника — справа откроются его боты и все его игроки с кнопками в Jarvis и Chatterfy. Лиды сотрудника — чаты с его именным тегом в Chatterfy.</p></div>
         <div class="bar"><span></span>${поиск('#emps', 'Найти сотрудника')}</div>
-        ${rowHead('Сотрудник')}<div class="rows" id="emps">${D.employees.map((e) => row(e.name, ботов(e.bots.length), e.t, 'e:' + e.name)).join('')}</div></section>`;
+        ${rowHead('Сотрудник', true)}<div class="rows" id="emps">${D.employees.map((e) => row(e.name, ботов(e.bots.length) + (e.t.leads ? ' · рег/лид ' + pct(e.t.regs, e.t.leads) : ''), e.t, 'e:' + e.name, true)).join('')}</div></section>`;
     },
     sverka() {
       const o = D.check.okk, p = D.check.pp;
@@ -139,14 +139,14 @@
         <div class="conv"><span class="pill">регистрация из лида <b>${pct(b.t.regs, b.t.leads)}</b></span><span class="pill">FD из регистраций <b>${pct(b.t.ftd, b.t.regs)}</b></span><span class="pill">средний FD <b>${b.t.ftd ? usd2(b.t.ftd_sum / b.t.ftd) : '—'}</b></span></div></div>
         ${tiles(b.t)}${charts(b.daily)}
         <div class="bar"><h3 class="sub" style="margin:0">Сотрудники бота</h3>${поиск('#d-emp', 'Найти сотрудника')}</div>
-        ${b.emp.length ? rowHead('Сотрудник') + '<div class="rows" id="d-emp">' + b.emp.map((e) => row(e.name, '', e, 'e:' + e.name)).join('') + '</div>' : '<p class="lead">По этому боту за период денег и регистраций нет.</p>'}
+        ${b.emp.length ? rowHead('Сотрудник', true) + '<div class="rows" id="d-emp">' + b.emp.map((e) => row(e.name, '', e, 'e:' + e.name, true)).join('') + '</div>' : '<p class="lead">По этому боту за период денег и регистраций нет.</p>'}
         <h3 class="sub">Игроки бота</h3><div id="d-pl"></div>`;
       return { t: 'Бот · ' + имяБота(b), html, после: () => списокИгроков($('#d-pl'), (r) => P.b[r[2]] === id, 'b') };
     },
     e(name) {
       const e = D.employees.find((x) => x.name === name); if (!e) return null;
-      const html = `<div class="head-blk"><div class="kicker">Сотрудник · ${period()}</div><h2>${esc(e.name)}</h2></div>${tiles(e.t, '', true)}
-        <h3 class="sub">По ботам</h3>${rowHead('Бот')}<div class="rows">${e.bots.map((x) => { const b = бот(x.id); return row(имяБота(b), b.space, x, 'b:' + x.id); }).join('')}</div>
+      const html = `<div class="head-blk"><div class="kicker">Сотрудник · ${period()}</div><h2>${esc(e.name)}</h2></div>${tiles(e.t, '', false, 'чаты с его тегом')}
+        <h3 class="sub">По ботам</h3>${rowHead('Бот', true)}<div class="rows">${e.bots.map((x) => { const b = бот(x.id); return row(имяБота(b), b.space, x, 'b:' + x.id, true); }).join('')}</div>
         <h3 class="sub">Игроки сотрудника</h3><div id="d-pl"></div>`;
       return { t: 'Сотрудник · ' + e.name, html, после: () => списокИгроков($('#d-pl'), (r) => P.e[r[1]] === name, 'e') };
     },
