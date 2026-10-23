@@ -92,7 +92,11 @@ a.card:hover::after,.card.hov:hover::after{opacity:1}
 .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .go{font-size:13.5px;font-weight:500;color:var(--tx1);transition:color .2s}a.card:hover .go{color:var(--or2)}
 
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:12px}
+.tiles{display:grid;gap:12px;grid-template-columns:repeat(12,minmax(0,1fr))}
+.tiles>.tile{grid-column:span 4}                                   /* 6 плиток: 3 × 2 */
+.tiles.n5>.tile:nth-child(n+4){grid-column:span 6}                 /* 5: три сверху, две снизу на всю ширину */
+.tiles.n7>.tile{grid-column:span 3}.tiles.n7>.tile:nth-child(n+5){grid-column:span 4}   /* 7: четыре и три */
+@media (max-width:640px){.tiles>.tile,.tiles.n5>.tile:nth-child(n+4),.tiles.n7>.tile,.tiles.n7>.tile:nth-child(n+5){grid-column:span 6}.tiles.n5>.tile:last-child,.tiles.n7>.tile:last-child{grid-column:span 12}}
 .tile{border:1px solid var(--ln);background:var(--card);border-radius:18px;padding:16px 18px;display:grid;gap:6px}
 .tile b{font-family:var(--fs);font-style:italic;font-weight:400;font-size:38px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .tile span{font-size:13px;color:var(--tx2)}.tile small{font-family:var(--fm);font-size:11px;color:var(--tx3)}
@@ -141,23 +145,36 @@ footer{position:relative;z-index:1;padding-block:26px 50px;color:var(--tx3);font
 /* ═════ панель справа: спейс, бот, сотрудник открываются сбоку, страница остаётся на месте ═════ */
 .dim{position:fixed;inset:0;z-index:40;background:rgba(8,6,5,.5);opacity:0;pointer-events:none;transition:opacity .35s ease-out}
 .dim.on{opacity:1;pointer-events:auto}
-.drawer{position:fixed;z-index:41;top:0;right:0;bottom:0;width:min(max(50vw,600px),100vw);background:var(--bg);border-left:1px solid var(--ln2);box-shadow:-30px 0 80px -30px rgba(0,0,0,.6);
-  transform:translateX(102%);transition:transform .45s var(--ez);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
-.drawer.on{transform:none}
+.drawer{position:fixed;z-index:41;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(max(50vw,600px),calc(100vw - 24px));
+  background:var(--bg);border:1px solid var(--ln2);border-radius:26px;overflow:hidden;box-shadow:0 30px 90px -20px rgba(0,0,0,.65),0 0 0 1px rgba(0,0,0,.2);
+  transform:translateX(calc(100% + 32px)) scale(.98);opacity:.6;transition:transform .5s var(--ez),opacity .35s ease-out;display:flex;flex-direction:column}
+.drawer.on{transform:none;opacity:1}
 .drawer::before{content:"";position:absolute;inset:0 0 auto 0;height:260px;background:radial-gradient(60% 100% at 80% 0%,var(--glow),transparent 70%);pointer-events:none;opacity:.7}
-.dr-hd{position:relative;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 16px) 18px 14px;border-bottom:1px solid var(--ln)}
-.dr-hd .t{flex:1;min-width:0;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* шапка панели — как у сайтов: стеклянная плашка со скруглением и знаком N */
+.dr-hd{position:absolute;z-index:2;left:12px;right:12px;top:12px;display:flex;align-items:center;gap:10px;height:62px;padding:0 10px 0 12px;border-radius:18px;border:1px solid var(--ln);
+  background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);box-shadow:0 12px 34px -14px rgba(0,0,0,.45)}
+.dr-hd .mk{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,var(--or2),var(--or));color:#fff;font-family:var(--fs);font-size:19px;box-shadow:0 6px 18px var(--glow)}
+.dr-hd .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.dr-hd .t b{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr-hd .t small{font-family:var(--fm);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--tx3);margin-top:3px}
 .ic{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;border:1px solid var(--ln2);background:transparent;cursor:pointer;color:var(--tx1);transition:background-color .25s var(--ez),border-color .25s var(--ez),box-shadow .25s var(--ez),color .2s}
 .ic:hover{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
 .ic svg{width:17px;height:17px}
-.dr-bd{position:relative;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:20px 20px 40px;display:grid;gap:18px;align-content:start;scrollbar-width:thin;scrollbar-color:var(--ln2) transparent}
+.dr-bd{position:relative;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:96px 22px 40px;display:grid;gap:18px;align-content:start}
+/* смена содержимого внутри панели: старое уходит в сторону, новое приходит с другой */
+.dr-bd.out-f{animation:drOutF .2s cubic-bezier(.4,0,1,1) both}.dr-bd.in-f{animation:drInF .42s var(--ez) both}
+.dr-bd.out-b{animation:drOutB .2s cubic-bezier(.4,0,1,1) both}.dr-bd.in-b{animation:drInB .42s var(--ez) both}
+@keyframes drOutF{to{opacity:0;transform:translateX(-28px)}}@keyframes drInF{from{opacity:0;transform:translateX(36px)}}
+@keyframes drOutB{to{opacity:0;transform:translateX(28px)}}@keyframes drInB{from{opacity:0;transform:translateX(-36px)}}
+@media (prefers-reduced-motion:reduce){.dr-bd.out-f,.dr-bd.in-f,.dr-bd.out-b,.dr-bd.in-b{animation:none}}
 .dr-bd h2{font-size:clamp(26px,3vw,36px)}
-.dr-bd .tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr))}.dr-bd .tile b{font-size:30px}
+.dr-bd .tile b{font-size:30px}
 .dr-bd .charts{grid-template-columns:1fr 1fr}@media (max-width:700px){.dr-bd .charts{grid-template-columns:1fr}}
-.dr-bd .row{grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr))}
-.dr-bd .row .v.leads{display:none}.dr-bd .row.wl{grid-template-columns:minmax(0,1.5fr) repeat(6,minmax(0,1fr))}.dr-bd .row.wl .v.leads{display:block}
+.dr-bd .row{grid-template-columns:minmax(0,2.7fr) repeat(5,minmax(0,1fr))}.dr-bd .row .nm{overflow-wrap:anywhere}
+.dr-bd .row .v.leads{display:none}.dr-bd .row.wl{grid-template-columns:minmax(0,2.4fr) repeat(6,minmax(0,1fr))}.dr-bd .row.wl .v.leads{display:block}
 @media (max-width:760px){.dr-bd .row,.dr-bd .row.wl{grid-template-columns:repeat(3,minmax(0,1fr))}}
 body.lock{overflow:hidden}
+html,body,.dr-bd{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar,.dr-bd::-webkit-scrollbar{display:none;width:0;height:0}
 button.row{width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit}
 button.row:hover,button.card:hover{border-color:color-mix(in srgb,var(--or2) 45%,transparent)}
 button.card{text-align:left;cursor:pointer;font:inherit;color:inherit;width:100%}
@@ -209,7 +226,7 @@ button.card:hover{transform:translateY(-2px);box-shadow:0 18px 40px -22px var(--
 </header>
 <main id="main" tabindex="-1"><div class="wrap" id="app"><p class="lead">Загружаю отчёт…</p></div></main>
 <div class="dim" id="dim"></div>
-<aside class="drawer" id="drawer" aria-hidden="true"><div class="dr-hd"><button class="ic" id="dr-back" type="button" aria-label="Назад" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><div class="t" id="dr-t"></div><button class="ic" id="dr-x" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dr-bd" id="dr-bd"></div></aside>
+<aside class="drawer" id="drawer" aria-hidden="true"><div class="dr-hd"><button class="ic" id="dr-back" type="button" aria-label="Назад" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button><span class="mk">N</span><div class="t"><b id="dr-t"></b><small id="dr-k">отчёт · октябрь</small></div><button class="ic" id="dr-x" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dr-bd" id="dr-bd"></div></aside>
 <footer><div class="wrap" id="foot">Nexus · отчёт руководству</div></footer>
 
 <script src="report.js"></script>

@@ -36,12 +36,12 @@
   const ЛУПА = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
   const поиск = (цель, подсказка) => `<label class="sx" data-sx="${цель}" title="">${ЛУПА}<input type="text" placeholder="${esc(подсказка)}" autocomplete="off" aria-label="${esc(подсказка)}"></label>`;
 
-  const tiles = (t, extra, безЛидов) => `<div class="tiles">
+  const tiles = (t, extra, безЛидов) => `<div class="tiles n${(безЛидов ? 5 : 6) + (extra ? 1 : 0)}">
     ${безЛидов ? '' : `<div class="tile bl"><b>${ru(t.leads)}</b><span>Лиды</span><small>новые чаты Chatterfy</small></div>`}
     <div class="tile"><b>${ru(t.regs)}</b><span>Регистрации</span><small>${безЛидов ? 'партнёрка' : pct(t.regs, t.leads) + ' от лидов'}</small></div>
     <div class="tile ok"><b>${ru(t.ftd)}</b><span>Первые депозиты</span><small>${usd2(t.ftd_sum)} · ${pct(t.ftd, t.regs)} от рег</small></div>
-    <div class="tile or"><b>${usd(t.ftd_sum + t.rd_sum)}</b><span>Все депозиты</span><small>FD ${usd(t.ftd_sum)} + RD ${usd(t.rd_sum)}</small></div>
     <div class="tile"><b>${ru(t.rd)}</b><span>Повторные депозиты</span><small>${usd2(t.rd_sum)}</small></div>
+    <div class="tile or"><b>${usd(t.ftd_sum + t.rd_sum)}</b><span>Все депозиты</span><small>FD ${usd(t.ftd_sum)} + RD ${usd(t.rd_sum)}</small></div>
     <div class="tile"><b>${usd(t.wdr)}</b><span>Выводы</span><small>исполненные</small></div>${extra || ''}</div>`;
   const mini = (t) => `<div class="mini"><div><b>${ru(t.leads)}</b><span>лиды</span></div><div><b>${ru(t.regs)}</b><span>рег</span></div><div><b>${ru(t.ftd)}</b><span>FD</span></div></div>
     <div class="conv"><span class="pill">депозиты <b>${usd(t.ftd_sum + t.rd_sum)}</b></span><span class="pill">рег/лид <b>${pct(t.regs, t.leads)}</b></span><span class="pill">FD/рег <b>${pct(t.ftd, t.regs)}</b></span></div>`;
@@ -151,22 +151,33 @@
       return { t: 'Сотрудник · ' + e.name, html, после: () => списокИгроков($('#d-pl'), (r) => P.e[r[1]] === name, 'e') };
     },
   };
-  function показатьПанель() {
+  let смена = 0;
+  function показатьПанель(куда) {   // куда: 'f' — вглубь, 'b' — назад, без — первое открытие
     const верх = стек[стек.length - 1]; if (!верх) return;
     const [вид, ...ост] = верх.split(':'), п = панели[вид] && панели[вид](ост.join(':'));
     if (!п) return;
-    $('#dr-t').textContent = п.t; $('#dr-bd').innerHTML = п.html; $('#dr-bd').scrollTop = 0;
-    $('#dr-back').hidden = стек.length < 2;
-    if (п.после) п.после();
+    const bd = $('#dr-bd'), моя = ++смена;
+    const вставить = () => {
+      if (моя !== смена) return;
+      const [k, ...имя] = п.t.split(' · ');
+      $('#dr-t').textContent = имя.join(' · ') || п.t; $('#dr-k').textContent = k + ' · октябрь';
+      bd.className = 'dr-bd'; bd.innerHTML = п.html; bd.scrollTop = 0;
+      $('#dr-back').hidden = стек.length < 2;
+      if (куда && !reduce) { void bd.offsetWidth; bd.classList.add(куда === 'b' ? 'in-b' : 'in-f'); }
+      if (п.после) п.после();
+    };
+    if (куда && !reduce && dr.classList.contains('on')) { bd.className = 'dr-bd ' + (куда === 'b' ? 'out-b' : 'out-f'); setTimeout(вставить, 190); }
+    else вставить();
   }
   function открыть(что, с_нуля) {
     if (с_нуля) стек.length = 0;
-    стек.push(что); показатьПанель();
+    const вглубь = !с_нуля && dr.classList.contains('on');
+    стек.push(что); показатьПанель(вглубь ? 'f' : '');
     dr.classList.add('on'); dim.classList.add('on'); dr.setAttribute('aria-hidden', 'false'); document.body.classList.add('lock');
   }
   function закрыть() { dr.classList.remove('on'); dim.classList.remove('on'); dr.setAttribute('aria-hidden', 'true'); document.body.classList.remove('lock'); стек.length = 0; }
   $('#dr-x').addEventListener('click', закрыть); dim.addEventListener('click', закрыть);
-  $('#dr-back').addEventListener('click', () => { стек.pop(); показатьПанель(); });
+  $('#dr-back').addEventListener('click', () => { стек.pop(); показатьПанель('b'); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && dr.classList.contains('on')) закрыть(); });
   document.addEventListener('click', (e) => {
     const o = e.target.closest('[data-open]'); if (!o) return;
