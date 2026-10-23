@@ -248,7 +248,7 @@
     sverka() {
       const o = D.check.okk, p = D.check.pp;
       if (!p) return `<section class="view"><div class="head-blk"><div class="kicker">Проверка цифр</div><h2>Сверка с <span class="serif">партнёркой</span></h2></div>
-        <div class="err">При последнем обновлении (${esc(String(D.period.upd).slice(0, 16).replace('T', ' '))} UTC) партнёрка не ответила — сверка НЕ проведена. Это не «расхождений нет»: цифры отчёта со склада ОКК, сравнить их сейчас не с чем. Следующая попытка — при ночном обновлении.</div></section>`;
+        <div class="err">При последнем обновлении (${esc(String(D.period.upd).slice(0, 16).replace('T', ' '))} UTC) партнёрка не ответила — сверка НЕ проведена. Это не «расхождений нет»: цифры отчёта со склада ОКК, сравнить их сейчас не с чем. Следующая попытка — при следующем обновлении, через час.</div></section>`;
       const r = (nm, a, b, f) => { const d = Math.round((b - a) * 100) / 100; return `<div>${nm}</div><div class="r">${f(a)}</div><div class="r">${f(b)}</div><div class="r ${d === 0 ? 'd0' : 'd1'}">${d === 0 ? 'совпадает' : (d > 0 ? '+' : '') + f(d)}</div>`; };
       return `<section class="view"><div class="head-blk"><div class="kicker">Проверка цифр</div><h2>Сверка с <span class="serif">партнёркой</span></h2><p class="lead">Отчёт собран со склада ОКК. Итоги сравнены с ответом API партнёрки PocketOption за тот же период.</p></div>
         <div class="card"><div class="check"><div class="h">Показатель</div><div class="h r">Отчёт</div><div class="h r">Партнёрка</div><div class="h r">Разница</div>
