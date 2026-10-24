@@ -9,7 +9,7 @@
   const pct = (a, b) => (b ? ru((a / b) * 100, 1) + '%' : '—');
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const ботов = (n) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'бот' : ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'бота' : 'ботов'));
-  let D = null, P = null, pLoad = null, KP = null, kpLoad = null;
+  let D = null, P = null, pLoad = null, KP = null, kpLoad = null, TB = null, tbLoad = null, tbErr = '';
 
   /* ── тема ── */
   const cur = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
@@ -62,7 +62,7 @@
 
   /* ── когорта: считается на лету из списка игроков под выбранные дни регистрации ── */
   let kpErr = '', вид = '';
-  const днейОбн = () => (KP ? String(KP.upd).slice(0, 10) : '2026-10-31');
+  const днейОбн = () => String(KP ? KP.upd : TB ? TB.upd : '2026-10-31').slice(0, 10);
   const сегодня = () => (днейОбн() > '2026-10-31' ? '2026-10-31' : днейОбн());      // регистрации когорты — только октябрь
   const доFD = () => (днейОбн() > '2026-11-10' ? '2026-11-10' : днейОбн());          // её депозиты — до конца докатки
   let kОт = '2026-10-01', kДо = '';
@@ -138,7 +138,7 @@
   let calOpen = false, calПик = '', kСписок = '';
   const шеврон = '<svg class="k-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
   const сдвиг = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-  function календарь() {
+  function календарь(подпись = 'Регистрации') {
     const до = kДо || сегодня(), сег = сегодня();
     const нач = '2026-10-01', перв = new Date(нач + 'T00:00:00Z'), сдв = (перв.getUTCDay() + 6) % 7;
     let клетки = '<span class="cal-wd">Пн</span><span class="cal-wd">Вт</span><span class="cal-wd">Ср</span><span class="cal-wd">Чт</span><span class="cal-wd">Пт</span><span class="cal-wd">Сб</span><span class="cal-wd">Вс</span>' + '<span></span>'.repeat(сдв);
@@ -148,11 +148,11 @@
     }
     const пн = (() => { const d = new Date(сег + 'T00:00:00Z'); return сдвиг(сег, -((d.getUTCDay() + 6) % 7)); })();
     const пресет = (txt, a, b) => `<button type="button" class="cal-p${kОт === a && до === b ? ' on' : ''}" data-cal="${a}|${b}">${txt}</button>`;
-    return `<div class="cal-wrap"><button type="button" class="btn cal-btn" data-calbtn="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Регистрации: ${дм(kОт)}${kОт === до ? '' : ' — ' + дм(до)}<svg class="cal-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    return `<div class="cal-wrap"><button type="button" class="btn cal-btn" data-calbtn="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>${подпись}: ${дм(kОт)}${kОт === до ? '' : ' — ' + дм(до)}<svg class="cal-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="cal-pop${calOpen ? ' open' : ''}"><div class="cal-ps">${пресет('Весь месяц', нач, сег)}${днейОбн() > сег ? '' : пресет('Эта неделя', пн < нач ? нач : пн, сег) + пресет('Вчера', сдвиг(сег, -1), сдвиг(сег, -1)) + пресет('Сегодня', сег, сег)}</div>
       <div class="cal-m">${МЕС[9]} 2026</div><div class="cal-g">${клетки}</div><p class="cal-h">${calПик ? 'Выберите последний день' : 'Нажмите первый день, затем последний'}</p></div></div>`;
   }
-  const перерисовать = () => { if (вид !== 'kogorta') return; const y = scrollY; $('#app').innerHTML = V.kogorta(); scrollTo({ top: y, behavior: 'instant' }); };
+  const перерисовать = () => { if (вид === 'tablica') { тРисовать(); return; } if (вид !== 'kogorta') return; const y = scrollY; $('#app').innerHTML = V.kogorta(); scrollTo({ top: y, behavior: 'instant' }); };
   document.addEventListener('click', (e) => {
     const сп = e.target.closest('[data-klist]');
     if (сп) { kСписок = kСписок === сп.dataset.klist ? '' : сп.dataset.klist;
@@ -200,6 +200,177 @@
   }
   const период = () => дм(kОт) + (kОт === (kДо || сегодня()) ? '' : ' — ' + дм(kДо || сегодня()));
 
+
+  /* ── вкладка «Таблица»: сводная как в Jarvis, но наши цифры — гео › спейс › бот › сотрудник, свой фильтр,
+     шапка и итог закреплены; режимы «за месяц» (все игроки) и «когорта» (зарегистрированные в выбранные дни) ── */
+  const данныеТ = () => tbLoad || (tbLoad = fetch('../oktyabr-2026-tablica/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((j) => (TB = j), (e) => { tbErr = String(e.message || e); throw e; }));
+  const ГЕО = ['MENA', 'СНГ', 'MULTI', 'ЛАТАМ', 'Не определено'];
+  // гео по названию спейса (владелец 24.10: «все мульти — в мульти, все СНГ — в СНГ»; Австралия и Канада — MULTI, Испания — ЛАТАМ)
+  const геоСпейса = (sp) => { const x = String(sp || '').toLowerCase(); if (/араб|марокко/.test(x)) return 'MENA'; if (/^снг/.test(x)) return 'СНГ'; if (/мульти|австрал|канад/.test(x)) return 'MULTI'; if (/латам|испан/.test(x)) return 'ЛАТАМ'; return 'Не определено'; };
+  const ф = { м: 'month', гео: new Set(), сп: new Set(), бот: new Set(), минус: new Set(), гр: 'bot', скр: new Set(), сорт: 'all', вниз: true, откр: new Set(), было: false, поиск: '' };
+  const КОЛ = [
+    { k: 'leads', t: 'Лиды', f: (a) => (a.лиды == null ? '—' : ru(a.лиды)), м: 'month' },
+    { k: 'regs', t: 'Рег', f: (a) => ru(a.regs) },
+    { k: 'cr1', t: 'Рег / лид', f: (a) => (a.лиды ? pct(a.regs, a.лиды) : '—'), м: 'month' },
+    { k: 'ftd', t: 'FD', f: (a) => ru(a.ftd) },
+    { k: 'cr2', t: 'FD / рег', f: (a) => pct(a.ftd, a.regs) },
+    { k: 'ftd_sum', t: 'FD, $', f: (a) => usd(a.ftd_sum) },
+    { k: 'rd', t: 'RD', f: (a) => ru(a.rd) },
+    { k: 'rd_sum', t: 'RD, $', f: (a) => usd(a.rd_sum) },
+    { k: 'all', t: 'Все, $', f: (a) => usd(a.ftd_sum + a.rd_sum) },
+    { k: 'check', t: 'Ср. чек', f: (a) => чек(a) },
+    { k: 'wdr', t: 'Выводы, $', f: (a) => usd(a.wdr) },
+  ];
+  const колонки = () => КОЛ.filter((c) => (!c.м || c.м === ф.м) && !ф.скр.has(c.k));
+  const знч = (a, k) => (k === 'all' ? a.ftd_sum + a.rd_sum : k === 'check' ? (a.ftd ? (a.ftd_sum + a.rd_sum) / a.ftd : -1) : k === 'cr1' ? (a.лиды ? a.regs / a.лиды : -1) : k === 'cr2' ? (a.regs ? a.ftd / a.regs : -1) : k === 'leads' ? (a.лиды == null ? -1 : a.лиды) : a[k]);
+  const НЕТ = /не определ/i;
+  // записи режима: {d, geo, sp, bid, bn, emp, lb (лиды бота), le (лиды сотрудника), деньги}
+  const записиКэш = {};
+  function записи() {
+    if (записиКэш[ф.м]) return записиКэш[ф.м];
+    const out = [];
+    if (ф.м === 'month') {
+      const B = (bi) => ({ bid: TB.b[bi], bn: TB.bn[bi], sp: TB.bs[bi], geo: геоСпейса(TB.bs[bi]) });
+      for (const [d, ei, bi, regs, ftd, fs, rd, rs, w] of TB.rows) out.push({ d, ...B(bi), emp: TB.e[ei], lb: 0, le: 0, regs, ftd, ftd_sum: fs, rd, rd_sum: rs, wdr: w });
+      for (const [d, bi, n] of TB.leads) out.push({ d, ...B(bi), emp: '', lb: n, le: 0, regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0 });
+      for (const [bi, ei, n] of TB.le) out.push({ d: null, ...B(bi), emp: TB.e[ei], lb: 0, le: n, regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0 });
+    } else {
+      for (const [, ei, bi, , рег, f, fs, rd, rs, w] of KP.rows) out.push({ d: String(рег), bid: KP.b[bi], bn: KP.bn[bi], sp: KP.bs[bi], geo: геоСпейса(KP.bs[bi]), emp: KP.e[ei], lb: 0, le: 0, regs: 1, ftd: f, ftd_sum: fs, rd, rd_sum: rs, wdr: w });
+    }
+    return (записиКэш[ф.м] = out);
+  }
+  const последнийДень = () => (TB ? TB.rows.reduce((m, r) => (r[0] > m ? r[0] : m), '') : '');
+  const весьМесяц = () => kОт <= '2026-10-01' && (kДо || сегодня()) >= последнийДень();
+  function отбор() {
+    const все = записи(), до = kДо || сегодня(), целый = ф.м === 'month' && весьМесяц();
+    const вПер = (r) => (r.d == null ? целый : r.d >= kОт && r.d <= до);
+    const поГео = все.filter((r) => вПер(r) && (!ф.гео.size || ф.гео.has(r.geo)));
+    const поСп = поГео.filter((r) => !ф.сп.size || ф.сп.has(r.sp));
+    const поБот = поСп.filter((r) => !ф.бот.size || ф.бот.has(r.bid));
+    const итог = поБот.filter((r) => !r.emp || !ф.минус.has(r.emp));
+    const счёт = (L, k) => { const m = new Map(); for (const r of L) if (r[k] && (r.regs || r.lb || r.le)) m.set(r[k], (m.get(r[k]) || 0) + r.regs); return m; };
+    const гео = счёт(все.filter(вПер), 'geo'), спейсы = счёт(поГео, 'sp'), боты = new Map(), люди = счёт(поБот.filter((r) => r.emp), 'emp');
+    for (const r of поСп) if (r.regs || r.lb || r.le) { const x = боты.get(r.bid) || { bn: r.bn, sp: r.sp, n: 0 }; x.n += r.regs; боты.set(r.bid, x); }
+    return { итог, гео, спейсы, боты, люди, целый };
+  }
+  const нуль2 = () => ({ regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0, lb: 0, le: 0 });
+  function дерево(L) {
+    const уровни = ф.гр === 'bot' ? ['geo', 'sp', 'bid', 'emp'] : ['geo', 'emp', 'bid'];
+    const корень = { a: нуль2(), kids: new Map() };
+    const плюс2 = (a, r) => { for (const k of ['regs', 'ftd', 'ftd_sum', 'rd', 'rd_sum', 'wdr', 'lb', 'le']) a[k] += r[k]; };
+    for (const r of L) {
+      плюс2(корень.a, r);
+      let узел = корень, путь = '';
+      for (let i = 0; i < уровни.length; i++) {
+        const k = уровни[i], v = r[k];
+        if (!v) break;                                  // лиды бота без сотрудника — до уровня бота
+        путь += (путь ? '¦' : '') + v;
+        if (!узел.kids.has(v)) узел.kids.set(v, { путь, тип: k, ключ: v, ярлык: k === 'bid' ? r.bn : v, sp: r.sp, a: нуль2(), kids: new Map(), ур: i, подЛюдьми: ф.гр === 'emp' && k === 'bid' });
+        узел = узел.kids.get(v); плюс2(узел.a, r);
+      }
+    }
+    return корень;
+  }
+  // лиды узла: у сотрудника и у бота под сотрудником — чаты с именным тегом (только за весь месяц); выше — все новые чаты бота
+  const сЛидами = (узел, целый) => { const a = { ...узел.a }; a.лиды = ф.м !== 'month' ? null : (узел.тип === 'emp' || узел.подЛюдьми) ? (целый ? узел.a.le : null) : узел.a.lb; return a; };
+  const порядок = (x, y) => (НЕТ.test(x.ярлык) - НЕТ.test(y.ярлык)) || ((знч(сЛидами(y, true), ф.сорт) - знч(сЛидами(x, true), ф.сорт)) * (ф.вниз ? 1 : -1));
+  const подписьУзла = (n) => (n.тип === 'geo' ? n.kids.size + ' ' + (ф.гр === 'bot' ? 'спейс' + (n.kids.size === 1 ? '' : n.kids.size < 5 ? 'а' : 'ов') : 'сотр.') : n.тип === 'sp' ? ботов(n.kids.size) : n.тип === 'bid' ? (ф.гр === 'emp' ? n.sp : (n.kids.size ? n.kids.size + ' сотр.' : '')) : (n.kids.size ? ботов(n.kids.size) : ''));
+  function строкиТ(узел, целый, cols, out) {
+    for (const n of [...узел.kids.values()].sort(порядок)) {
+      const a = сЛидами(n, целый), откр = ф.откр.has(n.путь), есть = n.kids.size > 0;
+      const куда = n.тип === 'emp' ? (ф.м === 'month' ? 'e:' : 'k:') + n.ключ : n.тип === 'bid' ? (ф.м === 'month' ? 'b:' : 'kb:') + n.ключ : '';
+      out.push(`<tr class="l${n.ур}${есть ? ' has' : ''}${откр ? ' open' : ''}" ${есть ? `data-tt="${esc(n.путь)}"` : ''}><td class="nm"><div class="nmi" style="padding-left:${n.ур * 18}px">${есть ? '<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>' : '<span class="chev nope"></span>'}<span class="lbl">${esc(n.ярлык)}<small>${esc(подписьУзла(n))}</small></span>${куда ? `<button type="button" class="tb-go" data-open="${esc(куда)}" aria-label="Подробно"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>` : ''}</div></td>${cols.map((c) => `<td>${c.f(a)}</td>`).join('')}</tr>`);
+      if (есть && откр) строкиТ(n, целый, cols, out);
+    }
+    return out;
+  }
+  const чип = (txt, on, data, n) => `<button type="button" class="chip-b${on ? ' on' : ''}" ${data}>${esc(txt)}${n != null ? ' <em>' + ru(n) + '</em>' : ''}</button>`;
+  function тПанель(о) {
+    const сортN = (m) => [...m].sort((a, b) => (НЕТ.test(a[0]) - НЕТ.test(b[0])) || b[1] - a[1]);
+    const гео = ГЕО.filter((g) => о.гео.has(g)).map((g) => чип(g, ф.гео.has(g), `data-tf="гео" data-v="${esc(g)}"`, о.гео.get(g))).join('');
+    const сп = сортN(о.спейсы).map(([n, c]) => чип(n, ф.сп.has(n), `data-tf="сп" data-v="${esc(n)}"`, c)).join('');
+    const боты = [...о.боты].sort((a, b) => (ф.бот.has(b[0]) - ф.бот.has(a[0])) || (НЕТ.test(a[1].bn) - НЕТ.test(b[1].bn)) || b[1].n - a[1].n).map(([id, x]) => чип(x.bn, ф.бот.has(id), `data-tf="бот" data-v="${esc(id)}"`, x.n)).join('');
+    const люди = сортN(о.люди).map(([n, c]) => чип(n, !ф.минус.has(n), `data-tf="минус" data-v="${esc(n)}"`, c)).join('');
+    const колЧипы = КОЛ.filter((c) => !c.м || c.м === ф.м).map((c) => чип(c.t, !ф.скр.has(c.k), `data-tf="скр" data-v="${c.k}"`)).join('');
+    const ряд = (ярлык, html, доп = '') => `<div class="tb-r"><span class="tb-lb">${ярлык}</span><div class="tb-chips">${html}</div>${доп}</div>`;
+    return `<div class="tb-ctl card">
+      <div class="tb-r tb-top"><div class="tb-seg">${чип('За месяц — все игроки', ф.м === 'month', 'data-tm="month"')}${чип('Когорта — новые игроки', ф.м === 'kog', 'data-tm="kog"')}</div>${календарь(ф.м === 'month' ? 'Период' : 'Регистрации')}
+        <div class="tb-seg">${чип('Гео › Спейс › Бот › Сотрудник', ф.гр === 'bot', 'data-tg="bot"')}${чип('Гео › Сотрудник › Бот', ф.гр === 'emp', 'data-tg="emp"')}</div></div>
+      ${ряд('Гео', гео + (ф.гео.size ? чип('Все', false, 'data-tc="гео"') : ''))}
+      ${ряд('Спейсы', сп + (ф.сп.size ? чип('Все', false, 'data-tc="сп"') : ''))}
+      <div class="tb-r"><span class="tb-lb">Боты</span><div class="tb-chips" id="tb-bots">${боты}</div><div class="tb-act">${ф.бот.size ? чип('Все', false, 'data-tc="бот"') : ''}${поиск('#tb-bots', 'Найти бота')}</div></div>
+      ${ряд('Сотрудники', люди || '<span class="tb-mute">нет сотрудников в выбранном</span>', ф.минус.size ? `<div class="tb-act">${чип('Вернуть всех', false, 'data-tc="минус"')}</div>` : '')}
+      ${ряд('Колонки', колЧипы)}
+      <div class="tb-r tb-btns"><button type="button" class="btn" data-tx="open">Развернуть всё</button><button type="button" class="btn" data-tx="close">Свернуть</button><button type="button" class="btn" data-tx="csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Выгрузить в Excel</button><button type="button" class="btn" data-tx="link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><span>Ссылка на этот вид</span></button><button type="button" class="btn" data-tx="reset">Сбросить фильтр</button></div>
+    </div>`;
+  }
+  function тТаблица(о) {
+    const cols = колонки(), т = дерево(о.итог), итог = { ...т.a, лиды: ф.м === 'month' ? т.a.lb : null };
+    const head = `<tr class="th">${['<th class="nm">' + (ф.гр === 'bot' ? 'Гео / спейс / бот / сотрудник' : 'Гео / сотрудник / бот') + '</th>', ...cols.map((c) => `<th data-ts="${c.k}" class="${ф.сорт === c.k ? 'on' : ''}">${c.t}${ф.сорт === c.k ? (ф.вниз ? ' ↓' : ' ↑') : ''}</th>`)].join('')}</tr>
+      <tr class="tot"><td class="nm"><div class="nmi"><span class="lbl">Итого<small>${ф.м === 'month' ? 'за ' + период() : 'регистрации ' + период()}</small></span></div></td>${cols.map((c) => `<td>${c.f(итог)}</td>`).join('')}</tr>`;
+    const тело = строкиТ(т, о.целый, cols, []).join('') || `<tr><td class="nm" colspan="${cols.length + 1}"><span class="tb-mute">В выбранном ничего нет — ослабьте фильтр.</span></td></tr>`;
+    const сноска = ф.м === 'month'
+      ? `Все деньги и регистрации, сделанные в выбранные дни, от всех игроков — и новых, и старых. Лиды спейса и бота — все новые чаты (по МСК); лиды сотрудника — чаты с его именным тегом${о.целый ? '' : ' — считаются только за весь месяц, поэтому в выбранных днях у сотрудников «—»'}.`
+      : 'Игроки, зарегистрированные в выбранные дни, и все их депозиты по сегодня (октябрьские — до 10 ноября). Лидов в когорте нет — она считается от регистраций.';
+    return `<div class="tw"><table class="tb"><thead>${head}</thead><tbody>${тело}</tbody></table></div><p class="note">${сноска} Средний чек = (FD $ + RD $) ÷ FD. Нажмите строку — раскроется; стрелка ↗ у бота и сотрудника — подробности и игроки справа. Источник — партнёрка PocketOption (склад ОКК, ${esc(String((ф.м === 'month' ? TB : KP).upd).slice(0, 16).replace('T', ' '))} UTC).</p>`;
+  }
+  function вСсылку() {
+    const p = new URLSearchParams(), J = (x) => [...x].join('~');
+    if (ф.м !== 'month') p.set('m', ф.м); if (ф.гео.size) p.set('g', J(ф.гео)); if (ф.сп.size) p.set('s', J(ф.сп)); if (ф.бот.size) p.set('b', J(ф.бот));
+    if (ф.минус.size) p.set('x', J(ф.минус)); if (ф.гр !== 'bot') p.set('gr', ф.гр); if (ф.скр.size) p.set('h', J(ф.скр)); if (kОт !== '2026-10-01') p.set('f', kОт); if (kДо) p.set('t', kДо);
+    const q = p.toString(); history.replaceState(null, '', '#tablica' + (q ? '/' + q : '')); был = location.hash;
+  }
+  function изСсылки() {
+    const raw = location.hash.slice(1), i = raw.indexOf('/'); if (i < 0) return;
+    const p = new URLSearchParams(raw.slice(i + 1)), S = (k) => new Set((p.get(k) || '').split('~').filter(Boolean));
+    ф.м = p.get('m') === 'kog' ? 'kog' : 'month'; ф.гео = S('g'); ф.сп = S('s'); ф.бот = S('b'); ф.минус = S('x'); ф.гр = p.get('gr') === 'emp' ? 'emp' : 'bot'; ф.скр = S('h');
+    if (p.get('f')) kОт = p.get('f'); if (p.get('t')) kДо = p.get('t');
+  }
+  function тРисовать() {
+    const box = $('#tb-app'); if (!box) return;
+    const нужно = ф.м === 'month' ? (TB ? null : данныеТ) : (KP ? null : игрокиК);
+    if (нужно) { box.innerHTML = '<p class="lead">Загружаю данные таблицы…</p>'; нужно().then(тРисовать, (e) => { box.innerHTML = '<div class="err">Данные таблицы не загрузились (' + esc(e.message || e) + '). Это не «данных нет» — обновите страницу.</div>'; }); return; }
+    if (!ф.было) { ф.было = true; for (const g of ГЕО) ф.откр.add(g); }
+    if (!колонки().some((c) => c.k === ф.сорт)) { ф.сорт = 'all'; ф.вниз = true; }
+    const tw = box.querySelector('.tw'), y = tw ? tw.scrollTop : 0, x = tw ? tw.scrollLeft : 0;
+    const q = (box.querySelector('[data-sx="#tb-bots"] input') || {}).value || '';
+    const о = отбор();
+    box.innerHTML = тПанель(о) + тТаблица(о);
+    const t2 = box.querySelector('.tw'); t2.scrollTop = y; t2.scrollLeft = x;
+    const th = box.querySelector('tr.th'); if (th) box.style.setProperty('--thh', th.offsetHeight + 'px');
+    if (q) { const inp = box.querySelector('[data-sx="#tb-bots"] input'); inp.value = q; inp.parentElement.classList.add('on'); фильтр(inp.parentElement); }
+    вСсылку();
+  }
+  function вCSV() {
+    const о = отбор(), cols = колонки(), т = дерево(о.итог), строки = [];
+    const ч = (v) => (typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : '"' + String(v).replace(/"/g, '""') + '"');
+    const сырое = (a, k) => { const v = знч(a, k); return v < 0 ? '' : (k === 'cr1' || k === 'cr2') ? Math.round(v * 1000) / 10 : v; };   // конверсии — в процентах
+    const уровни = ф.гр === 'bot' ? ['Гео', 'Спейс', 'Бот', 'Сотрудник'] : ['Гео', 'Сотрудник', 'Бот'];
+    строки.push(['Уровень', ...уровни, ...cols.map((c) => (c.k === 'cr1' || c.k === 'cr2') ? c.t + ', %' : c.t)].map(ч).join(';'));
+    const обход = (узел, путь) => { for (const n of [...узел.kids.values()].sort(порядок)) { const p = [...путь, n.ярлык]; const a = сЛидами(n, о.целый); строки.push([уровни[n.ур], ...уровни.map((_, i) => p[i] || ''), ...cols.map((c) => сырое(a, c.k))].map(ч).join(';')); обход(n, p); } };
+    обход(т, []);
+    const blob = new Blob(['﻿' + строки.join('\r\n')], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'tablica-oktyabr-' + (ф.м === 'month' ? 'mesyac' : 'kogorta') + '-' + kОт + '_' + (kДо || сегодня()) + '.csv'; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  document.addEventListener('click', (e) => {
+    if (вид !== 'tablica' || !e.target.closest('#tb-app')) return;
+    if (e.target.closest('[data-open], .sx, .cal-wrap')) return;      // подробности справа, поиск и календарь — своими обработчиками
+    const el = e.target.closest('[data-tf],[data-tc],[data-tm],[data-tg],[data-ts],[data-tx],[data-tt]'); if (!el) return;
+    const d = el.dataset;
+    if (d.tf) { const S = ф[d.tf]; S.has(d.v) ? S.delete(d.v) : S.add(d.v); if (d.tf === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tf === 'сп') ф.бот.clear(); }
+    else if (d.tc) { ф[d.tc].clear(); if (d.tc === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tc === 'сп') ф.бот.clear(); }
+    else if (d.tm) { if (ф.м === d.tm) return; ф.м = d.tm; ф.минус.clear(); }
+    else if (d.tg) { if (ф.гр === d.tg) return; ф.гр = d.tg; ф.откр = new Set(ГЕО); }
+    else if (d.ts) { if (ф.сорт === d.ts) ф.вниз = !ф.вниз; else { ф.сорт = d.ts; ф.вниз = true; } }
+    else if (d.tt) { ф.откр.has(d.tt) ? ф.откр.delete(d.tt) : ф.откр.add(d.tt); }
+    else if (d.tx === 'open') { const т = дерево(отбор().итог), обх = (n) => { for (const k of n.kids.values()) { if (k.kids.size) { ф.откр.add(k.путь); обх(k); } } }; обх(т); }
+    else if (d.tx === 'close') ф.откр.clear();
+    else if (d.tx === 'reset') { ф.гео.clear(); ф.сп.clear(); ф.бот.clear(); ф.минус.clear(); ф.скр.clear(); ф.откр = new Set(ГЕО); kОт = '2026-10-01'; kДо = ''; }
+    else if (d.tx === 'csv') { вCSV(); return; }
+    else if (d.tx === 'link') { вСсылку(); const sp = el.querySelector('span'); (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => { sp.textContent = 'Ссылка скопирована'; }, () => { sp.textContent = 'Скопируйте адрес из строки браузера'; }); setTimeout(() => { sp.textContent = 'Ссылка на этот вид'; }, 2500); return; }
+    тРисовать();
+  });
+
   /* ── главные страницы ── */
   const V = {
     obzor() {
@@ -216,14 +387,14 @@
     spaces() {
       return `<section class="view"><div class="head-blk"><div class="kicker">Спейсы и боты</div><h2>Спейсы <span class="serif">и боты</span></h2><p class="lead">Нажмите на спейс или бота — данные откроются справа, страница останется на месте.</p></div>
         <div class="bar"><h3 class="sub" style="margin:0">Спейсы</h3>${поиск('#sp-rows', 'Найти спейс')}</div>
-        ${rowHead('Спейс', true)}<div class="rows" id="sp-rows">${D.spaces.map((s, i) => row(s.name, ботов(s.bots.length), s.t, 's:' + i, true)).join('')}</div>
+        <div class="rows" id="sp-rows">${rowHead('Спейс', true)}${D.spaces.map((s, i) => row(s.name, ботов(s.bots.length), s.t, 's:' + i, true)).join('')}</div>
         <div class="bar"><h3 class="sub" style="margin:0">Все боты</h3>${поиск('#bt-rows', 'Найти бота')}</div>
-        ${rowHead('Бот', true)}<div class="rows" id="bt-rows">${Object.values(D.bots).sort((a, b) => b.t.ftd_sum - a.t.ftd_sum).map((b) => row(имяБота(b), [b.space, подБотом(b)].filter(Boolean).join(' · '), b.t, 'b:' + b.id, true)).join('')}</div></section>`;
+        <div class="rows" id="bt-rows">${rowHead('Бот', true)}${Object.values(D.bots).sort((a, b) => b.t.ftd_sum - a.t.ftd_sum).map((b) => row(имяБота(b), [b.space, подБотом(b)].filter(Boolean).join(' · '), b.t, 'b:' + b.id, true)).join('')}</div></section>`;
     },
     sotrudniki() {
       return `<section class="view"><div class="head-blk"><div class="kicker">Сотрудники · ${period()}</div><h2>Все <span class="serif">сотрудники</span></h2><p class="lead">Нажмите на сотрудника — справа откроются его боты и все его игроки с кнопками в Jarvis и Chatterfy. Лиды сотрудника — чаты с его именным тегом в Chatterfy.</p></div>
         <div class="bar"><span></span>${поиск('#emps', 'Найти сотрудника')}</div>
-        ${rowHead('Сотрудник', true)}<div class="rows" id="emps">${D.employees.map((e) => row(e.name, ботов(e.bots.length) + (e.t.leads ? ' · рег/лид ' + pct(e.t.regs, e.t.leads) : ''), e.t, 'e:' + e.name, true)).join('')}</div></section>`;
+        <div class="rows" id="emps">${rowHead('Сотрудник', true)}${D.employees.map((e) => row(e.name, ботов(e.bots.length) + (e.t.leads ? ' · рег/лид ' + pct(e.t.regs, e.t.leads) : ''), e.t, 'e:' + e.name, true)).join('')}</div></section>`;
     },
     kogorta() {
       if (!KP) { if (!kpErr) игрокиК().then(перерисовать, перерисовать);
@@ -238,12 +409,19 @@
         <div class="k-sw"><button type="button" class="chip-b${kСписок === 'e' ? ' on' : ''}" data-klist="e">Сотрудники <em>${ru(k.emps.length)}</em>${шеврон}</button><button type="button" class="chip-b${kСписок === 'b' ? ' on' : ''}" data-klist="b">Боты <em>${ru(k.bots.length)}</em>${шеврон}</button><span class="k-sw-h">${kСписок ? 'нажмите строку — справа откроются подробности' : 'нажмите, чтобы раскрыть список'}</span></div>
         <div class="k-fold${kСписок ? ' open' : ''}"><div>
           <div class="k-pane${kСписок === 'e' ? ' on' : ''}" data-pane="e"><div class="bar"><span></span>${поиск('#k-emps', 'Найти сотрудника')}</div>
-            ${kHead('Сотрудник')}<div class="rows" id="k-emps">${k.emps.map((e) => kRow(e.name, ботов(e.bots.length) + ' · FD/рег ' + pct(e.ftd, e.regs), e, 'k:' + e.name)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div></div>
+            <div class="rows" id="k-emps">${kHead('Сотрудник')}${k.emps.map((e) => kRow(e.name, ботов(e.bots.length) + ' · FD/рег ' + pct(e.ftd, e.regs), e, 'k:' + e.name)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div></div>
           <div class="k-pane${kСписок === 'b' ? ' on' : ''}" data-pane="b"><div class="bar"><span></span>${поиск('#k-bots', 'Найти бота')}</div>
-            ${kHead('Бот')}<div class="rows" id="k-bots">${k.bots.map((b) => kRow(b.name, b.space + ' · FD/рег ' + pct(b.ftd, b.regs), b, 'kb:' + b.id)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div></div>
+            <div class="rows" id="k-bots">${kHead('Бот')}${k.bots.map((b) => kRow(b.name, b.space + ' · FD/рег ' + pct(b.ftd, b.regs), b, 'kb:' + b.id)).join('') || '<p class="lead">В эти дни регистраций нет.</p>'}</div></div>
         </div></div>
-        <h3 class="sub">Спейсы</h3>${kHead('Спейс')}<div class="rows">${k.spaces.map((x) => kRow(x.name, 'FD/рег ' + pct(x.ftd, x.regs), x, '')).join('')}</div>
+        <h3 class="sub">Спейсы</h3><div class="rows">${kHead('Спейс')}${k.spaces.map((x) => kRow(x.name, 'FD/рег ' + pct(x.ftd, x.regs), x, '')).join('')}</div>
         <p class="note">Источник — прямые данные партнёрки PocketOption (склад ОКК, обновлено ${esc(String(KP.upd).slice(0, 16).replace('T', ' '))} UTC). Игроки других платформ (Бинариум и т.п.) сюда не входят. Сотрудник — по постбэку и тегу чата; бот и спейс — по чату игрока.</p></section>`;
+    },
+    tablica() {
+      if (!ф.было) изСсылки();
+      setTimeout(тРисовать, 0);
+      return `<section class="view"><div class="head-blk"><div class="kicker">Таблица · свой фильтр</div><h2>Сводная <span class="serif">таблица</span></h2>
+        <p class="lead">Гео, спейсы, боты и сотрудники в одной таблице — как сводная в Jarvis, но на наших цифрах. Выберите режим, дни и что смотреть; сотрудники подтягиваются сами по выбранным ботам. Вид сохраняется в ссылке — её можно отправить.</p></div>
+        <div id="tb-app"></div></section>`;
     },
     sverka() {
       const o = D.check.okk, p = D.check.pp;
@@ -293,7 +471,7 @@
       const k = кДанные((r) => KP.e[r[1]] === name), e = k.emps[0]; if (!e) return null;
       const html = `<div class="head-blk"><div class="kicker">Когорта · регистрации ${период()} · сотрудник</div><h2>${esc(name)}</h2>
         <div class="conv"><span class="pill">средний чек <b>${чек(e)}</b></span><span class="pill">FD из регистраций <b>${pct(e.ftd, e.regs)}</b></span></div></div>${kTiles(e)}${kCharts(k)}
-        <h3 class="sub">По ботам</h3>${kHead('Бот')}<div class="rows">${k.bots.map((x) => kRow(x.name, x.space, x, 'kb:' + x.id)).join('')}</div>
+        <h3 class="sub">По ботам</h3><div class="rows">${kHead('Бот')}${k.bots.map((x) => kRow(x.name, x.space, x, 'kb:' + x.id)).join('')}</div>
         <h3 class="sub">Игроки когорты</h3><div id="d-pl"></div>`;
       return { t: 'Когорта · ' + name, html, после: () => списокК($('#d-pl'), (r) => KP.e[r[1]] === name, 'e') };
     },
@@ -302,7 +480,7 @@
       const k = кДанные((r) => KP.b[r[2]] === id), b = k.bots[0]; if (!b) return null;
       const html = `<div class="head-blk"><div class="kicker">Когорта · регистрации ${период()} · бот · ${esc(b.space)}</div><h2>${esc(b.name)}</h2>
         <div class="conv"><span class="pill">средний чек <b>${чек(b)}</b></span><span class="pill">FD из регистраций <b>${pct(b.ftd, b.regs)}</b></span></div></div>${kTiles(b)}${kCharts(k)}
-        <h3 class="sub">Сотрудники</h3>${kHead('Сотрудник')}<div class="rows">${k.emps.map((x) => kRow(x.name, '', x, 'k:' + x.name)).join('')}</div>
+        <h3 class="sub">Сотрудники</h3><div class="rows">${kHead('Сотрудник')}${k.emps.map((x) => kRow(x.name, '', x, 'k:' + x.name)).join('')}</div>
         <h3 class="sub">Игроки когорты</h3><div id="d-pl"></div>`;
       return { t: 'Когорта · ' + b.name, html, после: () => списокК($('#d-pl'), (r) => KP.b[r[2]] === id, 'b') };
     },
@@ -311,7 +489,7 @@
       const боты = s.bots.map(бот);
       return { t: 'Спейс · ' + s.name, html: `<div class="head-blk"><div class="kicker">Спейс · ${period()}</div><h2>${esc(s.name)}</h2></div>${tiles(s.t)}${charts(s.daily)}
         <div class="bar"><h3 class="sub" style="margin:0">Боты спейса</h3>${поиск('#d-bots', 'Найти бота')}</div>
-        ${rowHead('Бот', true)}<div class="rows" id="d-bots">${боты.map((b) => row(имяБота(b), [подБотом(b), 'рег/лид ' + pct(b.t.regs, b.t.leads), 'FD/рег ' + pct(b.t.ftd, b.t.regs)].filter(Boolean).join(' · '), b.t, 'b:' + b.id, true)).join('')}</div>` };
+        <div class="rows" id="d-bots">${rowHead('Бот', true)}${боты.map((b) => row(имяБота(b), [подБотом(b), 'рег/лид ' + pct(b.t.regs, b.t.leads), 'FD/рег ' + pct(b.t.ftd, b.t.regs)].filter(Boolean).join(' · '), b.t, 'b:' + b.id, true)).join('')}</div>` };
     },
     b(id) {
       const b = D.bots[id]; if (!b) return null;
@@ -319,14 +497,14 @@
         <div class="conv"><span class="pill">регистрация из лида <b>${pct(b.t.regs, b.t.leads)}</b></span><span class="pill">FD из регистраций <b>${pct(b.t.ftd, b.t.regs)}</b></span><span class="pill">средний FD <b>${b.t.ftd ? usd2(b.t.ftd_sum / b.t.ftd) : '—'}</b></span></div></div>
         ${tiles(b.t)}${charts(b.daily)}
         <div class="bar"><h3 class="sub" style="margin:0">Сотрудники бота</h3>${поиск('#d-emp', 'Найти сотрудника')}</div>
-        ${b.emp.length ? rowHead('Сотрудник', true) + '<div class="rows" id="d-emp">' + b.emp.map((e) => row(e.name, '', e, 'e:' + e.name, true)).join('') + '</div>' : '<p class="lead">По этому боту за период денег и регистраций нет.</p>'}
+        ${b.emp.length ? '<div class="rows" id="d-emp">' + rowHead('Сотрудник', true) + b.emp.map((e) => row(e.name, '', e, 'e:' + e.name, true)).join('') + '</div>' : '<p class="lead">По этому боту за период денег и регистраций нет.</p>'}
         <h3 class="sub">Игроки бота</h3><div id="d-pl"></div>`;
       return { t: 'Бот · ' + имяБота(b), html, после: () => списокИгроков($('#d-pl'), (r) => P.b[r[2]] === id, 'b') };
     },
     e(name) {
       const e = D.employees.find((x) => x.name === name); if (!e) return null;
       const html = `<div class="head-blk"><div class="kicker">Сотрудник · ${period()}</div><h2>${esc(e.name)}</h2></div>${tiles(e.t, '', false, 'чаты с его тегом')}
-        <h3 class="sub">По ботам</h3>${rowHead('Бот', true)}<div class="rows">${e.bots.map((x) => { const b = бот(x.id); return row(имяБота(b), b.space, x, 'b:' + x.id, true); }).join('')}</div>
+        <h3 class="sub">По ботам</h3><div class="rows">${rowHead('Бот', true)}${e.bots.map((x) => { const b = бот(x.id); return row(имяБота(b), b.space, x, 'b:' + x.id, true); }).join('')}</div>
         <h3 class="sub">Игроки сотрудника</h3><div id="d-pl"></div>`;
       return { t: 'Сотрудник · ' + e.name, html, после: () => списокИгроков($('#d-pl'), (r) => P.e[r[1]] === name, 'e') };
     },
@@ -366,7 +544,7 @@
 
   /* ── поиск-лупа: наведение раскрывает и сразу даёт писать; пусто и курсор ушёл — сворачивается ── */
   const фильтр = (sx) => { const цель = sx.dataset.sx; if (!цель || цель === '#pl-x') return; const box = $(цель); if (!box) return; const v = sx.querySelector('input').value.trim().toLowerCase();
-    [...box.children].forEach((el) => { el.hidden = v && !el.textContent.toLowerCase().includes(v); }); };
+    [...box.children].forEach((el) => { if (el.classList.contains('hd')) return; el.hidden = v && !el.textContent.toLowerCase().includes(v); }); };
   document.addEventListener('mouseover', (e) => { const sx = e.target.closest && e.target.closest('.sx'); if (!sx || sx.classList.contains('on')) return; sx.classList.add('on'); const i = sx.querySelector('input'); setTimeout(() => i.focus({ preventScroll: true }), 60); });
   document.addEventListener('mouseout', (e) => { const sx = e.target.closest && e.target.closest('.sx'); if (!sx || sx.contains(e.relatedTarget)) return; const i = sx.querySelector('input'); if (!i.value) { sx.classList.remove('on'); i.blur(); } });
   document.addEventListener('focusout', (e) => { const sx = e.target.closest && e.target.closest('.sx'); if (sx && !e.target.value && !sx.matches(':hover')) sx.classList.remove('on'); });
@@ -377,9 +555,9 @@
   document.addEventListener('pointermove', (e) => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); }, { passive: true });
 
   /* ── главные страницы без перезагрузки ── */
-  const ГЛАВНЫЕ = ['obzor', 'spaces', 'sotrudniki', 'kogorta', 'sverka'];
+  const ГЛАВНЫЕ = ['obzor', 'spaces', 'sotrudniki', 'kogorta', 'tablica', 'sverka'];
   let был = '';
-  const show = () => { const h = decodeURIComponent(location.hash.slice(1)); const v = ГЛАВНЫЕ.includes(h) ? h : 'obzor';
+  const show = () => { const h = decodeURIComponent(location.hash.slice(1)), h0 = h.split('/')[0]; const v = ГЛАВНЫЕ.includes(h0) ? h0 : 'obzor';
     вид = v; $('#app').innerHTML = V[v](); setNav(v); scrollTo({ top: 0, behavior: 'instant' }); onScroll();
     const m = /^(s|b|e|k|kb):(.+)$/.exec(h); if (m) { if (m[1][0] === 'k' && !KP) игрокиК().then(() => открыть(h, true), () => {}); else открыть(h, true); }   // старые ссылки на спейс/бота/сотрудника открывают панель
   };

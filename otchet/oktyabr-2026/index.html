@@ -241,11 +241,50 @@ button.pill:hover,button.pill.on{color:var(--tx);border-color:color-mix(in srgb,
 .k-tip small{font-family:var(--fm);font-size:11px;color:var(--tx3);letter-spacing:.06em}
 .k-tip b{font-size:15px;font-weight:600;color:var(--tx);white-space:nowrap}
 .k-tip span{font-size:12.5px;color:var(--tx2);white-space:nowrap}
+/* шапки таблиц закреплены: при прокрутке вниз названия колонок остаются под шапкой сайта (владелец 24.10 — «везде») */
+.row.hd{position:sticky;top:calc(env(safe-area-inset-top,0px) + 86px);z-index:6;background:var(--bg);padding-block:9px;margin-block:-9px;border-radius:0 0 12px 12px;box-shadow:0 -10px 0 var(--bg)}
+.dr-bd .row.hd{top:80px}
+/* вкладка «Таблица»: фильтр (значения — из .card / .chip-b / .btn) и сводная с закреплёнными шапкой, итогом и первой колонкой */
+#tb-app{min-width:0;display:grid;gap:14px}#tb-app>*{min-width:0}
+.tb-ctl{gap:14px}.tb-ctl>*{min-width:0}
+.tb-r{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.tb-top{align-items:center;gap:10px}
+.tb-lb{flex:none;width:92px;padding-top:9px;font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
+.tb-chips{flex:1;min-width:0;display:flex;gap:6px;flex-wrap:wrap}
+.tb-act{display:flex;gap:6px;align-items:center}
+.tb-seg{display:flex;gap:6px;flex-wrap:wrap}
+.tb-mute{font-size:13px;color:var(--tx3);padding-top:8px}
+.tb-btns{gap:8px;padding-top:4px;border-top:1px solid var(--ln);padding-top:14px}
+.tw{position:relative;max-width:100%;max-height:calc(100dvh - 120px);overflow:auto;border:1px solid var(--ln);border-radius:18px;background:var(--bg);scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
+.tw::-webkit-scrollbar{display:none}
+.tb{width:100%;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums;font-size:14px}
+.tb th,.tb td{padding:10px 14px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--ln)}
+.tb thead th{position:sticky;top:0;z-index:3;background:var(--bg);font-family:var(--fm);font-size:10.5px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);cursor:pointer;user-select:none;transition:color .2s}
+.tb thead th:hover,.tb thead th.on{color:var(--or2)}
+.tb thead tr.tot td{position:sticky;top:var(--thh,37px);z-index:3;background:linear-gradient(color-mix(in srgb,var(--or) 9%,transparent),color-mix(in srgb,var(--or) 9%,transparent)),var(--bg);font-weight:600;border-bottom:1px solid var(--ln2)}
+.tb .nm{position:sticky;left:0;z-index:2;text-align:left;white-space:normal;min-width:270px;max-width:360px;background:var(--bg);border-right:1px solid var(--ln)}
+.tb thead .nm{z-index:4;cursor:default}
+.tb .nmi{display:flex;align-items:center;gap:8px}
+.tb .lbl{min-width:0;flex:1;overflow-wrap:anywhere}.tb .lbl small{display:block;font-size:11.5px;font-weight:400;color:var(--tx3)}
+.tb .chev{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:6px;color:var(--tx3);transition:transform .25s var(--ez),color .2s}
+.tb .chev svg{width:14px;height:14px}.tb .chev.nope{visibility:hidden}
+.tb tr.open>td .chev{transform:rotate(90deg);color:var(--or2)}
+.tb tbody tr.has{cursor:pointer}
+.tb tbody tr:hover>td{background:linear-gradient(var(--hov),var(--hov)),var(--bg)}
+.tb tr.l0>td{font-weight:600;font-size:15px;background:linear-gradient(var(--card2),var(--card2)),var(--bg)}
+.tb tr.l1>td{font-weight:500}
+.tb tr.l3>td,.tb tr.l2.leaf>td{color:var(--tx1)}
+.tb-go{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:8px;border:1px solid var(--ln2);background:transparent;color:var(--tx2);cursor:pointer;opacity:0;transition:opacity .2s,border-color .25s var(--ez),color .2s,background-color .25s var(--ez)}
+.tb-go svg{width:14px;height:14px}
+.tb tr:hover .tb-go,.tb-go:focus-visible{opacity:1}
+.tb-go:hover{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent)}
+@media (hover:none){.tb-go{opacity:1}}
+@media (max-width:760px){.tb-lb{width:100%;padding-top:0}.tb .nm{min-width:190px;max-width:220px}.tb th,.tb td{padding:9px 10px;font-size:13px}.tw{max-height:calc(100dvh - 90px)}}
 /* печать / PDF: все страницы подряд, каждая с новой страницы, светлая тема */
 @page{margin:14mm 12mm}
 @media print{
   :root,:root[data-theme]{--bg:#fff;--tx:#111;--tx1:#222;--tx2:#444;--tx3:#777;--or:#C9560D;--or2:#C9560D;--ln:#e5ddd5;--ln2:#d5cabf;--card:#fff;--card2:#faf6f2;--ok:#1E8E5A;--warn:#A86A10;--blue:#2F6FD6;color-scheme:light}
-  .aura,.grid,.s-nav,.no-print,.cal-pop,.k-tip{display:none!important}.k-fold{grid-template-rows:1fr}.k-fold:not(.open){margin-top:0}.k-pane{display:grid}main{padding-top:0}
+  .aura,.grid,.s-nav,.no-print,.cal-pop,.k-tip,.tb-ctl{display:none!important}.row.hd,.tb thead th,.tb thead tr.tot td,.tb .nm{position:static}.tw{max-height:none;overflow:visible}.k-fold{grid-template-rows:1fr}.k-fold:not(.open){margin-top:0}.k-pane{display:grid}main{padding-top:0}
   .view{break-before:page;display:grid!important}.view:first-child{break-before:auto}
   .card,.row,.tile,.chart{break-inside:avoid}
   .charts{grid-template-columns:1fr 1fr}.chart svg{max-height:150px}
@@ -258,7 +297,7 @@ button.pill:hover,button.pill.on{color:var(--tx);border-color:color-mix(in srgb,
 <header class="s-nav" id="head">
   <a class="brand" href="#obzor" data-go="obzor"><span class="mk">N</span><span class="wm"><b>Отчёт · октябрь</b><small>NEXUS</small></span></a>
   <nav id="nav" aria-label="Разделы"><i class="s-ind" id="ind" style="opacity:0"></i>
-    <a href="#obzor" data-go="obzor">Обзор</a><a href="#spaces" data-go="spaces">Спейсы и боты</a><a href="#sotrudniki" data-go="sotrudniki">Сотрудники</a><a href="#kogorta" data-go="kogorta">Когорта</a><a href="#sverka" data-go="sverka">Сверка</a>
+    <a href="#obzor" data-go="obzor">Обзор</a><a href="#spaces" data-go="spaces">Спейсы и боты</a><a href="#sotrudniki" data-go="sotrudniki">Сотрудники</a><a href="#kogorta" data-go="kogorta">Когорта</a><a href="#tablica" data-go="tablica">Таблица</a><a href="#sverka" data-go="sverka">Сверка</a>
   </nav>
   <div class="s-nav-r">
     <button class="btn" id="theme" type="button" aria-label="Сменить тему"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="theme-ic" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="tl" id="theme-t">Светлая</span></button>
