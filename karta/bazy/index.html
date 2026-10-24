@@ -262,7 +262,8 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
 .tlist a.on svg{color:var(--or2)}
 .tlist a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tlist a small{font-family:var(--fm);font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums}
-.panel{border:1px solid var(--ln);background:var(--card);border-radius:20px;min-width:0;overflow:hidden}
+.panel{border:1px solid var(--ln);background:var(--card);border-radius:20px;min-width:0;overflow:clip;overflow-clip-margin:0}
+.panel:has(.fpop.open){overflow:visible}
 .p-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;padding:18px 20px 14px;border-bottom:1px solid var(--ln)}
 .p-head h3{margin:0;font-size:22px;font-weight:600;letter-spacing:-.01em;word-break:break-word}
 .p-head h3 small{font-family:var(--fm);font-size:12px;color:var(--tx3);font-weight:400;margin-right:4px}
@@ -301,6 +302,32 @@ table.g td.num{text-align:right}
 .blk h4{margin:6px 0 0;font-size:14px;font-family:var(--fm);font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
 .code{font-family:var(--fm);font-size:12.5px;line-height:1.55;background:var(--bg2);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;overflow:auto;white-space:pre;color:var(--tx1);margin:0}
 .code.wrap{white-space:pre-wrap;word-break:break-word}
+
+/* поиск и фильтр над таблицей */
+.tbar{position:relative;z-index:6;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--ln)}
+.tbar .find{flex:1 1 220px;max-width:340px;height:36px}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 6px 0 11px;border-radius:999px;border:1px solid color-mix(in srgb,var(--or2) 50%,transparent);background:color-mix(in srgb,var(--or) 10%,transparent);font-size:12.5px;color:var(--tx)}
+.fchip button{all:unset;cursor:pointer;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;color:var(--tx2)}
+.fchip button:hover{background:var(--hov);color:var(--tx)}
+.pop-anchor{position:relative}
+.fpop{position:absolute;left:0;top:calc(100% + 8px);z-index:20;width:min(420px,calc(100vw - 40px));padding:14px;border-radius:16px;border:1px solid var(--ln2);background:var(--bg2);box-shadow:0 18px 50px -12px rgba(0,0,0,.45);display:grid;gap:10px;
+  opacity:0;transform:translateY(-6px) scale(.98);transform-origin:20px 0;visibility:hidden;transition:opacity .2s ease-out,transform .28s var(--ez),visibility 0s .28s}
+.fpop.open{opacity:1;transform:none;visibility:visible;transition:opacity .2s ease-out,transform .28s var(--ez),visibility 0s}
+.fpop .lbl{font-family:var(--fm);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3)}
+.opts{display:flex;flex-wrap:wrap;gap:5px;max-height:150px;overflow:auto}
+.opt{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:9px;border:1px solid var(--ln2);font-size:12.5px;color:var(--tx1);transition:background-color .2s,border-color .2s,color .2s}
+.opt:hover{background:var(--hov);color:var(--tx)}
+.opt.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 14%,transparent);color:var(--tx)}
+.opt[disabled]{opacity:.4;cursor:not-allowed}
+.opt:focus-visible{outline:2px solid var(--or2);outline-offset:2px}
+.fpop .acts{justify-content:flex-end}
+.fpop .hint{font-size:12px;color:var(--tx3)}
+td.js{cursor:pointer;text-decoration:underline dotted color-mix(in srgb,var(--tx3) 60%,transparent);text-underline-offset:3px}
+td.js:hover{color:var(--or2)}
+.jpop{position:fixed;z-index:40;inset:auto;max-width:min(560px,calc(100vw - 32px));max-height:min(60vh,520px);overflow:auto;padding:14px 16px;border-radius:16px;border:1px solid var(--ln2);background:var(--bg2);box-shadow:0 18px 50px -12px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(-4px);transition:opacity .2s ease-out,transform .25s var(--ez)}
+.jpop.open{opacity:1;transform:none}
+.jpop pre{margin:0;font-family:var(--fm);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:var(--tx1)}
 
 /* права */
 .rt{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -611,7 +638,9 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
 
   /* ── редактор таблиц ── */
   const DB = {};            // кэш списков таблиц по базам
-  let T = { db: null, schema: null, table: null, tab: 'data', offset: 0, order: null, dir: 'desc', limit: 50 };
+  let T = { db: null, schema: null, table: null, tab: 'data', offset: 0, order: null, dir: 'desc', limit: 50, q: '', f: null, m: 'has', v: '' };
+  const MODES = [['has', 'содержит'], ['eq', 'равно'], ['gt', 'больше'], ['lt', 'меньше'], ['null', 'пусто'], ['notnull', 'не пусто']];
+  const needV = (m) => !['null', 'notnull'].includes(m);
   const dbPills = (box, route) => {
     box.replaceChildren();
     if (!OV || OV.dbs.length < 2) return;
@@ -630,7 +659,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
       if (t.schema === T.schema && t.name === T.table) { a.classList.add('on'); a.setAttribute('aria-current', 'true'); }
       box.append(a); shown++;
     }
-    if (!shown) box.append(el('div', 'empty', f ? 'Ничего не нашлось' : 'Загружаем…'));
+    if (!shown) box.append(f ? el('div', 'empty', 'Ничего не нашлось') : skel());
     // выбранная таблица видна в списке, даже если она внизу (по прямой ссылке)
     const on = $('a.on', box); if (on && !f) box.scrollTop = Math.max(0, on.offsetTop - box.offsetTop - 60);
   };
@@ -668,9 +697,12 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     }
     body.append(skel());
     let d;
-    try { d = await api(base + '/rows', { offset: T.offset, limit: T.limit, order: T.order || '', dir: T.dir }); } catch (e) { body.replaceChildren(el('div', 'err', e.message)); return; }
-    body.replaceChildren();
-    if (!d.rows.length) { body.append(el('div', 'empty', 'Таблица пустая.')); return; }
+    const prm = { offset: T.offset, limit: T.limit, order: T.order || '', dir: T.dir };
+    if (T.q) prm.q = T.q;
+    if (T.f) { prm.f = T.f; prm.m = T.m; if (needV(T.m)) prm.v = T.v; }
+    try { d = await api(base + '/rows', prm); } catch (e) { body.replaceChildren(toolbar(info.columns), el('div', 'err', e.message)); return; }
+    body.replaceChildren(toolbar(d.columns));
+    if (!d.rows.length) { body.append(el('div', 'empty', d.filtered ? 'Ничего не нашлось — поменяйте поиск или фильтр.' : 'Таблица пустая.')); return; }
     const wrap = el('div', 'grid-wrap'), tb = el('table', 'g'), thead = el('thead'), tr = el('tr');
     d.columns.forEach((c) => {
       const th = el('th'); th.scope = 'col'; const b = el('button'); b.type = 'button'; b.title = 'Сортировать';
@@ -689,6 +721,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
         if (v === null) { td.textContent = 'NULL'; td.className = 'nul'; }
         else if (c.masked) { td.textContent = '•••'; td.className = 'msk'; td.title = 'скрыто на сервере'; }
         else if (/^timestamp/.test(c.type)) { const dt = new Date(v); td.textContent = isNaN(dt) ? v : dt.toLocaleString('ru-RU'); td.title = v; }
+        else if (/^json/.test(c.type) || v.length > 60) { td.textContent = v; td.className = 'js'; td.tabIndex = 0; td.dataset.full = v; td.setAttribute('role', 'button'); td.setAttribute('aria-label', 'Раскрыть ' + c.name); }
         else { td.textContent = v; td.title = v; if (isNum(c.type)) td.className = 'num'; }
         r.append(td);
       });
@@ -696,7 +729,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     }
     tb.append(tbody); wrap.append(tb); body.append(wrap);
     const pg = el('div', 'pager'); const to = Math.min(d.offset + d.rows.length, d.total ?? d.offset + d.rows.length);
-    pg.append(el('span', null, `${num(d.offset + 1)}–${num(to)} из ${num(d.total ?? to)}`));
+    pg.append(el('span', null, `${num(d.offset + 1)}–${num(to)} из ${num(d.total ?? to)}` + (d.filtered ? ' найденных' : '')));
     const acts = el('div', 'acts');
     const prev = el('button', 'btn sm', '← Назад'), next = el('button', 'btn sm', 'Дальше →'); prev.type = next.type = 'button';
     prev.disabled = d.offset === 0; next.disabled = to >= (d.total ?? 0);
@@ -704,6 +737,90 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     next.addEventListener('click', () => { T.offset += T.limit; renderTable(); });
     acts.append(prev, next); pg.append(acts); body.append(pg);
   };
+  // панель над таблицей: поиск по всем видимым колонкам и фильтр по одной — своя всплывашка, без системных списков
+  let qTimer = null;
+  const toolbar = (cols) => {
+    const bar = el('div', 'tbar');
+    const inp = el('input', 'find'); inp.type = 'search'; inp.placeholder = 'Найти в таблице'; inp.value = T.q; inp.setAttribute('aria-label', 'Найти в таблице');
+    inp.addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => { T.q = inp.value.trim(); T.offset = 0; renderTable().then(() => { const n = $('#tpanel .tbar .find'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }); }, 450); });
+    const anchor = el('div', 'pop-anchor');
+    const btn = el('button', 'btn sm', T.f ? 'Фильтр · 1' : 'Фильтр'); btn.type = 'button'; btn.setAttribute('aria-expanded', 'false');
+    const pop = el('div', 'fpop'); pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Фильтр');
+    let f = T.f, m = T.m, v = T.v;
+    const draw = () => {
+      pop.replaceChildren();
+      pop.append(el('div', 'lbl', 'Колонка'));
+      const oc = el('div', 'opts');
+      for (const c of cols) {
+        const b = el('button', 'opt' + (c.name === f ? ' on' : ''), c.name); b.type = 'button';
+        if (c.masked) { b.disabled = true; b.title = 'скрытая колонка — по ней не ищем'; }
+        b.addEventListener('click', () => { f = c.name; if (c.partial && !['eq', 'null', 'notnull'].includes(m)) m = 'eq'; draw(); });
+        oc.append(b);
+      }
+      pop.append(oc);
+      const cur = cols.find((c) => c.name === f);
+      pop.append(el('div', 'lbl', 'Условие'));
+      const om = el('div', 'opts');
+      for (const [k, t] of MODES) {
+        const b = el('button', 'opt' + (k === m ? ' on' : ''), t); b.type = 'button';
+        if (cur && cur.partial && !['eq', 'null', 'notnull'].includes(k)) { b.disabled = true; b.title = 'по этой колонке — только точное совпадение'; }
+        b.addEventListener('click', () => { m = k; draw(); });
+        om.append(b);
+      }
+      pop.append(om);
+      if (needV(m)) {
+        pop.append(el('div', 'lbl', 'Значение'));
+        const vi = el('input', 'find'); vi.value = v; vi.placeholder = cur && /^timestamp|^date/.test(cur.type) ? 'например 2026-10-24' : 'что ищем';
+        vi.addEventListener('input', () => { v = vi.value; const a = $('.fpop.open .acts .btn:last-child'); if (a) a.disabled = !f || !v.trim(); });
+        vi.addEventListener('keydown', (e) => { if (e.key === 'Enter') apply.click(); });
+        pop.append(vi);
+        if (cur && cur.partial) pop.append(el('div', 'hint', 'Номер скрыт частично — найти можно только по точному совпадению.'));
+      }
+      const acts = el('div', 'acts');
+      const reset = el('button', 'btn sm', 'Сбросить'); reset.type = 'button';
+      const apply = el('button', 'btn sm', 'Применить'); apply.type = 'button'; apply.disabled = !f || (needV(m) && !v.trim());
+      reset.addEventListener('click', () => { T.f = null; T.v = ''; T.m = 'has'; T.offset = 0; renderTable(); });
+      apply.addEventListener('click', () => { T.f = f; T.m = m; T.v = v.trim(); T.offset = 0; renderTable(); });
+      acts.append(reset, apply); pop.append(acts);
+    };
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); const o = !pop.classList.contains('open');
+      if (o) { draw(); pop.style.left = '0px'; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth; pop.style.left = Math.min(0, innerWidth - 16 - (a.left + w)) + 'px'; }
+      pop.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o));
+    });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    anchor.append(btn, pop);
+    bar.append(inp, anchor);
+    if (T.f) {
+      const mt = MODES.find((x) => x[0] === T.m)[1];
+      const ch = el('span', 'fchip', `${T.f} ${mt}${needV(T.m) ? ' «' + T.v + '»' : ''}`);
+      const x = el('button', null, '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Убрать фильтр');
+      x.addEventListener('click', () => { T.f = null; T.v = ''; T.m = 'has'; T.offset = 0; renderTable(); });
+      ch.append(x); bar.append(ch);
+    }
+    return bar;
+  };
+  // всплывашки фильтра закрываются кликом мимо и Esc
+  const closeF = () => $$('.fpop.open').forEach((p) => { p.classList.remove('open'); const b = p.previousElementSibling; if (b) b.setAttribute('aria-expanded', 'false'); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.pop-anchor')) closeF(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeF(); });
+  // длинный текст и JSON — по нажатию, поверх таблицы
+  let jp = null;
+  const closeJ = () => { if (jp) { jp.remove(); jp = null; } };
+  const openJ = (td) => {
+    closeJ();
+    let txt = td.dataset.full; try { txt = JSON.stringify(JSON.parse(txt), null, 2); } catch (_) {}
+    jp = el('div', 'jpop'); const pre = el('pre', null, txt); jp.append(pre); document.body.append(jp);
+    const r = td.getBoundingClientRect(), w = Math.min(560, innerWidth - 32);
+    jp.style.left = Math.max(16, Math.min(r.left, innerWidth - w - 16)) + 'px';
+    const below = r.bottom + 8, h = jp.offsetHeight;
+    jp.style.top = (below + h < innerHeight - 8 ? below : Math.max(8, r.top - h - 8)) + 'px';
+    void jp.offsetWidth; jp.classList.add('open');
+  };
+  document.addEventListener('click', (e) => { const td = e.target.closest('td.js'); if (td) { e.stopPropagation(); openJ(td); return; } if (!e.target.closest('.jpop')) closeJ(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeJ(); if (e.key === 'Enter' && e.target.matches && e.target.matches('td.js')) openJ(e.target); });
+  addEventListener('scroll', closeJ, { passive: true });
+
   const defView = (info) => {
     const outer = el('div');
     if (info.rights) outer.append(rightsBlock(info.rights, T.db));
@@ -759,10 +876,10 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
   const openTables = async (db, st) => {
     const dbs = OV ? OV.dbs.map((d) => d.name) : [];
     if (!db) db = dbs[0];
-    if (!db) { $('#tpanel').replaceChildren(el('div', 'empty', 'Загружаем…')); return; }
+    if (!db) { $('#tpanel').replaceChildren(skel()); return; }
     const [schema, table] = st ? [st.slice(0, st.indexOf('.')), st.slice(st.indexOf('.') + 1)] : [null, null];
     const same = T.db === db && T.schema === schema && T.table === table;
-    if (!same) T = { ...T, db, schema, table, offset: 0, order: null, dir: 'desc', tab: T.table === table ? T.tab : 'data' };
+    if (!same) T = { ...T, db, schema, table, offset: 0, order: null, dir: 'desc', tab: T.table === table ? T.tab : 'data', q: '', f: null, m: 'has', v: '' };
     dbPills($('#dbs-t'), '#/t/');
     if (!DB[db]) { renderList(); try { DB[db] = await api('/v1/db/' + db); } catch (e) { fail(e); return; } }
     renderList(); renderTable();
@@ -775,7 +892,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     if (!db) db = dbs[0];
     T.db = db; dbPills($('#dbs-m'), '#/m/');
     const box = $('#migs');
-    if (!db) { box.replaceChildren(el('div', 'empty', 'Загружаем…')); return; }
+    if (!db) { box.replaceChildren(skel()); return; }
     let m;
     try { m = await api(`/v1/db/${db}/migrations`); } catch (e) { box.replaceChildren(el('div', 'err', e.message)); return; }
     const applied = new Map(m.applied.map((a) => [a.name, a])), files = new Map((m.files || []).map((f) => [f.name, f]));
