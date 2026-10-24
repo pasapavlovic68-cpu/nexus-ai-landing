@@ -207,13 +207,12 @@
   const ГЕО = ['MENA', 'СНГ', 'MULTI', 'ЛАТАМ', 'Не определено'];
   // гео по названию спейса (владелец 24.10: «все мульти — в мульти, все СНГ — в СНГ»; Австралия и Канада — MULTI, Испания — ЛАТАМ)
   const геоСпейса = (sp) => { const x = String(sp || '').toLowerCase(); if (/араб|марокко/.test(x)) return 'MENA'; if (/^снг/.test(x)) return 'СНГ'; if (/мульти|австрал|канад/.test(x)) return 'MULTI'; if (/латам|испан/.test(x)) return 'ЛАТАМ'; return 'Не определено'; };
-  const ф = { м: 'month', гео: new Set(), сп: new Set(), бот: new Set(), минус: new Set(), гр: 'bot', скр: new Set(), сорт: 'all', вниз: true, откр: new Set(), было: false, поиск: '' };
+  const ф = { м: 'month', гео: new Set(), сп: new Set(), бот: new Set(), минус: new Set(), гр: 'bot', скр: new Set(), сорт: 'all', вниз: true, откр: new Set(), было: false, пп: '', ппq: '' };
+  // колонки; конверсии — маленькой строкой под цифрой (чтобы таблица влезала по ширине без прокрутки вбок)
   const КОЛ = [
     { k: 'leads', t: 'Лиды', f: (a) => (a.лиды == null ? '—' : ru(a.лиды)), м: 'month' },
-    { k: 'regs', t: 'Рег', f: (a) => ru(a.regs) },
-    { k: 'cr1', t: 'Рег / лид', f: (a) => (a.лиды ? pct(a.regs, a.лиды) : '—'), м: 'month' },
-    { k: 'ftd', t: 'FD', f: (a) => ru(a.ftd) },
-    { k: 'cr2', t: 'FD / рег', f: (a) => pct(a.ftd, a.regs) },
+    { k: 'regs', t: 'Рег', t2: '% от лидов', м2: 'month', f: (a) => ru(a.regs), под: (a) => (ф.м === 'month' && a.лиды ? pct(a.regs, a.лиды) : '') },
+    { k: 'ftd', t: 'FD', t2: '% от рег', f: (a) => ru(a.ftd), под: (a) => (a.regs ? pct(a.ftd, a.regs) : '') },
     { k: 'ftd_sum', t: 'FD, $', f: (a) => usd(a.ftd_sum) },
     { k: 'rd', t: 'RD', f: (a) => ru(a.rd) },
     { k: 'rd_sum', t: 'RD, $', f: (a) => usd(a.rd_sum) },
@@ -222,9 +221,8 @@
     { k: 'wdr', t: 'Выводы, $', f: (a) => usd(a.wdr) },
   ];
   const колонки = () => КОЛ.filter((c) => (!c.м || c.м === ф.м) && !ф.скр.has(c.k));
-  const знч = (a, k) => (k === 'all' ? a.ftd_sum + a.rd_sum : k === 'check' ? (a.ftd ? (a.ftd_sum + a.rd_sum) / a.ftd : -1) : k === 'cr1' ? (a.лиды ? a.regs / a.лиды : -1) : k === 'cr2' ? (a.regs ? a.ftd / a.regs : -1) : k === 'leads' ? (a.лиды == null ? -1 : a.лиды) : a[k]);
+  const знч = (a, k) => (k === 'all' ? a.ftd_sum + a.rd_sum : k === 'check' ? (a.ftd ? (a.ftd_sum + a.rd_sum) / a.ftd : -1) : k === 'leads' ? (a.лиды == null ? -1 : a.лиды) : a[k]);
   const НЕТ = /не определ/i;
-  // записи режима: {d, geo, sp, bid, bn, emp, lb (лиды бота), le (лиды сотрудника), деньги}
   const записиКэш = {};
   function записи() {
     if (записиКэш[ф.м]) return записиКэш[ф.м];
@@ -244,14 +242,13 @@
   function отбор() {
     const все = записи(), до = kДо || сегодня(), целый = ф.м === 'month' && весьМесяц();
     const вПер = (r) => (r.d == null ? целый : r.d >= kОт && r.d <= до);
-    const поГео = все.filter((r) => вПер(r) && (!ф.гео.size || ф.гео.has(r.geo)));
+    const вПериоде = все.filter(вПер);
+    const поГео = вПериоде.filter((r) => !ф.гео.size || ф.гео.has(r.geo));
     const поСп = поГео.filter((r) => !ф.сп.size || ф.сп.has(r.sp));
     const поБот = поСп.filter((r) => !ф.бот.size || ф.бот.has(r.bid));
     const итог = поБот.filter((r) => !r.emp || !ф.минус.has(r.emp));
-    const счёт = (L, k) => { const m = new Map(); for (const r of L) if (r[k] && (r.regs || r.lb || r.le)) m.set(r[k], (m.get(r[k]) || 0) + r.regs); return m; };
-    const гео = счёт(все.filter(вПер), 'geo'), спейсы = счёт(поГео, 'sp'), боты = new Map(), люди = счёт(поБот.filter((r) => r.emp), 'emp');
-    for (const r of поСп) if (r.regs || r.lb || r.le) { const x = боты.get(r.bid) || { bn: r.bn, sp: r.sp, n: 0 }; x.n += r.regs; боты.set(r.bid, x); }
-    return { итог, гео, спейсы, боты, люди, целый };
+    const счёт = (L, k, имя = (r) => r[k]) => { const m = new Map(); for (const r of L) if (r[k] && (r.regs || r.lb || r.le)) { const x = m.get(r[k]) || { имя: имя(r), n: 0 }; x.n += r.regs; m.set(r[k], x); } return m; };
+    return { итог, целый, гео: счёт(вПериоде, 'geo'), спейсы: счёт(поГео, 'sp'), боты: счёт(поСп, 'bid', (r) => r.bn), люди: счёт(поБот.filter((r) => r.emp), 'emp') };
   }
   const нуль2 = () => ({ regs: 0, ftd: 0, ftd_sum: 0, rd: 0, rd_sum: 0, wdr: 0, lb: 0, le: 0 });
   function дерево(L) {
@@ -271,48 +268,65 @@
     }
     return корень;
   }
-  // лиды узла: у сотрудника и у бота под сотрудником — чаты с именным тегом (только за весь месяц); выше — все новые чаты бота
+  // лиды узла: у сотрудника и у бота под сотрудником — чаты с его именным тегом (только за весь месяц); выше — все новые чаты бота
   const сЛидами = (узел, целый) => { const a = { ...узел.a }; a.лиды = ф.м !== 'month' ? null : (узел.тип === 'emp' || узел.подЛюдьми) ? (целый ? узел.a.le : null) : узел.a.lb; return a; };
   const порядок = (x, y) => (НЕТ.test(x.ярлык) - НЕТ.test(y.ярлык)) || ((знч(сЛидами(y, true), ф.сорт) - знч(сЛидами(x, true), ф.сорт)) * (ф.вниз ? 1 : -1));
-  const подписьУзла = (n) => (n.тип === 'geo' ? n.kids.size + ' ' + (ф.гр === 'bot' ? 'спейс' + (n.kids.size === 1 ? '' : n.kids.size < 5 ? 'а' : 'ов') : 'сотр.') : n.тип === 'sp' ? ботов(n.kids.size) : n.тип === 'bid' ? (ф.гр === 'emp' ? n.sp : (n.kids.size ? n.kids.size + ' сотр.' : '')) : (n.kids.size ? ботов(n.kids.size) : ''));
+  const мн = (n, a, b, c) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
+  const подписьУзла = (n) => (n.тип === 'geo' ? (ф.гр === 'bot' ? мн(n.kids.size, 'спейс', 'спейса', 'спейсов') : мн(n.kids.size, 'сотрудник', 'сотрудника', 'сотрудников'))
+    : n.тип === 'sp' ? ботов(n.kids.size) : n.тип === 'bid' ? (ф.гр === 'emp' ? n.sp : (n.kids.size ? мн(n.kids.size, 'сотрудник', 'сотрудника', 'сотрудников') : '')) : (n.kids.size ? ботов(n.kids.size) : ''));
+  const ячейка = (c, a) => `<td>${c.f(a)}${c.под && !ф.скр.has('conv') && c.под(a) ? '<small>' + c.под(a) + '</small>' : ''}</td>`;
+  const СТРЕЛКА = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
   function строкиТ(узел, целый, cols, out) {
     for (const n of [...узел.kids.values()].sort(порядок)) {
       const a = сЛидами(n, целый), откр = ф.откр.has(n.путь), есть = n.kids.size > 0;
       const куда = n.тип === 'emp' ? (ф.м === 'month' ? 'e:' : 'k:') + n.ключ : n.тип === 'bid' ? (ф.м === 'month' ? 'b:' : 'kb:') + n.ключ : '';
-      out.push(`<tr class="l${n.ур}${есть ? ' has' : ''}${откр ? ' open' : ''}" ${есть ? `data-tt="${esc(n.путь)}"` : ''}><td class="nm"><div class="nmi" style="padding-left:${n.ур * 18}px">${есть ? '<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>' : '<span class="chev nope"></span>'}<span class="lbl">${esc(n.ярлык)}<small>${esc(подписьУзла(n))}</small></span>${куда ? `<button type="button" class="tb-go" data-open="${esc(куда)}" aria-label="Подробно"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>` : ''}</div></td>${cols.map((c) => `<td>${c.f(a)}</td>`).join('')}</tr>`);
+      out.push(`<tr class="l${n.ур}${есть ? ' has' : ''}${откр ? ' open' : ''}" ${есть ? `data-tt="${esc(n.путь)}"` : ''}><td class="nm"><div class="nmi" style="padding-left:${n.ур * 12}px"><span class="chev${есть ? '' : ' nope'}">${СТРЕЛКА}</span><span class="lbl">${esc(n.ярлык).replace(/_/g, '_<wbr>')}<small>${esc(подписьУзла(n))}</small></span>${куда ? `<button type="button" class="tb-go" data-open="${esc(куда)}" aria-label="Подробно справа"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>` : ''}</div></td>${cols.map((c) => ячейка(c, a)).join('')}</tr>`);
       if (есть && откр) строкиТ(n, целый, cols, out);
     }
     return out;
   }
-  const чип = (txt, on, data, n) => `<button type="button" class="chip-b${on ? ' on' : ''}" ${data}>${esc(txt)}${n != null ? ' <em>' + ru(n) + '</em>' : ''}</button>`;
+  /* ── фильтр: компактная панель, списки — во всплывающих окнах с поиском и галочками ── */
+  const ШЕВ = '<svg class="tb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+  const ИК = {
+    csv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>',
+    reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
+    open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 8 5 5 5-5M7 14l5 5 5-5"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 16 5-5 5 5M7 10l5-5 5 5"/></svg>',
+  };
+  const сег = (пары, тек, attr) => `<div class="tb-seg">${пары.map(([v, t]) => `<button type="button" class="${тек === v ? 'on' : ''}" ${attr}="${v}">${t}</button>`).join('')}</div>`;
+  function выпадашка(имя, ярлык, знач, тело, n) {
+    const откр = ф.пп === имя;
+    return `<div class="tb-dw"><button type="button" class="tb-dd${откр ? ' open' : ''}${знач !== 'все' && знач !== 'Все' && знач !== 'все колонки' ? ' set' : ''}" data-dd="${имя}"><span>${ярлык}</span><b>${esc(знач)}</b>${ШЕВ}</button>
+      <div class="tb-pop${откр ? ' open' : ''}" data-pop="${имя}">${n > 8 ? `<label class="tb-q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="text" placeholder="Найти" autocomplete="off" value="${esc(откр ? ф.ппq : '')}"></label>` : ''}<div class="tb-list">${тело}</div></div></div>`;
+  }
+  const пункт = (txt, on, data, n, класс = '') => `<button type="button" class="tb-it${on ? ' on' : ''}${класс}" ${data}><span class="ck"></span><span class="n">${esc(txt)}</span>${n != null ? '<em>' + ru(n) + '</em>' : ''}</button>`;
+  const сорт2 = (m) => [...m].sort((a, b) => (НЕТ.test(a[1].имя) - НЕТ.test(b[1].имя)) || b[1].n - a[1].n);
+  const значение = (S, m, слово) => (!S.size ? 'все' : S.size === 1 ? (m.get([...S][0]) || { имя: [...S][0] }).имя : S.size + ' ' + слово);
   function тПанель(о) {
-    const сортN = (m) => [...m].sort((a, b) => (НЕТ.test(a[0]) - НЕТ.test(b[0])) || b[1] - a[1]);
-    const гео = ГЕО.filter((g) => о.гео.has(g)).map((g) => чип(g, ф.гео.has(g), `data-tf="гео" data-v="${esc(g)}"`, о.гео.get(g))).join('');
-    const сп = сортN(о.спейсы).map(([n, c]) => чип(n, ф.сп.has(n), `data-tf="сп" data-v="${esc(n)}"`, c)).join('');
-    const боты = [...о.боты].sort((a, b) => (ф.бот.has(b[0]) - ф.бот.has(a[0])) || (НЕТ.test(a[1].bn) - НЕТ.test(b[1].bn)) || b[1].n - a[1].n).map(([id, x]) => чип(x.bn, ф.бот.has(id), `data-tf="бот" data-v="${esc(id)}"`, x.n)).join('');
-    const люди = сортN(о.люди).map(([n, c]) => чип(n, !ф.минус.has(n), `data-tf="минус" data-v="${esc(n)}"`, c)).join('');
-    const колЧипы = КОЛ.filter((c) => !c.м || c.м === ф.м).map((c) => чип(c.t, !ф.скр.has(c.k), `data-tf="скр" data-v="${c.k}"`)).join('');
-    const ряд = (ярлык, html, доп = '') => `<div class="tb-r"><span class="tb-lb">${ярлык}</span><div class="tb-chips">${html}</div>${доп}</div>`;
-    return `<div class="tb-ctl card">
-      <div class="tb-r tb-top"><div class="tb-seg">${чип('За месяц — все игроки', ф.м === 'month', 'data-tm="month"')}${чип('Когорта — новые игроки', ф.м === 'kog', 'data-tm="kog"')}</div>${календарь(ф.м === 'month' ? 'Период' : 'Регистрации')}
-        <div class="tb-seg">${чип('Гео › Спейс › Бот › Сотрудник', ф.гр === 'bot', 'data-tg="bot"')}${чип('Гео › Сотрудник › Бот', ф.гр === 'emp', 'data-tg="emp"')}</div></div>
-      ${ряд('Гео', гео + (ф.гео.size ? чип('Все', false, 'data-tc="гео"') : ''))}
-      ${ряд('Спейсы', сп + (ф.сп.size ? чип('Все', false, 'data-tc="сп"') : ''))}
-      <div class="tb-r"><span class="tb-lb">Боты</span><div class="tb-chips" id="tb-bots">${боты}</div><div class="tb-act">${ф.бот.size ? чип('Все', false, 'data-tc="бот"') : ''}${поиск('#tb-bots', 'Найти бота')}</div></div>
-      ${ряд('Сотрудники', люди || '<span class="tb-mute">нет сотрудников в выбранном</span>', ф.минус.size ? `<div class="tb-act">${чип('Вернуть всех', false, 'data-tc="минус"')}</div>` : '')}
-      ${ряд('Колонки', колЧипы)}
-      <div class="tb-r tb-btns"><button type="button" class="btn" data-tx="open">Развернуть всё</button><button type="button" class="btn" data-tx="close">Свернуть</button><button type="button" class="btn" data-tx="csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>Выгрузить в Excel</button><button type="button" class="btn" data-tx="link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><span>Ссылка на этот вид</span></button><button type="button" class="btn" data-tx="reset">Сбросить фильтр</button></div>
+    const список = (ключ, m, все) => пункт('Все', !ф[ключ].size, `data-tc="${ключ}"`, null, ' all') + сорт2(m).map(([v, x]) => пункт(x.имя, ф[ключ].has(v), `data-tf="${ключ}" data-v="${esc(v)}"`, x.n)).join('');
+    const гео = new Map(ГЕО.filter((g) => о.гео.has(g)).map((g) => [g, о.гео.get(g)]));
+    const люди = пункт('Все', !ф.минус.size, 'data-tc="минус"', null, ' all') + сорт2(о.люди).map(([v, x]) => пункт(x.имя, !ф.минус.has(v), `data-tf="минус" data-v="${esc(v)}"`, x.n)).join('');
+    const видно = КОЛ.filter((c) => !c.м || c.м === ф.м);
+    const колонкиHtml = видно.map((c) => пункт(c.t, !ф.скр.has(c.k), `data-tf="скр" data-v="${c.k}"`)).join('') + пункт('Конверсии под цифрами', !ф.скр.has('conv'), 'data-tf="скр" data-v="conv"', null, ' sep');
+    const людиЗн = !ф.минус.size ? 'все' : (о.люди.size - [...ф.минус].filter((x) => о.люди.has(x)).length) + ' из ' + о.люди.size;
+    const скрыто = видно.filter((c) => ф.скр.has(c.k)).length;
+    return `<div class="tb-ctl">
+      <div class="tb-r">${сег([['month', 'За месяц'], ['kog', 'Когорта']], ф.м, 'data-tm')}${календарь(ф.м === 'month' ? 'Период' : 'Регистрации')}
+        <span class="tb-sp"></span><button type="button" class="btn" data-tx="csv">${ИК.csv}<span class="tl">Excel</span></button><button type="button" class="btn" data-tx="link">${ИК.link}<span class="tl">Ссылка на вид</span></button><button type="button" class="btn" data-tx="reset" aria-label="Сбросить фильтр">${ИК.reset}<span class="tl">Сбросить</span></button></div>
+      <div class="tb-r">${выпадашка('гео', 'Гео', значение(ф.гео, гео, 'гео'), список('гео', гео), гео.size)}${выпадашка('сп', 'Спейсы', значение(ф.сп, о.спейсы, 'спейса'), список('сп', о.спейсы), о.спейсы.size)}${выпадашка('бот', 'Боты', значение(ф.бот, о.боты, 'бота'), список('бот', о.боты), о.боты.size)}${выпадашка('минус', 'Сотрудники', людиЗн, люди, о.люди.size)}${выпадашка('кол', 'Колонки', скрыто ? 'скрыто ' + скрыто : 'все колонки', колонкиHtml, 0)}
+        <span class="tb-sp"></span>${сег([['bot', 'По ботам'], ['emp', 'По сотрудникам']], ф.гр, 'data-tg')}<button type="button" class="ic" data-tx="open" aria-label="Развернуть всё">${ИК.open}</button><button type="button" class="ic" data-tx="close" aria-label="Свернуть всё">${ИК.close}</button></div>
     </div>`;
   }
   function тТаблица(о) {
     const cols = колонки(), т = дерево(о.итог), итог = { ...т.a, лиды: ф.м === 'month' ? т.a.lb : null };
-    const head = `<tr class="th">${['<th class="nm">' + (ф.гр === 'bot' ? 'Гео / спейс / бот / сотрудник' : 'Гео / сотрудник / бот') + '</th>', ...cols.map((c) => `<th data-ts="${c.k}" class="${ф.сорт === c.k ? 'on' : ''}">${c.t}${ф.сорт === c.k ? (ф.вниз ? ' ↓' : ' ↑') : ''}</th>`)].join('')}</tr>
-      <tr class="tot"><td class="nm"><div class="nmi"><span class="lbl">Итого<small>${ф.м === 'month' ? 'за ' + период() : 'регистрации ' + период()}</small></span></div></td>${cols.map((c) => `<td>${c.f(итог)}</td>`).join('')}</tr>`;
+    const head = `<tr class="th"><th class="nm">${ф.гр === 'bot' ? 'Гео · спейс · бот · сотрудник' : 'Гео · сотрудник · бот'}</th>${cols.map((c) => `<th data-ts="${c.k}" class="${ф.сорт === c.k ? 'on' : ''}">${c.t}${ф.сорт === c.k ? (ф.вниз ? ' ↓' : ' ↑') : ''}${c.t2 && !ф.скр.has('conv') && (!c.м2 || c.м2 === ф.м) ? '<small>' + c.t2 + '</small>' : ''}</th>`).join('')}</tr>
+      <tr class="tot"><td class="nm"><div class="nmi"><span class="lbl">Итого<small>${ф.м === 'month' ? 'за ' + период() : 'регистрации ' + период()}</small></span></div></td>${cols.map((c) => ячейка(c, итог)).join('')}</tr>`;
     const тело = строкиТ(т, о.целый, cols, []).join('') || `<tr><td class="nm" colspan="${cols.length + 1}"><span class="tb-mute">В выбранном ничего нет — ослабьте фильтр.</span></td></tr>`;
     const сноска = ф.м === 'month'
-      ? `Все деньги и регистрации, сделанные в выбранные дни, от всех игроков — и новых, и старых. Лиды спейса и бота — все новые чаты (по МСК); лиды сотрудника — чаты с его именным тегом${о.целый ? '' : ' — считаются только за весь месяц, поэтому в выбранных днях у сотрудников «—»'}.`
+      ? `Все деньги и регистрации, сделанные в выбранные дни, от всех игроков — и новых, и старых. Лиды спейса и бота — все новые чаты (по МСК); лиды сотрудника — чаты с его именным тегом${о.целый ? '' : ', они считаются только за весь месяц — поэтому в выбранных днях у сотрудников «—»'}.`
       : 'Игроки, зарегистрированные в выбранные дни, и все их депозиты по сегодня (октябрьские — до 10 ноября). Лидов в когорте нет — она считается от регистраций.';
-    return `<div class="tw"><table class="tb"><thead>${head}</thead><tbody>${тело}</tbody></table></div><p class="note">${сноска} Средний чек = (FD $ + RD $) ÷ FD. Нажмите строку — раскроется; стрелка ↗ у бота и сотрудника — подробности и игроки справа. Источник — партнёрка PocketOption (склад ОКК, ${esc(String((ф.м === 'month' ? TB : KP).upd).slice(0, 16).replace('T', ' '))} UTC).</p>`;
+    return `<div class="tw"><table class="tb"><colgroup><col class="c-nm">${cols.map(() => '<col>').join('')}</colgroup><thead>${head}</thead><tbody>${тело}</tbody></table></div><p class="note">${сноска} Средний чек = (FD $ + RD $) ÷ FD. Строка раскрывается нажатием; стрелка ↗ у бота и сотрудника — подробности и игроки справа. Источник — партнёрка PocketOption (склад ОКК, ${esc(String((ф.м === 'month' ? TB : KP).upd).slice(0, 16).replace('T', ' '))} UTC).</p>`;
   }
   function вСсылку() {
     const p = new URLSearchParams(), J = (x) => [...x].join('~');
@@ -333,31 +347,39 @@
     if (!ф.было) { ф.было = true; for (const g of ГЕО) ф.откр.add(g); }
     if (!колонки().some((c) => c.k === ф.сорт)) { ф.сорт = 'all'; ф.вниз = true; }
     const tw = box.querySelector('.tw'), y = tw ? tw.scrollTop : 0, x = tw ? tw.scrollLeft : 0;
-    const q = (box.querySelector('[data-sx="#tb-bots"] input') || {}).value || '';
+    const лист = box.querySelector('.tb-pop.open .tb-list'), лy = лист ? лист.scrollTop : 0, вФокусе = document.activeElement && document.activeElement.closest && document.activeElement.closest('.tb-q');
     const о = отбор();
     box.innerHTML = тПанель(о) + тТаблица(о);
     const t2 = box.querySelector('.tw'); t2.scrollTop = y; t2.scrollLeft = x;
     const th = box.querySelector('tr.th'); if (th) box.style.setProperty('--thh', th.offsetHeight + 'px');
-    if (q) { const inp = box.querySelector('[data-sx="#tb-bots"] input'); inp.value = q; inp.parentElement.classList.add('on'); фильтр(inp.parentElement); }
+    const pop = box.querySelector('.tb-pop.open');
+    if (pop) { const l = pop.querySelector('.tb-list'); if (l) l.scrollTop = лy; const inp = pop.querySelector('.tb-q input'); if (inp) { искатьВСписке(pop); if (вФокусе || ф.ппФокус) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } } }
+    ф.ппФокус = false;
     вСсылку();
   }
+  const искатьВСписке = (pop) => { const q = (ф.ппq || '').trim().toLowerCase(); pop.querySelectorAll('.tb-it:not(.all)').forEach((el) => { el.hidden = q && !el.textContent.toLowerCase().includes(q); }); };
   function вCSV() {
     const о = отбор(), cols = колонки(), т = дерево(о.итог), строки = [];
     const ч = (v) => (typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : '"' + String(v).replace(/"/g, '""') + '"');
-    const сырое = (a, k) => { const v = знч(a, k); return v < 0 ? '' : (k === 'cr1' || k === 'cr2') ? Math.round(v * 1000) / 10 : v; };   // конверсии — в процентах
+    const сырое = (a, k) => { const v = знч(a, k); return v < 0 ? '' : v; };
     const уровни = ф.гр === 'bot' ? ['Гео', 'Спейс', 'Бот', 'Сотрудник'] : ['Гео', 'Сотрудник', 'Бот'];
-    строки.push(['Уровень', ...уровни, ...cols.map((c) => (c.k === 'cr1' || c.k === 'cr2') ? c.t + ', %' : c.t)].map(ч).join(';'));
-    const обход = (узел, путь) => { for (const n of [...узел.kids.values()].sort(порядок)) { const p = [...путь, n.ярлык]; const a = сЛидами(n, о.целый); строки.push([уровни[n.ур], ...уровни.map((_, i) => p[i] || ''), ...cols.map((c) => сырое(a, c.k))].map(ч).join(';')); обход(n, p); } };
+    const конв = ф.скр.has('conv') ? [] : [...(ф.м === 'month' ? [['Рег / лид, %', (a) => (a.лиды ? Math.round((a.regs / a.лиды) * 1000) / 10 : '')]] : []), ['FD / рег, %', (a) => (a.regs ? Math.round((a.ftd / a.regs) * 1000) / 10 : '')]];
+    строки.push(['Уровень', ...уровни, ...cols.map((c) => c.t), ...конв.map((x) => x[0])].map(ч).join(';'));
+    const обход = (узел, путь) => { for (const n of [...узел.kids.values()].sort(порядок)) { const p = [...путь, n.ярлык]; const a = сЛидами(n, о.целый); строки.push([уровни[n.ур], ...уровни.map((_, i) => p[i] || ''), ...cols.map((c) => сырое(a, c.k)), ...конв.map((x) => x[1](a))].map(ч).join(';')); обход(n, p); } };
     обход(т, []);
     const blob = new Blob(['﻿' + строки.join('\r\n')], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'tablica-oktyabr-' + (ф.м === 'month' ? 'mesyac' : 'kogorta') + '-' + kОт + '_' + (kДо || сегодня()) + '.csv'; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
+  const закрытьПоп = () => { if (!ф.пп) return; ф.пп = ''; ф.ппq = ''; document.querySelectorAll('#tb-app .tb-pop.open, #tb-app .tb-dd.open').forEach((x) => x.classList.remove('open')); };
   document.addEventListener('click', (e) => {
-    if (вид !== 'tablica' || !e.target.closest('#tb-app')) return;
-    if (e.target.closest('[data-open], .sx, .cal-wrap')) return;      // подробности справа, поиск и календарь — своими обработчиками
-    const el = e.target.closest('[data-tf],[data-tc],[data-tm],[data-tg],[data-ts],[data-tx],[data-tt]'); if (!el) return;
+    if (вид !== 'tablica') return;
+    if (ф.пп && !e.target.closest('.tb-dw')) закрытьПоп();         // щелчок мимо всплывающего списка — закрыть
+    if (!e.target.closest('#tb-app')) return;
+    if (e.target.closest('[data-open], .cal-wrap, .tb-q')) return;   // подробности справа, календарь и поиск — своими обработчиками
+    const el = e.target.closest('[data-dd],[data-tf],[data-tc],[data-tm],[data-tg],[data-ts],[data-tx],[data-tt]'); if (!el) return;
     const d = el.dataset;
-    if (d.tf) { const S = ф[d.tf]; S.has(d.v) ? S.delete(d.v) : S.add(d.v); if (d.tf === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tf === 'сп') ф.бот.clear(); }
+    if (d.dd) { if (ф.пп === d.dd) { закрытьПоп(); return; } ф.пп = d.dd; ф.ппq = ''; ф.ппФокус = true; }
+    else if (d.tf) { const S = ф[d.tf]; S.has(d.v) ? S.delete(d.v) : S.add(d.v); if (d.tf === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tf === 'сп') ф.бот.clear(); }
     else if (d.tc) { ф[d.tc].clear(); if (d.tc === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tc === 'сп') ф.бот.clear(); }
     else if (d.tm) { if (ф.м === d.tm) return; ф.м = d.tm; ф.минус.clear(); }
     else if (d.tg) { if (ф.гр === d.tg) return; ф.гр = d.tg; ф.откр = new Set(ГЕО); }
@@ -365,11 +387,13 @@
     else if (d.tt) { ф.откр.has(d.tt) ? ф.откр.delete(d.tt) : ф.откр.add(d.tt); }
     else if (d.tx === 'open') { const т = дерево(отбор().итог), обх = (n) => { for (const k of n.kids.values()) { if (k.kids.size) { ф.откр.add(k.путь); обх(k); } } }; обх(т); }
     else if (d.tx === 'close') ф.откр.clear();
-    else if (d.tx === 'reset') { ф.гео.clear(); ф.сп.clear(); ф.бот.clear(); ф.минус.clear(); ф.скр.clear(); ф.откр = new Set(ГЕО); kОт = '2026-10-01'; kДо = ''; }
+    else if (d.tx === 'reset') { ф.гео.clear(); ф.сп.clear(); ф.бот.clear(); ф.минус.clear(); ф.скр.clear(); ф.откр = new Set(ГЕО); kОт = '2026-10-01'; kДо = ''; ф.пп = ''; }
     else if (d.tx === 'csv') { вCSV(); return; }
-    else if (d.tx === 'link') { вСсылку(); const sp = el.querySelector('span'); (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => { sp.textContent = 'Ссылка скопирована'; }, () => { sp.textContent = 'Скопируйте адрес из строки браузера'; }); setTimeout(() => { sp.textContent = 'Ссылка на этот вид'; }, 2500); return; }
+    else if (d.tx === 'link') { вСсылку(); const sp = el.querySelector('.tl'); (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => { sp.textContent = 'Скопировано'; }, () => { sp.textContent = 'Скопируйте адрес'; }); setTimeout(() => { sp.textContent = 'Ссылка на вид'; }, 2500); return; }
     тРисовать();
   });
+  document.addEventListener('input', (e) => { const q = e.target.closest && e.target.closest('#tb-app .tb-q'); if (!q) return; ф.ппq = e.target.value; искатьВСписке(q.closest('.tb-pop')); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && ф.пп) закрытьПоп(); });
 
   /* ── главные страницы ── */
   const V = {
