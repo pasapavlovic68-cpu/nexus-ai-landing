@@ -515,9 +515,9 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
         g.append(nm, a, b); c.append(g); $('#money').append(c);
         if (total) c.style.borderColor = 'color-mix(in srgb,var(--or2) 40%,transparent)';
       };
-      for (const r of rashody) addRow(r.service, r.note, r.last_month == null ? null : usd(r.last_month), usd(r.after));
+      for (const r of rashody) addRow(r.service, r.note, r.last_month == null ? null : usd(r.last_month), r.after == null ? 'не знаем' : usd(r.after));
       const known = rashody.filter((r) => r.last_month != null);
-      addRow('Итого', known.length < rashody.length ? 'без сумм, которые видно только вам' : '', usd(known.reduce((s, r) => s + r.last_month, 0)) + (known.length < rashody.length ? '+' : ''), usd(rashody.reduce((s, r) => s + (r.after || 0), 0)), true);
+      addRow('Итого', known.length < rashody.length ? 'без сумм, которые видно только вам' : '', usd(known.reduce((s, r) => s + r.last_month, 0)) + (known.length < rashody.length ? '+' : ''), usd(rashody.reduce((s, r) => s + (r.after || 0), 0)) + (rashody.some((r) => r.after == null) ? '+' : ''), true);
     }
 
     // сайты — каждый отдельной карточкой с объяснением
