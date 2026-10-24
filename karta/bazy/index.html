@@ -302,6 +302,30 @@ table.g td.num{text-align:right}
 .code{font-family:var(--fm);font-size:12.5px;line-height:1.55;background:var(--bg2);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;overflow:auto;white-space:pre;color:var(--tx1);margin:0}
 .code.wrap{white-space:pre-wrap;word-break:break-word}
 
+/* права */
+.rt{width:100%;border-collapse:collapse;font-size:13.5px}
+.rt th{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);font-weight:400;text-align:left;padding:10px 12px;border-bottom:1px solid var(--ln)}
+.rt td{padding:10px 12px;border-bottom:1px solid var(--ln);vertical-align:middle}
+.rt td.who b{display:block;font-weight:600;font-size:14px}
+.rt td.who small{display:block;color:var(--tx3);font-size:12.5px;line-height:1.35}
+.yes{color:var(--ok)}.no{color:var(--tx3)}.rule{color:var(--warn)}.danger{color:var(--bad);font-weight:600}
+.ops{display:inline-flex;gap:3px;font-family:var(--fm);font-size:11.5px}
+.ops i{font-style:normal;display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;border:1px solid var(--ln);color:var(--tx3);opacity:.55}
+.ops i.yes{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent);opacity:1;background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.ops i.rule{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);opacity:1}
+.ops i.danger{color:#fff;background:var(--bad);border-color:var(--bad);opacity:1}
+table.pm{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:13px}
+table.pm th,table.pm td{padding:9px 14px;border-bottom:1px solid var(--ln);text-align:left;white-space:nowrap}
+table.pm th{position:sticky;top:0;z-index:1;background:var(--bg2);font-weight:600;font-size:12.5px}
+table.pm th small{display:block;font-family:var(--fm);font-size:10px;font-weight:400;color:var(--tx3)}
+table.pm td:first-child,table.pm th:first-child{position:sticky;left:0;background:var(--bg2);z-index:2}
+table.pm td:first-child a{font-family:var(--fm);font-size:12.5px;color:var(--tx1)}
+table.pm td:first-child a:hover{color:var(--or2)}
+table.pm tr:hover td{background:var(--hov)}
+table.pm tr.bad td:first-child a{color:var(--bad)}
+.legend-ops{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--tx2)}
+.legend-ops span{display:inline-flex;align-items:center;gap:6px}
+
 /* миграции */
 .migs{display:grid;gap:0}
 .mig{display:grid;grid-template-columns:3.2rem minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 18px;border-top:1px solid var(--ln);cursor:pointer;transition:background-color .2s;color:inherit}
@@ -333,6 +357,7 @@ table.g td.num{text-align:right}
     <i class="s-ind" id="ind" style="opacity:0"></i>
     <a href="#/" data-go="obzor">Обзор</a>
     <a href="#/t" data-go="t">Таблицы</a>
+    <a href="#/p" data-go="p">Права</a>
     <a href="#/m" data-go="m">Миграции</a>
     <a href="#/k" data-go="k">Копии</a>
   </nav>
@@ -345,6 +370,7 @@ table.g td.num{text-align:right}
 <nav class="m-menu" id="mmenu" aria-label="Разделы">
   <a href="#/" data-go="obzor">Обзор <span>→</span></a>
   <a href="#/t" data-go="t">Таблицы <span>→</span></a>
+  <a href="#/p" data-go="p">Права <span>→</span></a>
   <a href="#/m" data-go="m">Миграции <span>→</span></a>
   <a href="#/k" data-go="k">Копии <span>→</span></a>
   <a href="../#bazy">Назад на карту <span>←</span></a>
@@ -379,13 +405,19 @@ table.g td.num{text-align:right}
       </div>
     </section>
 
+    <section class="view" data-view="p" hidden>
+      <div class="top-row"><div class="head-blk"><div class="kicker">02 · Кто что может</div><h2>Права <span class="serif">по ключам</span></h2><p class="lead">Для каждой таблицы — кто может её читать, добавлять, менять и удалять. Считается прямо из настроек базы. Красным — то, что общий ключ может менять или удалять: так быть не должно.</p></div><div class="dbs" id="dbs-p"></div></div>
+      <div class="cards" id="p-roles"></div>
+      <div class="panel"><div class="grid-wrap" id="p-grid"></div></div>
+    </section>
+
     <section class="view" data-view="m" hidden>
-      <div class="top-row"><div class="head-blk"><div class="kicker">02 · Устройство базы</div><h2>Миграции</h2><p class="lead" id="m-lead">Каждый файл миграции — шаг в устройстве базы. Накатывает их скрипт, руками в базе ничего не меняем.</p></div><div class="dbs" id="dbs-m"></div></div>
+      <div class="top-row"><div class="head-blk"><div class="kicker">03 · Устройство базы</div><h2>Миграции</h2><p class="lead" id="m-lead">Каждый файл миграции — шаг в устройстве базы. Накатывает их скрипт, руками в базе ничего не меняем.</p></div><div class="dbs" id="dbs-m"></div></div>
       <div class="panel"><div class="migs" id="migs"></div></div>
     </section>
 
     <section class="view" data-view="k" hidden>
-      <div class="head-blk"><div class="kicker">03 · Сохранность</div><h2>Ночные <span class="serif">копии</span></h2><p class="lead">Каждую ночь в 02:10 по Гринвичу копия всех баз ложится на наш сервер и на станцию. Хранится 14 дней. Восстановление из копии проверено 24.10.</p></div>
+      <div class="head-blk"><div class="kicker">04 · Сохранность</div><h2>Ночные <span class="serif">копии</span></h2><p class="lead">Каждую ночь в 02:10 по Гринвичу копия всех баз ложится на наш сервер и на станцию. Хранится 14 дней. Восстановление из копии проверено 24.10.</p></div>
       <div class="panel" id="bklist"></div>
       <h3 class="sub">Сам сервер</h3>
       <div class="stats" id="srv"></div>
@@ -411,7 +443,38 @@ table.g td.num{text-align:right}
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
   };
   // как называть базы по-человечески; новая база без названия покажется своим именем
-  const TITLE = { po: 'Мини-апп PocketOption' };
+  const TITLE = { po: 'Мини-апп PocketOption', pp: 'Журнал постбэков' };
+  // кто стоит за каждым ключом — своими словами, по базе
+  const ROLE = {
+    anon: { t: 'Общий ключ', d: { pp: 'расширения сотрудников и ночные отчёты', po: 'без ключа — снаружи этой базы нет', '': 'тот, что у всех клиентов' } },
+    station: { t: 'Ключ станции', d: { '': 'ваше расширение «Nexus Автоматизация» на Mac и станции' } },
+    zarplata: { t: 'Ключ зарплаты', d: { '': 'только витрина зарплаты' } },
+    service_role: { t: 'Серверы', d: { pp: 'приём постбэков, сайт ОКК, ночные отчёты', po: 'бэкенд мини-аппа', '': 'служебный ключ' } },
+    authenticated: { t: 'Вошедшие', d: { '': 'вход по логину — сейчас не используется' } },
+  };
+  const roleT = (r) => (ROLE[r] ? ROLE[r].t : r), roleD = (r, db) => (ROLE[r] ? (ROLE[r].d[db] || ROLE[r].d['']) : '');
+  const OPS = [['select', 'Читать', 'Ч'], ['insert', 'Добавлять', 'Д'], ['update', 'Менять', 'М'], ['delete', 'Удалять', 'У']];
+  const opCls = (role, op, v) => (v === 'да' ? (role === 'anon' && (op === 'update' || op === 'delete') ? 'danger' : 'yes') : v === 'по правилу' ? 'rule' : 'no');
+  // роли, у которых в базе есть хоть что-то, плюс общий ключ — его отсутствие тоже ответ
+  const usedRoles = (tables) => {
+    const has = new Set(['anon']);
+    for (const t of tables) for (const [r, ops] of Object.entries(t.roles)) if (Object.values(ops).some((v) => v !== 'нет')) has.add(r);
+    return ['anon', 'station', 'zarplata', 'service_role', 'authenticated'].filter((r) => has.has(r));
+  };
+  const rightsBlock = (rt, db) => {
+    const w = el('div', 'blk');
+    const roles = usedRoles([rt]);
+    w.append(el('h4', null, 'Кто что может'));
+    w.append(el('p', 'mono', rt.view ? 'Это представление: оно читает таблицы правами своего владельца, решает только право на него самого.' : rt.rls ? 'Правила по строкам включены: без явного правила ключ не видит ничего.' : 'Правила по строкам ВЫКЛЮЧЕНЫ: у кого есть право на таблицу, тот видит и меняет все строки.'));
+    const t = el('table', 'rt'); const h = el('tr'); h.append(el('th', null, 'Кто')); OPS.forEach((o) => h.append(el('th', null, o[1]))); t.append(h);
+    for (const r of roles) {
+      const tr = el('tr'); const who = el('td', 'who'); who.append(el('b', null, roleT(r)), el('small', null, roleD(r, db))); tr.append(who);
+      OPS.forEach(([op]) => { const v = (rt.roles[r] || {})[op] || 'нет'; tr.append(el('td', opCls(r, op, v), v)); });
+      t.append(tr);
+    }
+    const sc = el('div'); sc.style.overflow = 'auto'; sc.append(t); w.append(sc);
+    return w;
+  };
   const title = (db) => TITLE[db] || db;
 
   /* ── данные с сервера ── */
@@ -642,7 +705,9 @@ table.g td.num{text-align:right}
     acts.append(prev, next); pg.append(acts); body.append(pg);
   };
   const defView = (info) => {
-    const w = el('div', 'blk');
+    const outer = el('div');
+    if (info.rights) outer.append(rightsBlock(info.rights, T.db));
+    const w = el('div', 'blk'); outer.append(w);
     const t = el('table', 'cols'); const h = el('tr');
     for (const x of ['Колонка', 'Тип', 'По умолчанию', '']) h.append(el('th', null, x));
     t.append(h);
@@ -656,7 +721,40 @@ table.g td.num{text-align:right}
     const cons = info.constraints.filter((c) => c.type !== 'p');
     if (cons.length) { w.append(el('h4', null, 'Проверки и связи')); w.append(el('pre', 'code wrap', cons.map((c) => c.name + '  ' + c.def).join('\n'))); }
     if (info.refs.length) { w.append(el('h4', null, 'Ссылаются на эту таблицу')); w.append(el('pre', 'code wrap', info.refs.map((c) => c.from_table + '  ' + c.def).join('\n'))); }
-    return w;
+    return outer;
+  };
+
+  /* ── права по всей базе ── */
+  const openRights = async (db) => {
+    const dbs = OV ? OV.dbs.map((d) => d.name) : [];
+    if (!db) db = dbs.includes('pp') ? 'pp' : dbs[0];
+    T.db = db; dbPills($('#dbs-p'), '#/p/');
+    const grid = $('#p-grid'); if (!db) return;
+    grid.replaceChildren(skel());
+    let r; try { r = await api(`/v1/db/${db}/rights`); } catch (e) { grid.replaceChildren(el('div', 'err', e.message)); return; }
+    const roles = usedRoles(r.tables);
+    $('#p-roles').replaceChildren(...roles.map((x) => { const c = card('st'); c.append(el('span', 'lbl', roleT(x)), el('div', 'sm', roleD(x, db))); return c; }));
+    const t = el('table', 'pm'); const h = el('tr'); h.append(el('th', null, 'Таблица'));
+    for (const x of roles) { const th = el('th', null, roleT(x)); th.append(el('small', null, 'Ч · Д · М · У')); h.append(th); }
+    const thead = el('thead'); thead.append(h); t.append(thead); const tb = el('tbody');
+    let bad = 0;
+    for (const x of r.tables) {
+      const tr = el('tr'); const td = el('td'); const a = el('a', null, (x.schema === 'public' ? '' : x.schema + '.') + x.name); a.href = `#/t/${db}/${x.schema}.${x.name}`; td.append(a);
+      if (!x.rls && !x.view) td.append(el('span', 'tag w', 'без правил по строкам'));
+      tr.append(td);
+      for (const role of roles) {
+        const c = el('td'); const ops = el('span', 'ops');
+        OPS.forEach(([op, name, letter]) => { const v = (x.roles[role] || {})[op] || 'нет'; const i = el('i', opCls(role, op, v), letter); i.title = `${roleT(role)}: ${name.toLowerCase()} — ${v}`; ops.append(i); });
+        c.append(ops); tr.append(c);
+      }
+      if (['update', 'delete'].some((op) => (x.roles.anon || {})[op] === 'да')) { tr.classList.add('bad'); bad++; }
+      tb.append(tr);
+    }
+    t.append(tb);
+    const lg = el('div', 'pager'); const l = el('div', 'legend-ops');
+    for (const [cls, txt] of [['yes', 'можно'], ['rule', 'по правилу — не все строки'], ['no', 'нельзя'], ['danger', 'общий ключ меняет или удаляет']]) { const sp = el('span'); const i = el('span', 'ops'); i.append(el('i', cls, '·')); sp.append(i, txt); l.append(sp); }
+    lg.append(l, el('span', bad ? 'danger' : 'yes', bad ? `Опасно: ${bad} ${plural(bad, 'таблица', 'таблицы', 'таблиц')}` : 'Общий ключ ничего не меняет и не удаляет'));
+    grid.replaceChildren(t); grid.after(lg); if (lg.nextElementSibling && lg.nextElementSibling.classList.contains('pager')) lg.nextElementSibling.remove();
   };
   const openTables = async (db, st) => {
     const dbs = OV ? OV.dbs.map((d) => d.name) : [];
@@ -709,13 +807,14 @@ table.g td.num{text-align:right}
   const route = () => {
     closeMenu();
     const parts = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
-    const v = ['t', 'm', 'k'].includes(parts[0]) ? parts[0] : 'obzor';
+    const v = ['t', 'p', 'm', 'k'].includes(parts[0]) ? parts[0] : 'obzor';
     const first = view === '';
     const doShow = () => show(v);
     if (!first && v !== view && document.startViewTransition && !reduce) { const t = document.startViewTransition(doShow); t.ready.catch(() => {}); t.finished.catch(() => {}); } else doShow();
-    document.title = ({ obzor: '', t: 'Таблицы · ', m: 'Миграции · ', k: 'Копии · ' }[v]) + 'Базы · Карта системы Nexus';
+    document.title = ({ obzor: '', t: 'Таблицы · ', p: 'Права · ', m: 'Миграции · ', k: 'Копии · ' }[v]) + 'Базы · Карта системы Nexus';
     if (v === 't') openTables(parts[1], parts[2]);
     if (v === 'm') openMigs(parts[1], parts[2]);
+    if (v === 'p') openRights(parts[1]);
   };
   addEventListener('hashchange', route);
 
