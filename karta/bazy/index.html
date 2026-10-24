@@ -526,6 +526,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     anon: { t: 'Общий ключ', d: { pp: 'расширения сотрудников и ночные отчёты', po: 'без ключа — снаружи этой базы нет', '': 'тот, что у всех клиентов' } },
     station: { t: 'Ключ станции', d: { '': 'ваше расширение «Nexus Автоматизация» на Mac и станции' } },
     zarplata: { t: 'Ключ зарплаты', d: { '': 'только витрина зарплаты' } },
+    salary_site: { t: 'Сайт зарплаты', d: { '': 'общие разделы и журнал входов, больше ничего' } },
     service_role: { t: 'Серверы', d: { pp: 'приём постбэков, сайт ОКК, ночные отчёты', po: 'бэкенд мини-аппа', '': 'служебный ключ' } },
     authenticated: { t: 'Вошедшие', d: { '': 'вход по логину — сейчас не используется' } },
   };
@@ -536,7 +537,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
   const usedRoles = (tables) => {
     const has = new Set(['anon']);
     for (const t of tables) for (const [r, ops] of Object.entries(t.roles)) if (Object.values(ops).some((v) => v !== 'нет')) has.add(r);
-    return ['anon', 'station', 'zarplata', 'service_role', 'authenticated'].filter((r) => has.has(r));
+    return ['anon', 'station', 'zarplata', 'salary_site', 'service_role', 'authenticated'].filter((r) => has.has(r));
   };
   const rightsBlock = (rt, db) => {
     const w = el('div', 'blk');
@@ -743,7 +744,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     box.replaceChildren(); let sch = null, shown = 0;
     for (const t of tables) {
       if (f && !t.name.toLowerCase().includes(f)) continue;
-      if (t.schema !== sch) { sch = t.schema; box.append(el('div', 'sch', sch === 'public' ? 'таблицы' : sch === 'meta' ? 'служебные · meta' : sch === 'status' ? 'служебные · status' : sch)); }
+      if (t.schema !== sch) { sch = t.schema; box.append(el('div', 'sch', sch === 'public' ? 'таблицы' : sch === 'meta' ? 'служебные · meta' : sch === 'status' ? 'служебные · status' : sch === 'salary' ? 'зарплата · salary' : sch)); }
       const a = el('a'); a.href = `#/t/${T.db}/${t.schema}.${t.name}`; a.title = t.schema + '.' + t.name;
       a.innerHTML = t.hidden ? ICON.lock : ICON.table;
       a.append(el('span', null, t.name), el('small', null, t.rows == null ? '' : num(t.rows)));
