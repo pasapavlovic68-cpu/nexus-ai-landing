@@ -276,11 +276,13 @@
     : n.тип === 'sp' ? ботов(n.kids.size) : n.тип === 'bid' ? (ф.гр === 'emp' ? n.sp : (n.kids.size ? мн(n.kids.size, 'сотрудник', 'сотрудника', 'сотрудников') : '')) : (n.kids.size ? ботов(n.kids.size) : ''));
   const ячейка = (c, a) => `<td>${c.f(a)}${c.под && !ф.скр.has('conv') && c.под(a) ? '<small>' + c.под(a) + '</small>' : ''}</td>`;
   const СТРЕЛКА = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+  let видноСейчас = new Set();
   function строкиТ(узел, целый, cols, out) {
     for (const n of [...узел.kids.values()].sort(порядок)) {
       const a = сЛидами(n, целый), откр = ф.откр.has(n.путь), есть = n.kids.size > 0;
       const куда = n.тип === 'emp' ? (ф.м === 'month' ? 'e:' : 'k:') + n.ключ : n.тип === 'bid' ? (ф.м === 'month' ? 'b:' : 'kb:') + n.ключ : '';
-      out.push(`<tr class="l${n.ур}${есть ? ' has' : ''}${откр ? ' open' : ''}" ${есть ? `data-tt="${esc(n.путь)}"` : ''}><td class="nm"><div class="nmi" style="padding-left:${n.ур * 12}px"><span class="chev${есть ? '' : ' nope'}">${СТРЕЛКА}</span><span class="lbl">${esc(n.ярлык).replace(/_/g, '_<wbr>')}<small>${esc(подписьУзла(n))}</small></span>${куда ? `<button type="button" class="tb-go" data-open="${esc(куда)}" aria-label="Подробно справа"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>` : ''}</div></td>${cols.map((c) => ячейка(c, a)).join('')}</tr>`);
+      const нов = ф.видно && !ф.видно.has(n.путь); видноСейчас.add(n.путь);
+      out.push(`<tr class="l${n.ур}${есть ? ' has' : ''}${откр ? ' open' : ''}${нов ? ' appear' : ''}" ${есть ? `data-tt="${esc(n.путь)}"` : ''}><td class="nm"><div class="nmi" style="padding-left:${n.ур * 12}px"><span class="chev${есть ? '' : ' nope'}">${СТРЕЛКА}</span><span class="lbl">${esc(n.ярлык).replace(/_/g, '_<wbr>')}<small>${esc(подписьУзла(n))}</small></span>${куда ? `<button type="button" class="tb-go" data-open="${esc(куда)}" aria-label="Подробно справа"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>` : ''}</div></td>${cols.map((c) => ячейка(c, a)).join('')}</tr>`);
       if (есть && откр) строкиТ(n, целый, cols, out);
     }
     return out;
@@ -288,7 +290,7 @@
   /* ── фильтр: компактная панель, списки — во всплывающих окнах с поиском и галочками ── */
   const ШЕВ = '<svg class="tb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
   const ИК = {
-    csv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>',
+    pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6m0 0-3-3m3 3 3-3"/></svg>',
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>',
     reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
     open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 8 5 5 5-5M7 14l5 5 5-5"/></svg>',
@@ -313,7 +315,7 @@
     const скрыто = видно.filter((c) => ф.скр.has(c.k)).length;
     return `<div class="tb-ctl">
       <div class="tb-r">${сег([['month', 'За месяц'], ['kog', 'Когорта']], ф.м, 'data-tm')}${календарь(ф.м === 'month' ? 'Период' : 'Регистрации')}
-        <span class="tb-sp"></span><button type="button" class="btn" data-tx="csv">${ИК.csv}<span class="tl">Excel</span></button><button type="button" class="btn" data-tx="link">${ИК.link}<span class="tl">Ссылка на вид</span></button><button type="button" class="btn" data-tx="reset" aria-label="Сбросить фильтр">${ИК.reset}<span class="tl">Сбросить</span></button></div>
+        <span class="tb-sp"></span><button type="button" class="btn" data-tx="pdf">${ИК.pdf}<span class="tl">PDF</span></button><button type="button" class="btn" data-tx="link">${ИК.link}<span class="tl">Ссылка на вид</span></button><button type="button" class="btn" data-tx="reset" aria-label="Сбросить фильтр">${ИК.reset}<span class="tl">Сбросить</span></button></div>
       <div class="tb-r">${выпадашка('гео', 'Гео', значение(ф.гео, гео, 'гео'), список('гео', гео), гео.size)}${выпадашка('сп', 'Спейсы', значение(ф.сп, о.спейсы, 'спейса'), список('сп', о.спейсы), о.спейсы.size)}${выпадашка('бот', 'Боты', значение(ф.бот, о.боты, 'бота'), список('бот', о.боты), о.боты.size)}${выпадашка('минус', 'Сотрудники', людиЗн, люди, о.люди.size)}${выпадашка('кол', 'Колонки', скрыто ? 'скрыто ' + скрыто : 'все колонки', колонкиHtml, 0)}
         <span class="tb-sp"></span>${сег([['bot', 'По ботам'], ['emp', 'По сотрудникам']], ф.гр, 'data-tg')}<button type="button" class="ic" data-tx="open" aria-label="Развернуть всё">${ИК.open}</button><button type="button" class="ic" data-tx="close" aria-label="Свернуть всё">${ИК.close}</button></div>
     </div>`;
@@ -340,16 +342,27 @@
     ф.м = p.get('m') === 'kog' ? 'kog' : 'month'; ф.гео = S('g'); ф.сп = S('s'); ф.бот = S('b'); ф.минус = S('x'); ф.гр = p.get('gr') === 'emp' ? 'emp' : 'bot'; ф.скр = S('h');
     if (p.get('f')) kОт = p.get('f'); if (p.get('t')) kДо = p.get('t');
   }
+  const СКЕЛЕТ = '<div class="tb-sk">' + '<i></i>'.repeat(7) + '</div>';
+  // плавная смена всей таблицы (режим, группировка, сброс): браузер сам перетекает старое в новое
+  const плавно = (f) => {
+    if (!document.startViewTransition || reduce) { f(); return; }
+    let сделано = false; const раз = () => { if (!сделано) { сделано = true; f(); } };
+    const t = document.startViewTransition(раз); t.ready.catch(() => {}); t.finished.catch(() => {}); t.updateCallbackDone.catch(() => {});
+    setTimeout(() => { if (!сделано) { try { t.skipTransition(); } catch (_) { /* уже завершён */ } раз(); } }, 300);   // переход не начался — переключаем сразу
+  };
   function тРисовать() {
     const box = $('#tb-app'); if (!box) return;
     const нужно = ф.м === 'month' ? (TB ? null : данныеТ) : (KP ? null : игрокиК);
-    if (нужно) { box.innerHTML = '<p class="lead">Загружаю данные таблицы…</p>'; нужно().then(тРисовать, (e) => { box.innerHTML = '<div class="err">Данные таблицы не загрузились (' + esc(e.message || e) + '). Это не «данных нет» — обновите страницу.</div>'; }); return; }
-    if (!ф.было) { ф.было = true; for (const g of ГЕО) ф.откр.add(g); }
+    if (нужно) { if (box.querySelector('.tw')) box.classList.add('busy'); else box.innerHTML = СКЕЛЕТ; нужно().then(тРисовать, (e) => { box.classList.remove('busy'); box.innerHTML = '<div class="err">Данные таблицы не загрузились (' + esc(e.message || e) + '). Это не «данных нет» — обновите страницу.</div>'; }); return; }
+    box.classList.remove('busy');
+    if (!ф.было) ф.было = true;                       // по умолчанию всё свёрнуто — видны итог и гео
     if (!колонки().some((c) => c.k === ф.сорт)) { ф.сорт = 'all'; ф.вниз = true; }
     const tw = box.querySelector('.tw'), y = tw ? tw.scrollTop : 0, x = tw ? tw.scrollLeft : 0;
     const лист = box.querySelector('.tb-pop.open .tb-list'), лy = лист ? лист.scrollTop : 0, вФокусе = document.activeElement && document.activeElement.closest && document.activeElement.closest('.tb-q');
     const о = отбор();
+    видноСейчас = new Set();
     box.innerHTML = тПанель(о) + тТаблица(о);
+    ф.видно = видноСейчас;
     const t2 = box.querySelector('.tw'); t2.scrollTop = y; t2.scrollLeft = x;
     const th = box.querySelector('tr.th'); if (th) box.style.setProperty('--thh', th.offsetHeight + 'px');
     const pop = box.querySelector('.tb-pop.open');
@@ -358,17 +371,29 @@
     вСсылку();
   }
   const искатьВСписке = (pop) => { const q = (ф.ппq || '').trim().toLowerCase(); pop.querySelectorAll('.tb-it:not(.all)').forEach((el) => { el.hidden = q && !el.textContent.toLowerCase().includes(q); }); };
-  function вCSV() {
-    const о = отбор(), cols = колонки(), т = дерево(о.итог), строки = [];
-    const ч = (v) => (typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : '"' + String(v).replace(/"/g, '""') + '"');
-    const сырое = (a, k) => { const v = знч(a, k); return v < 0 ? '' : v; };
-    const уровни = ф.гр === 'bot' ? ['Гео', 'Спейс', 'Бот', 'Сотрудник'] : ['Гео', 'Сотрудник', 'Бот'];
-    const конв = ф.скр.has('conv') ? [] : [...(ф.м === 'month' ? [['Рег / лид, %', (a) => (a.лиды ? Math.round((a.regs / a.лиды) * 1000) / 10 : '')]] : []), ['FD / рег, %', (a) => (a.regs ? Math.round((a.ftd / a.regs) * 1000) / 10 : '')]];
-    строки.push(['Уровень', ...уровни, ...cols.map((c) => c.t), ...конв.map((x) => x[0])].map(ч).join(';'));
-    const обход = (узел, путь) => { for (const n of [...узел.kids.values()].sort(порядок)) { const p = [...путь, n.ярлык]; const a = сЛидами(n, о.целый); строки.push([уровни[n.ур], ...уровни.map((_, i) => p[i] || ''), ...cols.map((c) => сырое(a, c.k)), ...конв.map((x) => x[1](a))].map(ч).join(';')); обход(n, p); } };
-    обход(т, []);
-    const blob = new Blob(['﻿' + строки.join('\r\n')], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'tablica-oktyabr-' + (ф.м === 'month' ? 'mesyac' : 'kogorta') + '-' + kОт + '_' + (kДо || сегодня()) + '.csv'; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  /* PDF: та же таблица в том виде, как открыта сейчас, — светлый лист А4 альбомом, шапка таблицы на каждой странице.
+     Собирает браузер («Сохранить как PDF» в окне печати) — так документ выглядит ровно как сайт. */
+  function вPDF() {
+    const о = отбор(), cols = колонки(), т = дерево(о.итог), итог = { ...т.a, лиды: ф.м === 'month' ? т.a.lb : null };
+    const имена = (S, m) => (!S.size ? 'все' : [...S].map((v) => (m.get(v) || { имя: v }).имя).join(', '));
+    const гео = new Map([...о.гео].map(([k, x]) => [k, x]));
+    const фильтры = [ф.м === 'month' ? 'За месяц — все игроки' : 'Когорта — новые игроки', (ф.м === 'month' ? 'период ' : 'регистрации ') + период(),
+      'гео: ' + имена(ф.гео, гео), 'спейсы: ' + имена(ф.сп, о.спейсы), 'боты: ' + имена(ф.бот, о.боты),
+      'сотрудники: ' + (!ф.минус.size ? 'все' : 'кроме ' + [...ф.минус].join(', ')), ф.гр === 'bot' ? 'по ботам' : 'по сотрудникам'];
+    видноСейчас = new Set(); const былоВидно = ф.видно; ф.видно = null;
+    const тело = строкиТ(т, о.целый, cols, []).join('').replace(/<button type="button" class="tb-go"[\s\S]*?<\/button>/g, '');
+    ф.видно = былоВидно;
+    let el = document.getElementById('tb-print'); if (!el) { el = document.createElement('div'); el.id = 'tb-print'; document.body.append(el); }
+    const когда = new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    el.innerHTML = `<div class="tp-hd"><span class="tp-mk">N</span><div class="tp-t"><b>Отчёт · октябрь 2026</b><small>NEXUS · сводная таблица</small></div><span class="tp-when">сформировано ${esc(когда)}</span></div>
+      <h1 class="tp-h">Сводная <i>таблица</i></h1><p class="tp-f">${фильтры.map((x) => '<span>' + esc(x) + '</span>').join('')}</p>
+      <table class="tb tp"><colgroup><col class="c-nm">${cols.map(() => '<col>').join('')}</colgroup><thead><tr class="th"><th class="nm">${ф.гр === 'bot' ? 'Гео · спейс · бот · сотрудник' : 'Гео · сотрудник · бот'}</th>${cols.map((c) => `<th>${c.t}${c.t2 && !ф.скр.has('conv') && (!c.м2 || c.м2 === ф.м) ? '<small>' + c.t2 + '</small>' : ''}</th>`).join('')}</tr></thead>
+      <tbody><tr class="tot"><td class="nm"><div class="nmi"><span class="lbl">Итого<small>${ф.м === 'month' ? 'за ' + период() : 'регистрации ' + период()}</small></span></div></td>${cols.map((c) => ячейка(c, итог)).join('')}</tr>${тело}</tbody></table>
+      <p class="tp-n">${ф.м === 'month' ? 'Все деньги и регистрации за выбранные дни от всех игроков. Лиды спейса и бота — новые чаты (МСК); лиды сотрудника — чаты с его именным тегом.' : 'Игроки, зарегистрированные в выбранные дни, и все их депозиты (октябрьские — до 10 ноября).'} Средний чек = (FD $ + RD $) ÷ FD. Источник — партнёрка PocketOption (склад ОКК, ${esc(String((ф.м === 'month' ? TB : KP).upd).slice(0, 16).replace('T', ' '))} UTC).</p>`;
+    const заголовок = document.title, готово = () => { document.body.classList.remove('print-tb'); document.title = заголовок; removeEventListener('afterprint', готово); };
+    document.title = 'Сводная таблица — октябрь 2026 — ' + период().replace(' октября 2026', '') + (ф.м === 'month' ? '' : ' — когорта');
+    document.body.classList.add('print-tb'); addEventListener('afterprint', готово);
+    setTimeout(() => window.print(), 60);
   }
   const закрытьПоп = () => { if (!ф.пп) return; ф.пп = ''; ф.ппq = ''; document.querySelectorAll('#tb-app .tb-pop.open, #tb-app .tb-dd.open').forEach((x) => x.classList.remove('open')); };
   document.addEventListener('click', (e) => {
@@ -381,14 +406,14 @@
     if (d.dd) { if (ф.пп === d.dd) { закрытьПоп(); return; } ф.пп = d.dd; ф.ппq = ''; ф.ппФокус = true; }
     else if (d.tf) { const S = ф[d.tf]; S.has(d.v) ? S.delete(d.v) : S.add(d.v); if (d.tf === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tf === 'сп') ф.бот.clear(); }
     else if (d.tc) { ф[d.tc].clear(); if (d.tc === 'гео') { ф.сп.clear(); ф.бот.clear(); } if (d.tc === 'сп') ф.бот.clear(); }
-    else if (d.tm) { if (ф.м === d.tm) return; ф.м = d.tm; ф.минус.clear(); }
-    else if (d.tg) { if (ф.гр === d.tg) return; ф.гр = d.tg; ф.откр = new Set(ГЕО); }
+    else if (d.tm) { if (ф.м === d.tm) return; ф.м = d.tm; ф.минус.clear(); ф.видно = null; плавно(тРисовать); return; }
+    else if (d.tg) { if (ф.гр === d.tg) return; ф.гр = d.tg; ф.откр = new Set(); ф.видно = null; плавно(тРисовать); return; }
     else if (d.ts) { if (ф.сорт === d.ts) ф.вниз = !ф.вниз; else { ф.сорт = d.ts; ф.вниз = true; } }
     else if (d.tt) { ф.откр.has(d.tt) ? ф.откр.delete(d.tt) : ф.откр.add(d.tt); }
     else if (d.tx === 'open') { const т = дерево(отбор().итог), обх = (n) => { for (const k of n.kids.values()) { if (k.kids.size) { ф.откр.add(k.путь); обх(k); } } }; обх(т); }
     else if (d.tx === 'close') ф.откр.clear();
-    else if (d.tx === 'reset') { ф.гео.clear(); ф.сп.clear(); ф.бот.clear(); ф.минус.clear(); ф.скр.clear(); ф.откр = new Set(ГЕО); kОт = '2026-10-01'; kДо = ''; ф.пп = ''; }
-    else if (d.tx === 'csv') { вCSV(); return; }
+    else if (d.tx === 'reset') { ф.гео.clear(); ф.сп.clear(); ф.бот.clear(); ф.минус.clear(); ф.скр.clear(); ф.откр = new Set(); kОт = '2026-10-01'; kДо = ''; ф.пп = ''; ф.видно = null; плавно(тРисовать); return; }
+    else if (d.tx === 'pdf') { вPDF(); return; }
     else if (d.tx === 'link') { вСсылку(); const sp = el.querySelector('.tl'); (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => { sp.textContent = 'Скопировано'; }, () => { sp.textContent = 'Скопируйте адрес'; }); setTimeout(() => { sp.textContent = 'Ссылка на вид'; }, 2500); return; }
     тРисовать();
   });
@@ -442,6 +467,7 @@
     },
     tablica() {
       if (!ф.было) изСсылки();
+      данныеТ().catch(() => {}); игрокиК().catch(() => {});   // оба режима — заранее, чтобы переключение было мгновенным
       setTimeout(тРисовать, 0);
       return `<section class="view"><div class="head-blk"><div class="kicker">Таблица · свой фильтр</div><h2>Сводная <span class="serif">таблица</span></h2>
         <p class="lead">Гео, спейсы, боты и сотрудники в одной таблице — как сводная в Jarvis, но на наших цифрах. Выберите режим, дни и что смотреть; сотрудники подтягиваются сами по выбранным ботам. Вид сохраняется в ссылке — её можно отправить.</p></div>
