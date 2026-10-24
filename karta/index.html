@@ -142,6 +142,7 @@ a.card{cursor:pointer}
   opacity:0;transform:translateY(-6px) scale(.98);transform-origin:20px 0;visibility:hidden;transition:opacity .25s ease-out,transform .3s var(--ez),visibility 0s .3s}
 .more-pop.open{opacity:1;transform:none;visibility:visible;transition:opacity .25s ease-out,transform .3s var(--ez),visibility 0s}
 .cards.tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
 .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px}
@@ -281,7 +282,8 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
     </section>
 
     <section class="view" data-view="bazy" hidden>
-      <div class="head-blk"><div class="kicker">02 · Данные</div><h2>Базы <span class="serif">данных</span></h2><p class="lead">Каждая база — отдельной карточкой: где лежит, сколько весит, как растёт и на каком шаге переезда её переносим.</p></div>
+      <div class="head-blk"><div class="kicker">02 · Данные</div><h2>Базы <span class="serif">данных</span></h2><p class="lead">Каждая база — отдельной карточкой: где лежит, сколько весит, как растёт и на каком шаге переезда её переносим.</p>
+        <div class="acts"><a class="btn" href="bazy/">Открыть базы на нашем сервере — как в Supabase <span aria-hidden="true">→</span></a></div></div>
       <div class="cards" id="bz"></div>
     </section>
 
