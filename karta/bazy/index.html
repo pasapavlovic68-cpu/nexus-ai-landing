@@ -349,6 +349,11 @@ td.js:hover{color:var(--or2)}
 .cols td .tt{display:block;font-size:13.5px;color:var(--tx1)}
 .cols td .tt+small{display:block;font-family:var(--fm);font-size:11px;color:var(--tx3)}
 
+/* вопросы */
+a.qcard{gap:6px}
+a.qcard h4{font-size:16px}
+a.qcard.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 9%,transparent)}
+
 /* права */
 .rt{width:100%;border-collapse:collapse;font-size:13.5px}
 .rt th{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);font-weight:400;text-align:left;padding:10px 12px;border-bottom:1px solid var(--ln)}
@@ -404,6 +409,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     <i class="s-ind" id="ind" style="opacity:0"></i>
     <a href="#/" data-go="obzor">Обзор</a>
     <a href="#/t" data-go="t">Таблицы</a>
+    <a href="#/q" data-go="q">Вопросы</a>
     <a href="#/p" data-go="p">Права</a>
     <a href="#/m" data-go="m">Миграции</a>
     <a href="#/k" data-go="k">Копии</a>
@@ -417,6 +423,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
 <nav class="m-menu" id="mmenu" aria-label="Разделы">
   <a href="#/" data-go="obzor">Обзор <span>→</span></a>
   <a href="#/t" data-go="t">Таблицы <span>→</span></a>
+  <a href="#/q" data-go="q">Вопросы <span>→</span></a>
   <a href="#/p" data-go="p">Права <span>→</span></a>
   <a href="#/m" data-go="m">Миграции <span>→</span></a>
   <a href="#/k" data-go="k">Копии <span>→</span></a>
@@ -452,19 +459,25 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
       </div>
     </section>
 
+    <section class="view" data-view="q" hidden>
+      <div class="top-row"><div class="head-blk"><div class="kicker">02 · Без SQL</div><h2>Готовые <span class="serif">вопросы</span></h2><p class="lead">Частые вопросы к базе — одной кнопкой. Только чтение; номера игроков и почты в ответах скрыты так же, как в таблицах.</p></div><div class="dbs" id="dbs-q"></div></div>
+      <div class="cards tiles" id="q-list"></div>
+      <div class="panel" id="q-ans" hidden></div>
+    </section>
+
     <section class="view" data-view="p" hidden>
-      <div class="top-row"><div class="head-blk"><div class="kicker">02 · Кто что может</div><h2>Права <span class="serif">по ключам</span></h2><p class="lead">Для каждой таблицы — кто может её читать, добавлять, менять и удалять. Считается прямо из настроек базы. Красным — то, что общий ключ может менять или удалять: так быть не должно.</p></div><div class="dbs" id="dbs-p"></div></div>
+      <div class="top-row"><div class="head-blk"><div class="kicker">03 · Кто что может</div><h2>Права <span class="serif">по ключам</span></h2><p class="lead">Для каждой таблицы — кто может её читать, добавлять, менять и удалять. Считается прямо из настроек базы. Красным — то, что общий ключ может менять или удалять: так быть не должно.</p></div><div class="dbs" id="dbs-p"></div></div>
       <div class="cards" id="p-roles"></div>
       <div class="panel"><div class="grid-wrap" id="p-grid"></div></div>
     </section>
 
     <section class="view" data-view="m" hidden>
-      <div class="top-row"><div class="head-blk"><div class="kicker">03 · Устройство базы</div><h2>Миграции</h2><p class="lead" id="m-lead">Каждый файл миграции — шаг в устройстве базы. Накатывает их скрипт, руками в базе ничего не меняем.</p></div><div class="dbs" id="dbs-m"></div></div>
+      <div class="top-row"><div class="head-blk"><div class="kicker">04 · Устройство базы</div><h2>Миграции</h2><p class="lead" id="m-lead">Каждый файл миграции — шаг в устройстве базы. Накатывает их скрипт, руками в базе ничего не меняем.</p></div><div class="dbs" id="dbs-m"></div></div>
       <div class="panel"><div class="migs" id="migs"></div></div>
     </section>
 
     <section class="view" data-view="k" hidden>
-      <div class="head-blk"><div class="kicker">04 · Сохранность</div><h2>Ночные <span class="serif">копии</span></h2><p class="lead">Каждую ночь в 02:10 по Гринвичу копия всех баз ложится на наш сервер и на станцию. Хранится 14 дней. Восстановление из копии проверено 24.10.</p></div>
+      <div class="head-blk"><div class="kicker">05 · Сохранность</div><h2>Ночные <span class="serif">копии</span></h2><p class="lead">Каждую ночь в 02:10 по Гринвичу копия всех баз ложится на наш сервер и на станцию. Хранится 14 дней. Восстановление из копии проверено 24.10.</p></div>
       <div class="panel" id="bklist"></div>
       <h3 class="sub">Сам сервер</h3>
       <div class="stats" id="srv"></div>
@@ -907,6 +920,42 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     return outer;
   };
 
+  /* ── готовые вопросы ── */
+  const openQ = async (db, id) => {
+    const dbs = OV ? OV.dbs.map((d) => d.name) : [];
+    if (!db) db = dbs.includes('pp') ? 'pp' : dbs[0];
+    T.db = db; dbPills($('#dbs-q'), '#/q/');
+    const list = $('#q-list'), ans = $('#q-ans'); if (!db) return;
+    let qs; try { qs = (await api(`/v1/db/${db}/questions`)).questions; } catch (e) { list.replaceChildren(el('div', 'err', e.message)); return; }
+    list.replaceChildren(...qs.map((x) => { const a = el('a', 'card qcard' + (x.id === id ? ' on' : '')); a.href = `#/q/${db}/${x.id}`; a.append(el('h4', null, x.title), el('p', null, x.hint)); return a; }));
+    if (!qs.length) list.append(el('div', 'empty', 'Для этой базы готовых вопросов пока нет.'));
+    if (!id) { ans.hidden = true; return; }
+    const qq = qs.find((x) => x.id === id); ans.hidden = false; ans.replaceChildren(skel());
+    let d; try { d = await api(`/v1/db/${db}/questions/${id}`); } catch (e) { ans.replaceChildren(el('div', 'err', e.message)); return; }
+    const hd = el('div', 'p-head'); const h = el('h3', null, qq ? qq.title : id);
+    const meta = el('div', 'specs'); meta.append(el('span', null, num(d.rows.length) + ' ' + plural(d.rows.length, 'строка', 'строки', 'строк')), el('span', null, 'на ' + new Date(d.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })));
+    const again = el('button', 'btn sm', 'Обновить'); again.type = 'button'; again.addEventListener('click', () => openQ(db, id)); meta.append(again);
+    hd.append(h, meta);
+    if (!d.rows.length) { ans.replaceChildren(hd, el('div', 'empty', 'Пусто — за это время ничего не было.')); return; }
+    const wrap = el('div', 'grid-wrap'), tb = el('table', 'g'), thead = el('thead'), tr = el('tr');
+    for (const c of d.columns) { const th = el('th', null, c.name); th.scope = 'col'; tr.append(th); }
+    thead.append(tr); tb.append(thead); const body = el('tbody');
+    for (const row of d.rows) {
+      const r = el('tr');
+      row.forEach((v) => {
+        const td = el('td');
+        if (v === null) { td.textContent = '—'; td.className = 'nul'; }
+        else if (/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v)) { const dt = new Date(v); td.textContent = isNaN(dt) ? v : dt.toLocaleString('ru-RU'); td.title = v; }
+        else if (v.length > 60) { td.textContent = v; td.className = 'js'; td.tabIndex = 0; td.dataset.full = v; td.setAttribute('role', 'button'); }
+        else { td.textContent = v; if (/^-?\d+(\.\d+)?$/.test(v)) td.className = 'num'; }
+        r.append(td);
+      });
+      body.append(r);
+    }
+    tb.append(body); wrap.append(tb); ans.replaceChildren(hd, wrap);
+    if (!reduce) ans.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+
   /* ── права по всей базе ── */
   const openRights = async (db) => {
     const dbs = OV ? OV.dbs.map((d) => d.name) : [];
@@ -990,14 +1039,15 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
   const route = () => {
     closeMenu();
     const parts = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
-    const v = ['t', 'p', 'm', 'k'].includes(parts[0]) ? parts[0] : 'obzor';
+    const v = ['t', 'q', 'p', 'm', 'k'].includes(parts[0]) ? parts[0] : 'obzor';
     const first = view === '';
     const doShow = () => show(v);
     if (!first && v !== view && document.startViewTransition && !reduce) { const t = document.startViewTransition(doShow); t.ready.catch(() => {}); t.finished.catch(() => {}); } else doShow();
-    document.title = ({ obzor: '', t: 'Таблицы · ', p: 'Права · ', m: 'Миграции · ', k: 'Копии · ' }[v]) + 'Базы · Карта системы Nexus';
+    document.title = ({ obzor: '', t: 'Таблицы · ', q: 'Вопросы · ', p: 'Права · ', m: 'Миграции · ', k: 'Копии · ' }[v]) + 'Базы · Карта системы Nexus';
     if (v === 't') openTables(parts[1], parts[2]);
     if (v === 'm') openMigs(parts[1], parts[2]);
     if (v === 'p') openRights(parts[1]);
+    if (v === 'q') openQ(parts[1], parts[2]);
   };
   addEventListener('hashchange', route);
 
