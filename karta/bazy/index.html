@@ -349,6 +349,20 @@ td.js:hover{color:var(--or2)}
 .cols td .tt{display:block;font-size:13.5px;color:var(--tx1)}
 .cols td .tt+small{display:block;font-family:var(--fm);font-size:11px;color:var(--tx3)}
 
+/* предупреждения */
+.alerts{display:grid;gap:8px;border-radius:20px;padding:16px 20px;border:1px solid color-mix(in srgb,var(--bad) 45%,transparent);background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.alerts.fine{border-color:color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 7%,transparent)}
+.alerts .ttl{display:flex;align-items:center;gap:10px;font-weight:600}
+.alerts .ttl i{width:9px;height:9px;border-radius:50%;background:var(--bad);flex:none}
+.alerts.fine .ttl i{background:var(--ok)}
+.alerts ul{margin:0;padding-left:19px;display:grid;gap:4px;color:var(--tx1);font-size:14px}
+.dbc .ln{font-size:13px;color:var(--tx2);margin:0}
+.dbc .ln b{color:var(--tx);font-weight:600;font-variant-numeric:tabular-nums}
+.szt{border-collapse:collapse;font-size:13px;width:100%}
+.szt th,.szt td{padding:9px 16px;border-bottom:1px solid var(--ln);text-align:right;font-variant-numeric:tabular-nums}
+.szt th{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);font-weight:400}
+.szt th:first-child,.szt td:first-child{text-align:left}
+
 /* вопросы */
 a.qcard{gap:6px}
 a.qcard h4{font-size:16px}
@@ -441,6 +455,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
         <p class="lead">Всё, что лежит в Postgres на нашем сервере: таблицы, строки, миграции и ночные копии. Это <b>только просмотр</b> — отсюда ничего нельзя изменить или удалить.</p>
         <div class="live" id="live"><i></i><span>подключаемся…</span></div>
       </div>
+      <div id="alerts"></div>
       <div class="stats" id="status"></div>
       <h3 class="sub">На нашем сервере</h3>
       <div class="cards" id="dblist"></div>
@@ -479,6 +494,8 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     <section class="view" data-view="k" hidden>
       <div class="head-blk"><div class="kicker">05 · Сохранность</div><h2>Ночные <span class="serif">копии</span></h2><p class="lead">Каждую ночь в 02:10 по Гринвичу копия всех баз ложится на наш сервер и на станцию. Хранится 14 дней. Восстановление из копии проверено 24.10.</p></div>
       <div class="panel" id="bklist"></div>
+      <h3 class="sub">Размер копий <span class="serif" style="color:var(--or2)">по дням</span></h3>
+      <div class="panel"><div class="grid-wrap" id="bksz"></div></div>
       <h3 class="sub">Сам сервер</h3>
       <div class="stats" id="srv"></div>
     </section>
@@ -623,6 +640,21 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
       statCard('Диск', bytes(used), 'занято из ' + bytes(s.disk_total) + ' · свободно ' + Math.round(s.disk_free / s.disk_total * 100) + '%', chip(s.disk_free / s.disk_total > .15 ? 'норма' : 'мало места', s.disk_free / s.disk_total > .15 ? 'c-ok' : 'c-bad')),
       statCard('Последняя копия', last ? ago(last.at) : 'ещё не было', last ? when(last.at) + ' · ' + (last.note || '') : 'первая будет ночью', last ? chip(last.ok && fresh ? 'в порядке' : !last.ok ? 'ошибка' : 'давно', last.ok && fresh ? 'c-ok' : 'c-bad') : chip('ждём', 'c-warn')),
     );
+    // что требует внимания — красным сверху; нет ничего — одной зелёной строкой
+    const warn = [];
+    if (!last) warn.push('Ночных копий ещё не было.');
+    else if (!last.ok) warn.push('Последняя ночная копия с ошибкой: ' + (last.note || 'без подробностей') + '.');
+    else if (!fresh) warn.push('Ночной копии не было больше суток — последняя ' + ago(last.at) + '.');
+    const usedPct = Math.round((1 - s.disk_free / s.disk_total) * 100);
+    if (usedPct > 80) warn.push(`Диск занят на ${usedPct}% — пора разбираться с местом.`);
+    for (const d of o.dbs) {
+      if (d.migrations && d.migrations.pending.length) warn.push(`${title(d.name)}: ${d.migrations.pending.length} ${plural(d.migrations.pending.length, 'миграция ждёт', 'миграции ждут', 'миграций ждут')} — ${d.migrations.pending.join(', ')}.`);
+      if (d.postgrest === false) warn.push(`${title(d.name)}: выход для программ (PostgREST) не отвечает.`);
+    }
+    if (o.postgres.max_connections && o.postgres.connections > o.postgres.max_connections * 0.8) warn.push(`Подключений к базам ${o.postgres.connections} из ${o.postgres.max_connections} — почти предел.`);
+    const al = el('div', 'alerts' + (warn.length ? '' : ' fine')), tt = el('div', 'ttl'); tt.append(el('i'), document.createTextNode(warn.length ? `Требует внимания: ${warn.length}` : 'Всё в порядке: копия свежая, место есть, миграции накатаны, всё отвечает'));
+    al.append(tt); if (warn.length) { const ul = el('ul'); warn.forEach((w) => ul.append(el('li', null, w))); al.append(ul); }
+    $('#alerts').replaceChildren(al);
     const list = $('#dblist'); list.replaceChildren();
     for (const d of o.dbs) {
       const c = card('dbc');
@@ -635,7 +667,13 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
       const a1 = el('a', 'btn sm', 'Таблицы →'); a1.href = '#/t/' + d.name;
       const a2 = el('a', 'btn sm', 'Миграции →'); a2.href = '#/m/' + d.name;
       acts.append(a1, a2);
-      c.append(top, el('h4', null, title(d.name)), nums, mp, acts);
+      const sign = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') ;
+      const gr = el('p', 'ln');
+      if (d.growth) { gr.append('За сутки: '); gr.append(el('b', null, sign(d.growth.bytes) + bytes(Math.abs(d.growth.bytes)))); gr.append(', '); gr.append(el('b', null, sign(d.growth.rows) + num(Math.abs(d.growth.rows)))); gr.append(' ' + plural(Math.abs(d.growth.rows), 'строка', 'строки', 'строк')); }
+      else gr.append('Рост за сутки появится после следующей ночной копии.');
+      const ld = el('p', 'ln');
+      if (d.load) { ld.append('Сейчас: '); ld.append(el('b', null, num(d.load.connections))); ld.append(' ' + plural(d.load.connections, 'подключение', 'подключения', 'подключений')); if (d.load.perMin != null) { ld.append(' · '); ld.append(el('b', null, num(d.load.perMin))); ld.append(' запросов в минуту'); } if (d.load.cacheHit != null) { ld.append(' · из памяти '); ld.append(el('b', null, num(d.load.cacheHit, 1) + '%')); } }
+      c.append(top, el('h4', null, title(d.name)), nums, gr, ld, mp, acts);
       if (m && m.pending.length) c.append(chip('есть ненакатанные миграции', 'c-warn'));
       list.append(c);
     }
@@ -666,6 +704,14 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
       const r = el('div', 'bk'); const t = el('time', null, when(b.at)); t.dateTime = b.at;
       r.append(t, el('p', null, b.note || ''), chip(b.ok ? 'в порядке' : 'ошибка', b.ok ? 'c-ok' : 'c-bad'));
       box.append(r);
+    }
+    const days = [...new Set((o.sizes || []).map((x) => x.day))], names = [...new Set((o.sizes || []).map((x) => x.db))];
+    const sz = $('#bksz');
+    if (!days.length) sz.replaceChildren(el('div', 'empty', 'Размеры начнут копиться с ночной копии.'));
+    else {
+      const t = el('table', 'szt'), h = el('tr'); h.append(el('th', null, 'День')); names.forEach((n) => h.append(el('th', null, title(n)))); t.append(h);
+      for (const dy of days) { const r = el('tr'); r.append(el('td', null, new Date(dy + 'T00:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }))); names.forEach((n) => { const x = o.sizes.find((y) => y.day === dy && y.db === n); r.append(el('td', null, x ? bytes(x.dump_bytes) + ' · база ' + bytes(x.bytes) : '—')); }); t.append(r); }
+      sz.replaceChildren(t);
     }
     const s = o.server;
     const up = Math.floor(s.uptime / 86400);
