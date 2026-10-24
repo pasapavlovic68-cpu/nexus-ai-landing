@@ -329,6 +329,26 @@ td.js:hover{color:var(--or2)}
 .jpop.open{opacity:1;transform:none}
 .jpop pre{margin:0;font-family:var(--fm);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:var(--tx1)}
 
+/* свёрнутые блоки и связи */
+.fold{border-top:1px solid var(--ln)}
+.fold-btn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:14px 20px;font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);transition:color .2s,background-color .2s}
+.fold-btn:hover{color:var(--tx);background:var(--hov)}
+.fold-btn:focus-visible{outline:2px solid var(--or2);outline-offset:-2px}
+.fold-btn small{font-family:var(--ff);font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--tx3);margin-left:8px}
+.fold-btn svg{width:14px;height:14px;flex:none;transition:transform .3s var(--ez)}
+.fold-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.fold-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ez)}
+.fold-body>div{overflow:hidden;min-height:0}
+.fold-body>div>.blk{padding-top:0}
+.fold.open .fold-body{grid-template-rows:1fr}
+.lnk{display:inline-flex;align-items:center;gap:4px;font-family:var(--fm);font-size:12px;color:var(--or2);border-bottom:1px dashed color-mix(in srgb,var(--or2) 45%,transparent)}
+.lnk:hover{border-bottom-style:solid}
+.rel{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px 12px;align-items:center;padding:8px 0;border-top:1px solid var(--ln);font-size:13px}
+.rel:first-child{border-top:0}
+.rel .mono{color:var(--tx2)}
+.cols td .tt{display:block;font-size:13.5px;color:var(--tx1)}
+.cols td .tt+small{display:block;font-family:var(--fm);font-size:11px;color:var(--tx3)}
+
 /* права */
 .rt{width:100%;border-collapse:collapse;font-size:13.5px}
 .rt th{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);font-weight:400;text-align:left;padding:10px 12px;border-bottom:1px solid var(--ln)}
@@ -665,6 +685,40 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
   };
   const skel = () => { const w = el('div', 'blk'); for (let i = 0; i < 6; i++) { const s = el('div', 'skel'); s.style.width = (60 + (i * 13) % 40) + '%'; w.append(s); } return w; };
   const isNum = (type) => /^(integer|bigint|smallint|numeric|real|double)/.test(type);
+  // тип колонки простыми словами — техническое название остаётся мелко под ним
+  const humanType = (t) => {
+    if (/\[\]$/.test(t)) return 'список: ' + humanType(t.replace(/\[\]$/, ''));
+    if (/^(bigint|integer|smallint)/.test(t)) return 'целое число';
+    if (/^numeric/.test(t)) return 'число с дробью';
+    if (/^(real|double)/.test(t)) return 'дробное число';
+    if (/^(text|character varying|character|varchar|citext)/.test(t)) return 'текст';
+    if (t === 'boolean') return 'да / нет';
+    if (/^timestamp/.test(t)) return 'дата и время';
+    if (t === 'date') return 'дата';
+    if (/^time/.test(t)) return 'время';
+    if (/^interval/.test(t)) return 'промежуток времени';
+    if (/^jsonb?$/.test(t)) return 'набор полей (JSON)';
+    if (t === 'uuid') return 'уникальный код';
+    if (t === 'bytea') return 'двоичные данные';
+    if (t === 'inet' || t === 'cidr') return 'адрес в сети';
+    return t;
+  };
+  // «users» или «meta.migrations» → ссылка на таблицу в этой же базе
+  const tblLink = (name) => {
+    const st = name.includes('.') ? name.replace(/"/g, '') : 'public.' + name.replace(/"/g, '');
+    const a = el('a', 'lnk', '→ ' + name.replace(/"/g, '')); a.href = `#/t/${T.db}/${st}`; return a;
+  };
+  const CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  // блок, свёрнутый по умолчанию: открывается плавно, место под ним не прыгает
+  let foldN = 0;
+  const fold = (title, hint, content) => {
+    const w = el('div', 'fold'), b = el('button', 'fold-btn'), id = 'fold-' + (++foldN);
+    b.type = 'button'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', id);
+    const l = el('span', null, title); if (hint) l.append(el('small', null, hint)); b.append(l); b.insertAdjacentHTML('beforeend', CHEV);
+    const body = el('div', 'fold-body'); body.id = id; const inner = el('div'); inner.append(content); body.append(inner);
+    b.addEventListener('click', () => { const o = !w.classList.contains('open'); w.classList.toggle('open', o); b.setAttribute('aria-expanded', String(o)); });
+    w.append(b, body); return w;
+  };
   const renderTable = async () => {
     const p = $('#tpanel');
     if (!T.table) {
@@ -824,20 +878,32 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
   const defView = (info) => {
     const outer = el('div');
     if (info.rights) outer.append(rightsBlock(info.rights, T.db));
-    const w = el('div', 'blk'); outer.append(w);
+    const fkBy = new Map(); for (const f of info.fks || []) for (const c of f.cols.split(', ')) fkBy.set(c, f.to_table);
+    const w = el('div', 'blk');
+    w.append(el('h4', null, 'Колонки'));
     const t = el('table', 'cols'); const h = el('tr');
-    for (const x of ['Колонка', 'Тип', 'По умолчанию', '']) h.append(el('th', null, x));
+    for (const x of ['Колонка', 'Что хранит', 'По умолчанию', '']) h.append(el('th', null, x));
     t.append(h);
     for (const c of info.columns) {
       const r = el('tr'); const n = el('td', 'mono', c.name);
-      const tags = el('td'); if (c.pk) tags.append(el('span', 'tag pk', 'ключ')); if (c.not_null) tags.append(el('span', 'tag', 'обязательна')); if (c.masked) tags.append(el('span', 'tag w', 'скрыта'));
-      r.append(n, el('td', 'mono', c.type), el('td', 'mono', c.default || '—'), tags); t.append(r);
+      const ty = el('td'); ty.append(el('span', 'tt', c.variants ? 'один из: ' + c.variants : humanType(c.type)), el('small', null, c.type));
+      const tags = el('td'); if (c.pk) tags.append(el('span', 'tag pk', 'ключ')); if (c.not_null) tags.append(el('span', 'tag', 'обязательна'));
+      if (c.masked) tags.append(el('span', 'tag w', 'скрыта')); if (c.partial) tags.append(el('span', 'tag w', 'частично скрыта'));
+      if (fkBy.has(c.name)) tags.append(tblLink(fkBy.get(c.name)));
+      r.append(n, ty, el('td', 'mono', c.default || '—'), tags); t.append(r);
     }
     const sc = el('div'); sc.style.overflow = 'auto'; sc.append(t); w.append(sc);
-    if (info.indexes.length) { w.append(el('h4', null, 'Индексы')); w.append(el('pre', 'code wrap', info.indexes.map((i) => i.def).join('\n'))); }
-    const cons = info.constraints.filter((c) => c.type !== 'p');
-    if (cons.length) { w.append(el('h4', null, 'Проверки и связи')); w.append(el('pre', 'code wrap', cons.map((c) => c.name + '  ' + c.def).join('\n'))); }
-    if (info.refs.length) { w.append(el('h4', null, 'Ссылаются на эту таблицу')); w.append(el('pre', 'code wrap', info.refs.map((c) => c.from_table + '  ' + c.def).join('\n'))); }
+    outer.append(w);
+    const fks = info.fks || [], refs = info.refs || [];
+    if (fks.length || refs.length) {
+      const rb = el('div', 'blk'); rb.append(el('h4', null, 'Связи с другими таблицами'));
+      for (const f of fks) { const r = el('div', 'rel'); r.append(el('span', 'mono', `${f.cols} этой таблицы`), el('span', null, 'берётся из'), tblLink(f.to_table)); rb.append(r); }
+      for (const f of refs) { const r = el('div', 'rel'); const a = tblLink(f.from_table); a.textContent = '← ' + f.from_table.replace(/"/g, ''); r.append(a, el('span', null, 'ссылается сюда по'), el('span', 'mono', f.cols || '')); rb.append(r); }
+      outer.append(rb);
+    }
+    if (info.indexes.length) outer.append(fold('Индексы', `${info.indexes.length} — ускоряют поиск`, (() => { const b = el('div', 'blk'); b.append(el('pre', 'code wrap', info.indexes.map((i) => i.def).join('\n'))); return b; })()));
+    const cons = info.constraints.filter((c) => c.type !== 'p' && c.type !== 'f');
+    if (cons.length) outer.append(fold('Проверки значений', `${cons.length} — что база не даст записать`, (() => { const b = el('div', 'blk'); b.append(el('pre', 'code wrap', cons.map((c) => c.name + '  ' + c.def).join('\n'))); return b; })()));
     return outer;
   };
 
@@ -879,7 +945,7 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
     if (!db) { $('#tpanel').replaceChildren(skel()); return; }
     const [schema, table] = st ? [st.slice(0, st.indexOf('.')), st.slice(st.indexOf('.') + 1)] : [null, null];
     const same = T.db === db && T.schema === schema && T.table === table;
-    if (!same) T = { ...T, db, schema, table, offset: 0, order: null, dir: 'desc', tab: T.table === table ? T.tab : 'data', q: '', f: null, m: 'has', v: '' };
+    if (!same) T = { ...T, db, schema, table, offset: 0, order: null, dir: 'desc', tab: T.tab, q: '', f: null, m: 'has', v: '' };
     dbPills($('#dbs-t'), '#/t/');
     if (!DB[db]) { renderList(); try { DB[db] = await api('/v1/db/' + db); } catch (e) { fail(e); return; } }
     renderList(); renderTable();
