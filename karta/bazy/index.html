@@ -538,10 +538,22 @@ table.pm tr.bad td:first-child a{color:var(--bad)}
   const title = (db) => TITLE[db] || db;
 
   /* ── данные с сервера ── */
-  const api = async (p, params) => {
-    const qs = new URLSearchParams(params || {}); qs.set('p', p);
-    const r = await fetch('/api/bazy?' + qs, { cache: 'no-store' });
+  // пропуск на 15 минут выдаёт сайт после входа; с ним браузер сам ходит на наш сервер
+  let pass = null;
+  const getPass = async () => {
+    if (pass && pass.exp - Date.now() > 60000) return pass;
+    const r = await fetch('/api/bazy', { cache: 'no-store' });
     if (r.status === 401) { location.reload(); throw new Error('нужен вход'); }
+    if (!r.ok) throw new Error('нет пропуска: ' + r.status);
+    return (pass = await r.json());
+  };
+  const api = async (p, params) => {
+    const ps = await getPass();
+    const qs = new URLSearchParams(params || {});
+    let r;
+    try { r = await fetch(ps.base + p + (qs.toString() ? '?' + qs : ''), { cache: 'no-store', headers: { 'x-bazy-token': ps.token } }); }
+    catch (e) { throw new Error('nova-unreachable'); }
+    if (r.status === 404 && !(r.headers.get('content-type') || '').includes('json')) { pass = null; throw new Error('пропуск не принят — обновите страницу'); }
     const j = await r.json().catch(() => null);
     if (!r.ok) throw new Error((j && j.error) || ('ошибка ' + r.status));
     return j;
