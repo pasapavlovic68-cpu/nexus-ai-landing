@@ -150,5 +150,21 @@
   "group": "domain",
   "access": "по паролю",
   "what": "Наши базы данных, таблицы, копии и нагрузка."
+ },
+ {
+  "id": "voltbet",
+  "name": "VOLTBET",
+  "url": "https://voltbet.nexusnova.app/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Демо: казино и рынок событий в Telegram. С 26.10 на нашем сервере (раньше Vercel)."
+ },
+ {
+  "id": "tide",
+  "name": "Tide",
+  "url": "https://tide.nexusnova.app/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Демо: приложение учёта денег. С 26.10 на нашем сервере (раньше Vercel)."
  }
 ]
