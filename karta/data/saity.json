@@ -106,17 +106,41 @@
  {
   "id": "zhurnal",
   "name": "Журнал работ",
-  "url": "https://nexus-zhurnal.pages.dev/",
-  "group": "temp",
-  "access": null,
-  "what": "Ваши задачи и время по таймеру ▶ / ⏸ / «Завершить»."
+  "url": "https://zhurnal.nexusnova.app/",
+  "group": "domain",
+  "access": "по коду",
+  "what": "Ваши задачи и время по таймеру ▶ / ⏸ / «Завершить». С 25.10 на нашем сервере, старый адрес переадресует сюда."
  },
  {
   "id": "zarplata",
   "name": "Зарплата NEXUS",
-  "url": "https://nexus-salary.pages.dev/",
-  "group": "temp",
-  "access": null,
-  "what": "Витрина зарплаты команды."
+  "url": "https://zarplata.nexusnova.app/",
+  "group": "domain",
+  "access": "по паролю",
+  "what": "Витрина зарплаты команды. С 25.10 на нашем сервере, база начата заново."
+ },
+ {
+  "id": "okk",
+  "name": "Сайт ОКК",
+  "url": "https://okk.nexusnova.app/",
+  "group": "domain",
+  "access": "по паролю ОКК",
+  "what": "Контроль качества: проверки чатов, скорость ответа, рейтинг. С 24.10 на нашем сервере (раньше Railway)."
+ },
+ {
+  "id": "nummo",
+  "name": "NUMMO — учёт доходов",
+  "url": "https://nummo.nexusnova.app/",
+  "group": "domain",
+  "access": "бот и вход владельца",
+  "what": "Доходы и расходы, Pionex, письма банка. С 25.10 на нашем сервере."
+ },
+ {
+  "id": "bazy",
+  "name": "«Базы»",
+  "url": "https://nexusnova.app/karta/bazy/",
+  "group": "domain",
+  "access": "по паролю",
+  "what": "Наши базы данных, таблицы, копии и нагрузка."
  }
 ]
