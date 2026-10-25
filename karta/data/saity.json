@@ -96,6 +96,14 @@
   "what": "Дневник трейдера и наставничество."
  },
  {
+  "id": "otzyvy-studio",
+  "name": "Студия отзывов",
+  "url": "https://otzyvy.nexusnova.app/",
+  "group": "temp",
+  "access": "всем",
+  "what": "Сборка отзывов и скринов переписок; общие данные для всех, у кого есть ссылка. С 25.10 на нашем сервере (раньше Vercel + Cloudflare), старая ссылка переводит сюда."
+ },
+ {
   "id": "verdikt",
   "name": "Вердикт",
   "url": "https://verdikt.fxc55bg8rd.workers.dev/",

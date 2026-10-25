@@ -52,12 +52,12 @@
  {
   "id": "otzyvy",
   "name": "Отзывы",
-  "where": "Cloudflare D1",
+  "where": "наш сервер (SQLite)",
   "project": "другой проект",
   "size_mb": 2.9,
   "growth": "мало",
   "step": null,
-  "note": ""
+  "note": "студия отзывов; перенесена 25.10, ночная копия — на станцию"
  },
  {
   "id": "bmw",
