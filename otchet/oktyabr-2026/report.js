@@ -21,7 +21,7 @@
   /* ── шапка (как у юриста) ── */
   const head = $('#head'), nav = $('#nav'), ind = $('#ind');
   let compact = null, tick = false;
-  const onScroll = () => { const y = scrollY, c = compact ? y > 24 : y > 56; if (c !== compact) { compact = c; head.classList.toggle('compact', c); head.style.setProperty('--k', c ? 1 : 0); } };
+  const onScroll = () => { const y = scrollY, c = compact ? y > 8 : y > 24; if (c !== compact) { compact = c; head.classList.toggle('compact', c); head.style.setProperty('--k', c ? 1 : 0); } };
   addEventListener('scroll', () => { if (tick) return; tick = true; requestAnimationFrame(() => { tick = false; onScroll(); }); }, { passive: true }); onScroll();
   let key = '';
   const placeInd = () => { const a = key && $(`a[data-go="${key}"]`, nav); if (!a || !a.getClientRects().length) { ind.style.opacity = 0; return; } const r = a.getBoundingClientRect(), n = nav.getBoundingClientRect(); Object.assign(ind.style, { left: r.left - n.left + 'px', width: r.width + 'px', top: r.top - n.top + 'px', height: r.height + 'px', opacity: 1 }); };
