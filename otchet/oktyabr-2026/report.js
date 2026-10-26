@@ -473,6 +473,12 @@
         <p class="lead">Гео, спейсы, боты и сотрудники в одной таблице — как сводная в Jarvis, но на наших цифрах. Выберите режим, дни и что смотреть; сотрудники подтягиваются сами по выбранным ботам. Вид сохраняется в ссылке — её можно отправить.</p></div>
         <div id="tb-app"></div></section>`;
     },
+    rashozhdeniya() {
+      setTimeout(рРисовать, 0);
+      return `<section class="view"><div class="head-blk"><div class="kicker">Проверка внесения · ${period()}</div><h2>Расхождения <span class="serif">ПП и Jarvis</span></h2>
+        <p class="lead">Сколько депозитов пришло по партнёрке и сколько из них есть в Jarvis. Ниже — по сотрудникам и каждый депозит, которого в Jarvis нет, с кнопками в Jarvis и в чат Chatterfy.</p></div>
+        <div id="rz-app"></div></section>`;
+    },
     sverka() {
       const o = D.check.okk, p = D.check.pp;
       if (!p) return `<section class="view"><div class="head-blk"><div class="kicker">Проверка цифр</div><h2>Сверка с <span class="serif">партнёркой</span></h2></div>
@@ -485,6 +491,66 @@
         <div class="card"><h4>Откуда цифры</h4><p>• <b>Регистрации, депозиты, выводы</b> — API партнёрки PocketOption, по игрокам и дням (дни — по времени партнёрки).<br>• <b>Чей игрок</b> — сотрудник из постбэка и тега чата Chatterfy.<br>• <b>Бот и спейс</b> — по чату игрока; не нашёлся чат — «Спейс не определён».<br>• <b>Лиды</b> — новые чаты в Chatterfy по московскому времени; Chatterfy не делит их по сотрудникам.</p></div></section>`;
     },
   };
+
+  /* ── вкладка «Расхождения»: ПП против Jarvis (26.10.2026, просьба владельца) ──
+     ПП — депозиты по постбэкам партнёрки (наш журнал, сверен с API партнёрки по игрокам и дням).
+     Jarvis — по сверке станции: она ищет каждый депозит в Jarvis по игроку, сумме и дате. */
+  let RZ = null, rzLoad = null, rzErr = '';
+  const данныеР = () => rzLoad || (rzLoad = fetch('../oktyabr-2026-rashozhdeniya/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then((j) => (RZ = j), (e) => { rzErr = String(e.message || e); rzLoad = null; throw e; }));
+  const рф = { ст: 'нет', кто: -1, q: '', показ: 60 };
+  const РСТ = { 'нет': ['нет в Jarvis', 'rz-bad'], 'др': ['на другом', 'rz-wr'], 'незн': ['не проверено', ''] };
+  const рЯчейки = (o, f) => ['pp', 'j', 'нет', 'др', 'незн'].map((k) => `<div class="r ${k === 'нет' ? 'rz-bad' : k === 'др' ? 'rz-wr' : ''}">${f(o[k])}</div>`).join('');
+  function рРисовать() {
+    const box = $('#rz-app'); if (!box) return;
+    if (!RZ) {
+      box.innerHTML = '<p class="lead">Загружаю расхождения…</p>';
+      данныеР().then(рРисовать, () => { const b = $('#rz-app'); if (b) b.innerHTML = '<div class="err">Расхождения не загрузились (' + esc(rzErr) + '). Это не «расхождений нет» — обновите страницу.</div>'; });
+      return;
+    }
+    const И = RZ['итог'], сум = (k) => [И.FD[k][0] + И.RD[k][0], Math.round((И.FD[k][1] + И.RD[k][1]) * 100) / 100];
+    const плитка = (cls, k, подпись) => { const [n, $s] = сум(k); return `<div class="tile ${cls}"><b>${ru(n)}</b><span>${подпись}</span><small>${usd2($s)}</small></div>`; };
+    const pp = RZ.pp;
+    const ev = RZ.ev.filter((x) => (рф.ст === 'все' || x[7] === рф.ст) && (рф.кто < 0 || x[1] === рф.кто)
+      && (!рф.q || (x[0] + ' ' + RZ.e[x[1]] + ' ' + RZ.bn[x[2]]).toLowerCase().includes(рф.q)));
+    const счёт = (ст) => RZ.ev.filter((x) => x[7] === ст && (рф.кто < 0 || x[1] === рф.кто)).length;
+    const чип = (ст, текст) => `<button type="button" class="pill${рф.ст === ст ? ' on' : ''}" data-rz-st="${ст}">${рф.ст === ст ? '✓ ' : ''}${текст} <b>${ru(ст === 'все' ? RZ.ev.filter((x) => рф.кто < 0 || x[1] === рф.кто).length : счёт(ст))}</b></button>`;
+    const строка = (x) => {
+      const [t, ei, bi, ch, вид, когда, сумма, ст, наКого] = x, bid = RZ.b[bi];
+      const чат = bid && ch ? 'https://v2.chatterfy.ai/bots/' + encodeURIComponent(bid) + '/chats?chat=' + encodeURIComponent(ch) : '';
+      const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
+      return `<div class="pl"><div class="id">${esc(t)}<small>${esc(RZ.e[ei])} · ${esc(RZ.bn[bi])}</small></div>
+        <div class="v">${usd2(сумма)}<small>${esc(вид)}</small></div><div class="v">${esc(когда)}<small>в ПП</small></div>
+        <div class="v ${РСТ[ст][1]}">${esc(РСТ[ст][0])}<small>${ст === 'др' && наКого ? 'внесено: ' + esc(наКого) : 'в Jarvis'}</small></div>
+        <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">📋 Jarvis</a><a class="lnk${чат ? '' : ' off'}" ${чат ? `href="${чат}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}>💬 Chatterfy</a></div></div>`;
+    };
+    const кто = рф.кто >= 0 ? RZ.e[рф.кто] : '';
+    box.innerHTML = `<div class="tiles">${плитка('', 'pp', 'Депозитов в ПП')}${плитка('ok', 'j', 'Есть в Jarvis')}${плитка('rz-bad', 'нет', 'Нет в Jarvis')}${плитка('rz-wr', 'др', 'На другом сотруднике')}${плитка('', 'незн', 'Не проверено')}
+        <div class="tile bl"><b>${pp ? ru(pp.dep) : '—'}</b><span>Партнёрка (API)</span><small>${pp ? usd2(pp.dep_sum) + ' · для проверки ПП' : 'не ответила при обновлении'}</small></div></div>
+      <div class="card"><div class="check rz-cmp"><div class="h">Показатель</div><div class="h r">ПП</div><div class="h r">Есть в Jarvis</div><div class="h r">Нет в Jarvis</div><div class="h r">На другом</div><div class="h r">Не проверено</div>
+        <div>Первые депозиты</div>${рЯчейки(И.FD, (v) => ru(v[0]))}<div>Первые депозиты, $</div>${рЯчейки(И.FD, (v) => usd2(v[1]))}
+        <div>Повторные депозиты</div>${рЯчейки(И.RD, (v) => ru(v[0]))}<div>Повторные депозиты, $</div>${рЯчейки(И.RD, (v) => usd2(v[1]))}</div></div>
+      <h3 class="sub">По сотрудникам</h3>
+      <div class="rows"><div class="row hd"><div>Сотрудник</div><div class="v">ПП, $</div><div class="v">Есть, $</div><div class="v">Нет, шт</div><div class="v">Нет, $</div><div class="v">На другом, $</div><div class="v">Не проверено, $</div></div>
+        ${RZ['сотр'].map((r) => `<button type="button" class="row${рф.кто === r[0] ? ' on' : ''}" data-rz-e="${r[0]}"><div class="nm">${esc(RZ.e[r[0]])}<small>депозитов в ПП: ${ru(r[1][0])}</small></div>
+          <div class="v" data-l="ПП, $">${usd2(r[1][1])}</div><div class="v" data-l="Есть, $">${usd2(r[2][1])}</div><div class="v rz-bad" data-l="Нет, шт">${ru(r[3][0])}</div><div class="v rz-bad" data-l="Нет, $">${usd2(r[3][1])}</div><div class="v rz-wr" data-l="На другом, $">${usd2(r[4][1])}</div><div class="v" data-l="Не проверено, $">${usd2(r[5][1])}</div></button>`).join('')}</div>
+      <h3 class="sub">Депозиты, которых нет в Jarvis${кто ? ' · ' + esc(кто) : ''}</h3>
+      <div class="bar"><span class="conv">${чип('нет', 'нет в Jarvis')}${чип('др', 'на другом')}${чип('незн', 'не проверено')}${чип('все', 'все')}${кто ? `<button type="button" class="pill on" data-rz-e="-1">✕ ${esc(кто)}</button>` : ''}</span>${поиск('#rz-x', 'ID, сотрудник или бот')}</div>
+      <div class="rows">${ev.slice(0, рф.показ).map(строка).join('') || '<p class="lead">Таких депозитов нет.</p>'}</div>
+      ${ev.length > рф.показ ? `<button type="button" class="btn more" data-rz-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, ev.length - рф.показ))} из ${ru(ev.length - рф.показ)}</button>` : ''}
+      <p class="note">«ПП» — все депозиты по постбэкам партнёрки за ${esc(дм(RZ['от']))}–${esc(дм(RZ['до']))} (наш журнал совпадает с API партнёрки по игрокам и дням). «Есть / нет в Jarvis» — по автоматической сверке станции: она ищет депозит в Jarvis по игроку, сумме и дате, поэтому бывают ложные «нет» — перед разбором откройте игрока кнопкой Jarvis. «На другом» — депозит в Jarvis записан на другого сотрудника. Обновлено ${esc(String(RZ.upd).slice(0, 16).replace('T', ' '))} UTC.</p>`;
+    const inp = box.querySelector('.sx input'); if (inp) { inp.value = рф.q; if (рф.q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(рф.q.length, рф.q.length); }
+      inp.addEventListener('input', () => { рф.q = inp.value.trim().toLowerCase(); рф.показ = ПОКАЗ; рРисовать(); }); }
+  }
+  document.addEventListener('click', (e) => {
+    if (вид !== 'rashozhdeniya' || !RZ) return;
+    const el = e.target.closest && e.target.closest('#rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more]'); if (!el) return;
+    const d = el.dataset;
+    if (d.rzSt) рф.ст = d.rzSt;
+    else if (d.rzE !== undefined) { const n = Number(d.rzE); рф.кто = (n === рф.кто || n < 0) ? -1 : n; }
+    else if (d.rzMore) { рф.показ += ПОКАЗ; рРисовать(); return; }
+    рф.показ = ПОКАЗ; рРисовать();
+  });
 
   /* ── игроки (грузятся при первом открытии панели) ── */
   const игроки = () => pLoad || (pLoad = fetch('../oktyabr-2026-players/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((j) => (P = j)));
@@ -605,7 +671,7 @@
   document.addEventListener('pointermove', (e) => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); }, { passive: true });
 
   /* ── главные страницы без перезагрузки ── */
-  const ГЛАВНЫЕ = ['obzor', 'spaces', 'sotrudniki', 'kogorta', 'tablica', 'sverka'];
+  const ГЛАВНЫЕ = ['obzor', 'spaces', 'sotrudniki', 'kogorta', 'tablica', 'sverka', 'rashozhdeniya'];
   let был = '';
   const show = () => { const h = decodeURIComponent(location.hash.slice(1)), h0 = h.split('/')[0]; const v = ГЛАВНЫЕ.includes(h0) ? h0 : 'obzor';
     вид = v; $('#app').innerHTML = V[v](); setNav(v); scrollTo({ top: 0, behavior: 'instant' }); onScroll();

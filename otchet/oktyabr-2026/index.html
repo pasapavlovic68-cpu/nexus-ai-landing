@@ -59,6 +59,10 @@ a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}[hidden]{
 .btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 15px;border-radius:12px;border:1px solid var(--ln2);background:transparent;font-size:14px;font-weight:500;color:var(--tx1);cursor:pointer;transition:background-color .25s var(--ez),border-color .25s var(--ez),color .2s,box-shadow .25s var(--ez)}
 .btn:hover{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
 .btn svg{width:17px;height:17px}
+/* седьмая вкладка «Расхождения» (26.10): подписи меню не переносятся, на средних экранах — плотнее */
+.s-nav nav a{white-space:nowrap}
+@media (max-width:1180px){.s-nav nav a{padding:0 9px;font-size:14px}.brand{margin-right:calc(16px * (1 - var(--k)))}.s-nav-r .btn .tl{display:none}.s-nav-r .btn{padding:0 11px}}
+@media (max-width:1000px){.s-nav nav a{padding:0 7px;font-size:13.5px}.s-nav{gap:10px}}
 @media (max-width:860px){.s-nav nav{display:none}}
 @media (max-width:560px){.s-nav{width:calc(100% - 24px);top:calc(env(safe-area-inset-top,0px) + 10px);height:calc(70px - 10px * var(--k));padding:0 8px 0 10px}.brand{transform:none;margin-right:0}.btn .tl{display:none}.btn{padding:0 11px}}
 
@@ -129,6 +133,10 @@ a.row:hover{transform:translateY(-1px)}
 .check{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:8px 14px;align-items:center;font-variant-numeric:tabular-nums}
 .check .h{font-family:var(--fm);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)}
 .check .r{text-align:right}.d0{color:var(--ok)}.d1{color:var(--warn)}
+/* вкладка «Расхождения» (26.10): таблица ПП / Jarvis — та же .check, но 6 колонок; цвета статусов — токены страницы */
+.check.rz-cmp{grid-template-columns:minmax(0,1.4fr) repeat(5,minmax(0,1fr))}
+.row.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent)}
+.rz-bad{color:var(--bad)}.rz-wr{color:var(--warn)}.tile.rz-bad b{color:var(--bad)}.tile.rz-wr b{color:var(--warn)}
 .note{font-size:13px;color:var(--tx2);border-left:2px solid var(--or2);padding:4px 0 4px 12px}
 .search{display:flex;align-items:center;gap:10px;border:1px solid var(--ln2);background:var(--card);border-radius:14px;padding:0 14px;height:46px;max-width:420px;transition:border-color .2s,box-shadow .2s}
 .search:focus-within{border-color:var(--or2);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 12%,transparent)}
@@ -348,7 +356,7 @@ button.pill:hover,button.pill.on{color:var(--tx);border-color:color-mix(in srgb,
 <header class="s-nav" id="head">
   <a class="brand" href="#obzor" data-go="obzor"><span class="mk">N</span><span class="wm"><b>Отчёт · октябрь</b><small>NEXUS</small></span></a>
   <nav id="nav" aria-label="Разделы"><i class="s-ind" id="ind" style="opacity:0"></i>
-    <a href="#obzor" data-go="obzor">Обзор</a><a href="#spaces" data-go="spaces">Спейсы и боты</a><a href="#sotrudniki" data-go="sotrudniki">Сотрудники</a><a href="#kogorta" data-go="kogorta">Когорта</a><a href="#tablica" data-go="tablica">Таблица</a><a href="#sverka" data-go="sverka">Сверка</a>
+    <a href="#obzor" data-go="obzor">Обзор</a><a href="#spaces" data-go="spaces">Спейсы и боты</a><a href="#sotrudniki" data-go="sotrudniki">Сотрудники</a><a href="#kogorta" data-go="kogorta">Когорта</a><a href="#tablica" data-go="tablica">Таблица</a><a href="#sverka" data-go="sverka">Сверка</a><a href="#rashozhdeniya" data-go="rashozhdeniya">Расхождения</a>
   </nav>
   <div class="s-nav-r">
     <button class="btn" id="theme" type="button" aria-label="Сменить тему"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="theme-ic" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="tl" id="theme-t">Светлая</span></button>
