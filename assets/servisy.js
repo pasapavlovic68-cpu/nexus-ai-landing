@@ -1,12 +1,10 @@
 /* ПЕРЕКЛЮЧАТЕЛЬ СЕРВИСОВ NEXUS (26.10.2026, владелец: «связать кнопками — я думал, это будет один сервис»).
-   Кнопка рядом с названием в шапке открывает список: отчёт, карта системы, базы, статистика — со своими значками.
+   Только то, что касается переезда: карта системы и базы (владелец: «больше там ничего не должно быть»).
    Страница говорит, кто она, атрибутом <html data-servis="…">. Нужна шапка #head с .brand (как у карты, баз и отчёта). */
 (() => {
   const СЕРВИСЫ = [
-    { id: 'otchet', имя: 'Отчёт за октябрь', что: 'цифры месяца, сотрудники, расхождения', href: '/otchet/oktyabr-2026/', ic: '/assets/otchet/favicon-64.png' },
     { id: 'karta', имя: 'Карта системы', что: 'серверы, переезд, расходы, сайты', href: '/karta/', ic: '/assets/karta/favicon-64.png' },
     { id: 'bazy', имя: 'Базы', что: 'таблицы, копии и нагрузка', href: '/karta/bazy/', ic: '/assets/bazy/favicon-64.png' },
-    { id: 'stats', имя: 'Статистика сайта', что: 'кто заходит и откуда', href: '/stats/', ic: '/assets/stats/favicon-64.png' },
   ];
   const head = document.getElementById('head'), brand = head && head.querySelector('.brand'); if (!brand) return;
   const тек = document.documentElement.dataset.servis || '';
