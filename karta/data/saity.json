@@ -99,7 +99,7 @@
   "id": "otzyvy-studio",
   "name": "Студия отзывов",
   "url": "https://otzyvy.nexusnova.app/",
-  "group": "temp",
+  "group": "domain",
   "access": "всем",
   "what": "Сборка отзывов и скринов переписок; общие данные для всех, у кого есть ссылка. С 25.10 на нашем сервере (раньше Vercel + Cloudflare), старая ссылка переводит сюда."
  },
@@ -155,7 +155,7 @@
   "id": "voltbet",
   "name": "VOLTBET",
   "url": "https://voltbet.nexusnova.app/",
-  "group": "temp",
+  "group": "domain",
   "access": "всем",
   "what": "Демо: казино и рынок событий в Telegram. С 26.10 на нашем сервере; не используется (слово владельца), копия с Vercel удалена."
  },
@@ -163,7 +163,7 @@
   "id": "tide",
   "name": "Tide",
   "url": "https://tide.nexusnova.app/",
-  "group": "temp",
+  "group": "domain",
   "access": "всем",
   "what": "Демо: приложение учёта денег. С 26.10 на нашем сервере; не используется (слово владельца), копия с Vercel удалена."
  }

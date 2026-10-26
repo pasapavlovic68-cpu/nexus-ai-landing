@@ -169,16 +169,15 @@ a.card{cursor:pointer}
 .dl div{display:grid;grid-template-columns:6.5rem 1fr;gap:10px}
 .dl dt{font-family:var(--fm);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding-top:3px}
 .dl dd{margin:0;color:var(--tx1)}
-/* серверы: строки карточек на одной высоте, сколько бы ни было текста (26.10, владелец) — сетка внутри карточки
-   продолжает общую сетку раздела: шапка, название, характеристики, полоса, «диск занят», «Работает», «Цена», «Дальше» */
-#srv>.card{grid-row:span 8;grid-template-rows:subgrid}
-#srv>.card>.dl{grid-row:span 3;grid-template-rows:subgrid}
-#srv>.card>.top-row{align-items:flex-start}
+/* серверы — небольшие карточки (26.10, владелец): сверху место и значок «Работает» всегда в одном месте, название
+   в одну строку; «Подробнее» раскрывает только свою карточку (где, что работает, цена, дальше), соседние не растягиваются */
+#srv{align-items:start}
+#srv .top-row{flex-wrap:nowrap}#srv .top-row .n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#srv .top-row .chip{flex:none}
+#srv h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srv-det{display:none;padding-top:4px;border-top:1px solid var(--ln)}.srv-det.open{display:grid;gap:12px}
 .srv-list{margin:0;padding:0;list-style:none;display:grid;gap:5px}
 .srv-list li{position:relative;padding-left:14px;line-height:1.45}
 .srv-list li::before{content:"";position:absolute;left:2px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--or2);opacity:.75}
-.srv-list .srv-hid{display:none}.srv-list.open .srv-hid{display:list-item}
-.srv-more{margin-top:10px;height:30px;padding:0 10px;font-size:12.5px}
 .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid color-mix(in srgb,currentColor 40%,transparent);white-space:nowrap}
 .chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .c-ok{color:var(--ok)}.c-warn{color:var(--warn)}.c-bad{color:var(--bad)}.c-mut{color:var(--mut)}.c-or{color:var(--or2)}
@@ -240,6 +239,7 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
 </style>
 <link rel="stylesheet" href="/assets/servisy.css">
 <script src="/assets/servisy.js" defer></script>
+<script src="/assets/rovno.js" defer></script>
 </head>
 <body>
 <div class="aura" aria-hidden="true"></div>
@@ -429,13 +429,12 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
   });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(); });
 
-  // «Работает» у сервера: сколько пунктов видно сразу, остальное — по кнопке «Ещё N»
-  const SRV_VIDNO = 4;
+  // «Подробнее» у карточки сервера — раскрывает только её
   document.addEventListener('click', (e) => {
-    const b = e.target.closest && e.target.closest('[data-srv-more]'); if (!b) return;
-    const open = b.getAttribute('aria-expanded') !== 'true', n = b.dataset.srvMore;
-    b.setAttribute('aria-expanded', String(open)); b.closest('dd').querySelector('.srv-list').classList.toggle('open', open);
-    b.firstChild.textContent = open ? 'Свернуть ' : 'Ещё ' + n + ' ';
+    const b = e.target.closest && e.target.closest('[data-srv]'); if (!b) return;
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', String(open)); b.closest('.card').querySelector('.srv-det').classList.toggle('open', open);
+    b.firstChild.textContent = open ? 'Свернуть ' : 'Подробнее ';
   });
 
   /* ── данные ── */
@@ -506,19 +505,15 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
       } else r.append(el('span', null, s.disk_note || 'Ещё не куплен — прогноз в «Обзоре»'));
       c.append(m, r);
       const dl = el('dl', 'dl');
-      for (const [k, v] of [[s.disk_used_gb == null ? 'Будет' : 'Работает', s.runs], ['Цена', (s.cost_usd == null ? 'не знаем' : usd(s.cost_usd) + ' в месяц') + ' · ' + s.cost_note], ['Дальше', s.future]]) {
+      for (const [k, v] of [['Где', s.place || s.provider], [s.disk_used_gb == null ? 'Будет' : 'Работает', s.runs], ['Цена', (s.cost_usd == null ? 'не знаем' : usd(s.cost_usd) + ' в месяц') + ' · ' + s.cost_note], ['Дальше', s.future]]) {
         const d = el('div'), dd = el('dd');
-        if (Array.isArray(v)) {   // «Работает» — список: первые 4 видно, остальное раскрывается (26.10, владелец: «чтобы список раскрывался»)
-          const ul = el('ul', 'srv-list'); v.forEach((x, i) => { const li = el('li', i >= SRV_VIDNO ? 'srv-hid' : null, x); ul.append(li); }); dd.append(ul);
-          if (v.length > SRV_VIDNO) {
-            const b = el('button', 'more-btn srv-more'); b.type = 'button'; b.dataset.srvMore = String(v.length - SRV_VIDNO); b.setAttribute('aria-expanded', 'false');
-            b.innerHTML = 'Ещё ' + (v.length - SRV_VIDNO) + ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
-            dd.append(b);
-          }
-        } else dd.textContent = v;
+        if (Array.isArray(v)) { const ul = el('ul', 'srv-list'); v.forEach((x) => ul.append(el('li', null, x))); dd.append(ul); } else dd.textContent = v;
         d.append(el('dt', null, k), dd); dl.append(d);
       }
-      c.append(dl); $('#srv').append(c);
+      const det = el('div', 'srv-det'); det.append(dl);
+      const btn = el('button', 'more-btn'); btn.type = 'button'; btn.dataset.srv = ''; btn.setAttribute('aria-expanded', 'false'); btn.style.justifySelf = 'start';
+      btn.innerHTML = 'Подробнее <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+      c.append(btn, det); $('#srv').append(c);
     }
 
     // базы — каждая отдельной карточкой
