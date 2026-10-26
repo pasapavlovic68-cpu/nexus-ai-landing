@@ -172,6 +172,7 @@ a.card{cursor:pointer}
 /* серверы — небольшие карточки (26.10, владелец): сверху место и значок «Работает» всегда в одном месте, название
    в одну строку; «Подробнее» раскрывает только свою карточку (где, что работает, цена, дальше), соседние не растягиваются */
 #srv{align-items:start}
+#srv .srv-btn{justify-self:center;width:auto}   /* кнопка по размеру текста и по центру (владелец) */
 #srv .top-row{flex-wrap:nowrap}#srv .top-row .n{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#srv .top-row .chip{flex:none}
 #srv h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .srv-det{display:none;padding-top:4px;border-top:1px solid var(--ln)}.srv-det.open{display:grid;gap:12px}
@@ -511,7 +512,7 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
         d.append(el('dt', null, k), dd); dl.append(d);
       }
       const det = el('div', 'srv-det'); det.append(dl);
-      const btn = el('button', 'srv-btn'); btn.type = 'button'; btn.dataset.srv = '';   // свой класс: .more-btn закрывает общий обработчик «Подробнее» у баз btn.setAttribute('aria-expanded', 'false'); btn.style.justifySelf = 'start';
+      const btn = el('button', 'srv-btn'); btn.type = 'button'; btn.dataset.srv = '';   // свой класс: .more-btn закрывает общий обработчик «Подробнее» у баз btn.setAttribute('aria-expanded', 'false');
       btn.innerHTML = 'Подробнее <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
       c.append(btn, det); $('#srv').append(c);
     }
