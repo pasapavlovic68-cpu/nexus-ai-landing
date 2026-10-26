@@ -136,6 +136,11 @@ a.row:hover{transform:translateY(-1px)}
 /* вкладка «Расхождения» (26.10): таблица ПП / Jarvis — та же .check, но 6 колонок; цвета статусов — токены страницы */
 .check.rz-cmp{grid-template-columns:minmax(0,1.4fr) repeat(5,minmax(0,1fr))}
 .row.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent)}
+/* шапка таблицы «По сотрудникам» на «Расхождениях» — без прилипания (прилипшая ложилась под меню острым прямоугольником и
+   срезала заголовок над собой), с отступом от заголовка */
+.rows.rz-rows{margin-top:12px}.rows.rz-rows>.row.hd{position:static;margin:0;box-shadow:none;background:transparent;border-radius:0}
+.rz-leg{display:grid;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}.rz-leg p{margin:0;font-size:13.5px;color:var(--tx2)}.rz-leg b{color:var(--tx);font-weight:500}
+@media (max-width:760px){.rz-leg{grid-template-columns:1fr}}
 .rz-bad{color:var(--bad)}.rz-wr{color:var(--warn)}.tile.rz-bad b{color:var(--bad)}.tile.rz-wr b{color:var(--warn)}
 .note{font-size:13px;color:var(--tx2);border-left:2px solid var(--or2);padding:4px 0 4px 12px}
 .search{display:flex;align-items:center;gap:10px;border:1px solid var(--ln2);background:var(--card);border-radius:14px;padding:0 14px;height:46px;max-width:420px;transition:border-color .2s,box-shadow .2s}

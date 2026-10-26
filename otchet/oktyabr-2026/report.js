@@ -516,29 +516,37 @@
     const счёт = (ст) => RZ.ev.filter((x) => x[7] === ст && (рф.кто < 0 || x[1] === рф.кто)).length;
     const чип = (ст, текст) => `<button type="button" class="pill${рф.ст === ст ? ' on' : ''}" data-rz-st="${ст}">${рф.ст === ст ? '✓ ' : ''}${текст} <b>${ru(ст === 'все' ? RZ.ev.filter((x) => рф.кто < 0 || x[1] === рф.кто).length : счёт(ст))}</b></button>`;
     const строка = (x) => {
-      const [t, ei, bi, ch, вид, когда, сумма, ст, наКого] = x, bid = RZ.b[bi];
+      const [t, ei, bi, ch, вид, когда, сумма, ст, наКого, , дубль, безКарт] = x, bid = RZ.b[bi];
       const чат = bid && ch ? 'https://v2.chatterfy.ai/bots/' + encodeURIComponent(bid) + '/chats?chat=' + encodeURIComponent(ch) : '';
       const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
       return `<div class="pl"><div class="id">${esc(t)}<small>${esc(RZ.e[ei])} · ${esc(RZ.bn[bi])}</small></div>
-        <div class="v">${usd2(сумма)}<small>${esc(вид)}</small></div><div class="v">${esc(когда)}<small>в ПП</small></div>
-        <div class="v ${РСТ[ст][1]}">${esc(РСТ[ст][0])}<small>${ст === 'др' && наКого ? 'внесено: ' + esc(наКого) : 'в Jarvis'}</small></div>
+        <div class="v">${usd2(сумма)}<small>${esc(вид)}${дубль ? ' · возможный дубль' : ''}</small></div><div class="v">${esc(когда)}<small>МСК</small></div>
+        <div class="v ${РСТ[ст][1]}">${esc(РСТ[ст][0])}<small>${ст === 'др' && наКого ? 'внесено: ' + esc(наКого) : ст === 'незн' ? (безКарт ? 'станция не проверяла' : 'Jarvis не ответил') : 'в Jarvis'}</small></div>
         <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">📋 Jarvis</a><a class="lnk${чат ? '' : ' off'}" ${чат ? `href="${чат}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}>💬 Chatterfy</a></div></div>`;
     };
     const кто = рф.кто >= 0 ? RZ.e[рф.кто] : '';
     box.innerHTML = `<div class="tiles">${плитка('', 'pp', 'Депозитов в ПП')}${плитка('ok', 'j', 'Есть в Jarvis')}${плитка('rz-bad', 'нет', 'Нет в Jarvis')}${плитка('rz-wr', 'др', 'На другом сотруднике')}${плитка('', 'незн', 'Не проверено')}
-        <div class="tile bl"><b>${pp ? ru(pp.dep) : '—'}</b><span>Партнёрка (API)</span><small>${pp ? usd2(pp.dep_sum) + ' · для проверки ПП' : 'не ответила при обновлении'}</small></div></div>
+        <div class="tile bl"><b>${pp ? ru(pp.dep) : '—'}</b><span>Партнёрка напрямую (API)</span><small>${pp ? usd2(pp.dep_sum) + (pp.dep === сум('pp')[0] ? ' · совпадает с ПП' : ' · с ПП расходится на ' + ru(Math.abs(pp.dep - сум('pp')[0])) + ' шт и ' + usd2(Math.abs(pp.dep_sum - сум('pp')[1])) + ': часть постбэков партнёрка не прислала, часть прислала дважды') : 'не ответила при обновлении'}</small></div></div>
+      <div class="card rz-leg">
+        <p><b>ПП</b> — все депозиты, о которых партнёрка прислала постбэк, по её дням. С API партнёрки (плитка «Партнёрка напрямую») совпадает почти целиком; небольшая разница — постбэки, которые партнёрка не прислала или прислала дважды.</p>
+        <p><b class="rz-bad">Нет в Jarvis</b> — депозит есть в партнёрке, а в Jarvis его нет ни у кого. Сотрудник его не внёс — это и есть потеря.</p>
+        <p><b class="rz-wr">На другом</b> — депозит в Jarvis есть, но записан на другого сотрудника (видно, на кого). Зарплата уйдёт не тому.</p>
+        <p><b>Не проверено</b> — станция ещё не сверила этот депозит с Jarvis или не смогла (Jarvis не ответил). Это не потеря, а «не знаем».</p>
+        <p><b>Сотрудник не определён</b> — система не нашла, чей это игрок: чата с ним не нашлось или на чате нет тега сотрудника. Такие депозиты никто не вносит — их надо разобрать вручную.</p>
+        <p><b>Как проверять</b> — кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата), бывают ложные «нет» — смотрите глазами.</p>
+      </div>
       <div class="card"><div class="check rz-cmp"><div class="h">Показатель</div><div class="h r">ПП</div><div class="h r">Есть в Jarvis</div><div class="h r">Нет в Jarvis</div><div class="h r">На другом</div><div class="h r">Не проверено</div>
         <div>Первые депозиты</div>${рЯчейки(И.FD, (v) => ru(v[0]))}<div>Первые депозиты, $</div>${рЯчейки(И.FD, (v) => usd2(v[1]))}
         <div>Повторные депозиты</div>${рЯчейки(И.RD, (v) => ru(v[0]))}<div>Повторные депозиты, $</div>${рЯчейки(И.RD, (v) => usd2(v[1]))}</div></div>
       <h3 class="sub">По сотрудникам</h3>
-      <div class="rows"><div class="row hd"><div>Сотрудник</div><div class="v">ПП, $</div><div class="v">Есть, $</div><div class="v">Нет, шт</div><div class="v">Нет, $</div><div class="v">На другом, $</div><div class="v">Не проверено, $</div></div>
+      <div class="rows rz-rows"><div class="row hd"><div>Сотрудник</div><div class="v">В ПП</div><div class="v">Есть</div><div class="v">Нет, шт</div><div class="v">Нет</div><div class="v">На другом</div><div class="v">Не проверено</div></div>
         ${RZ['сотр'].map((r) => `<button type="button" class="row${рф.кто === r[0] ? ' on' : ''}" data-rz-e="${r[0]}"><div class="nm">${esc(RZ.e[r[0]])}<small>депозитов в ПП: ${ru(r[1][0])}</small></div>
-          <div class="v" data-l="ПП, $">${usd2(r[1][1])}</div><div class="v" data-l="Есть, $">${usd2(r[2][1])}</div><div class="v rz-bad" data-l="Нет, шт">${ru(r[3][0])}</div><div class="v rz-bad" data-l="Нет, $">${usd2(r[3][1])}</div><div class="v rz-wr" data-l="На другом, $">${usd2(r[4][1])}</div><div class="v" data-l="Не проверено, $">${usd2(r[5][1])}</div></button>`).join('')}</div>
+          <div class="v" data-l="В ПП">${usd2(r[1][1])}</div><div class="v" data-l="Есть">${usd2(r[2][1])}</div><div class="v rz-bad" data-l="Нет, шт">${ru(r[3][0])}</div><div class="v rz-bad" data-l="Нет">${usd2(r[3][1])}</div><div class="v rz-wr" data-l="На другом">${usd2(r[4][1])}</div><div class="v" data-l="Не проверено">${usd2(r[5][1])}</div></button>`).join('')}</div>
       <h3 class="sub">Депозиты, которых нет в Jarvis${кто ? ' · ' + esc(кто) : ''}</h3>
       <div class="bar"><span class="conv">${чип('нет', 'нет в Jarvis')}${чип('др', 'на другом')}${чип('незн', 'не проверено')}${чип('все', 'все')}${кто ? `<button type="button" class="pill on" data-rz-e="-1">✕ ${esc(кто)}</button>` : ''}</span>${поиск('#rz-x', 'ID, сотрудник или бот')}</div>
       <div class="rows">${ev.slice(0, рф.показ).map(строка).join('') || '<p class="lead">Таких депозитов нет.</p>'}</div>
       ${ev.length > рф.показ ? `<button type="button" class="btn more" data-rz-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, ev.length - рф.показ))} из ${ru(ev.length - рф.показ)}</button>` : ''}
-      <p class="note">«ПП» — все депозиты по постбэкам партнёрки за ${esc(дм(RZ['от']))}–${esc(дм(RZ['до']))} (наш журнал совпадает с API партнёрки по игрокам и дням). «Есть / нет в Jarvis» — по автоматической сверке станции: она ищет депозит в Jarvis по игроку, сумме и дате, поэтому бывают ложные «нет» — перед разбором откройте игрока кнопкой Jarvis. «На другом» — депозит в Jarvis записан на другого сотрудника. Обновлено ${esc(String(RZ.upd).slice(0, 16).replace('T', ' '))} UTC.</p>`;
+      <p class="note">Период ${esc(дм(RZ['от']))}–${esc(дм(RZ['до']))} по дням партнёрки. Обновляется каждый час, последнее — ${esc(String(RZ.upd).slice(0, 16).replace('T', ' '))} UTC.</p>`;
     const inp = box.querySelector('.sx input'); if (inp) { inp.value = рф.q; if (рф.q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(рф.q.length, рф.q.length); }
       inp.addEventListener('input', () => { рф.q = inp.value.trim().toLowerCase(); рф.показ = ПОКАЗ; рРисовать(); }); }
   }
