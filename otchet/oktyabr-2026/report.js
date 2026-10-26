@@ -175,9 +175,11 @@
   const игрокиК = () => kpLoad || (kpLoad = fetch('../oktyabr-2026-kogorta-pl/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((j) => (KP = j), (e) => { kpErr = String(e.message || e); throw e; }));
   const строкаК = (r, режим) => {
     const [t, ei, bi, ch, рег, f, fs, rd, rs] = r, bid = KP.b[bi], настоящий = !String(bid).startsWith('нет:');
+    // [11] — сверка станции с Jarvis (26.10): [депозитов нет в Jarvis, их сумма, внесено на другого, не проверено]
+    const j = r[11], отм = j ? [j[0] ? `<span class="nj">нет в Jarvis: ${ru(j[0])} · ${usd2(j[1])}</span>` : '', j[2] ? `<span class="nd">на другом сотруднике: ${ru(j[2])}</span>` : ''].filter(Boolean).join(' · ') : '';
     const чат = настоящий && ch ? 'https://v2.chatterfy.ai/bots/' + encodeURIComponent(bid) + '/chats?chat=' + encodeURIComponent(ch) : '';
     const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
-    return `<div class="pl"><div class="id">${esc(t)}<small>${esc(режим === 'e' ? KP.bn[bi] : KP.e[ei])} · рег ${esc(дм(String(рег)))}</small></div>
+    return `<div class="pl"><div class="id">${esc(t)}<small>${esc(режим === 'e' ? KP.bn[bi] : KP.e[ei])} · рег ${esc(дм(String(рег)))}${отм ? ' · ' + отм : ''}</small></div>
       <div class="v">${f ? usd2(fs) : '—'}<small>${f ? 'FD' : 'без FD'}</small></div><div class="v">${usd(rs)}<small>${ru(rd)} RD</small></div><div class="v">${usd(fs + rs)}<small>всего</small></div>
       <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">📋 Jarvis</a><a class="lnk${чат ? '' : ' off'}" ${чат ? `href="${чат}" target="_blank" rel="noopener"` : 'aria-disabled="true" title=""'}>💬 Chatterfy</a></div></div>`;
   };
@@ -185,15 +187,18 @@
     место.innerHTML = '<p class="lead">Загружаю игроков когорты…</p>';
     try { await игрокиК(); } catch (e) { место.innerHTML = '<div class="err">Игроки когорты не загрузились (' + esc(e.message) + '). Это не «игроков нет» — обновите страницу.</div>'; return; }
     const все = KP.rows.filter((r) => вПериоде(r) && фильтр(r));
-    let показ = ПОКАЗ, q = '', толькоFD = false;
+    let показ = ПОКАЗ, q = '', толькоFD = false, толькоНетJ = false;
+    const нетJ = (r) => !!(r[11] && r[11][0] > 0), сколькоНетJ = все.filter(нетJ).length;
     const нарисовать = () => {
       let видно = толькоFD ? все.filter((r) => r[5] > 0) : все;
+      if (толькоНетJ) видно = видно.filter(нетJ);
       if (q) видно = видно.filter((r) => (r[0] + ' ' + KP.e[r[1]] + ' ' + KP.bn[r[2]]).toLowerCase().includes(q));
-      место.innerHTML = `<div class="bar"><span class="conv"><span class="pill">игроков <b>${ru(видно.length)}</b></span><button type="button" class="pill fd-t${толькоFD ? ' on' : ''}" data-fd="1">${толькоFD ? '✓ ' : ''}только с депозитом</button></span>${поиск('#pl-x', 'ID, сотрудник или бот')}</div>
+      место.innerHTML = `<div class="bar"><span class="conv"><span class="pill">игроков <b>${ru(видно.length)}</b></span><button type="button" class="pill fd-t${толькоFD ? ' on' : ''}" data-fd="1">${толькоFD ? '✓ ' : ''}только с депозитом</button>${KP.jUpd ? `<button type="button" class="pill nj-t${толькоНетJ ? ' on' : ''}" data-nj="1">${толькоНетJ ? '✓ ' : ''}нет в Jarvis <b>${ru(сколькоНетJ)}</b></button>` : '<span class="pill off">нет в Jarvis — статус не загрузился</span>'}</span>${поиск('#pl-x', 'ID, сотрудник или бот')}</div>
         <div class="rows">${видно.slice(0, показ).map((r) => строкаК(r, режим)).join('')}</div>${видно.length > показ ? `<button type="button" class="btn more" data-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, видно.length - показ))} из ${ru(видно.length - показ)}</button>` : ''}`;
       const inp = место.querySelector('.sx input'); inp.value = q; if (q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(q.length, q.length); }
       inp.addEventListener('input', () => { q = inp.value.trim().toLowerCase(); показ = ПОКАЗ; нарисовать(); });
       место.querySelector('[data-fd]').addEventListener('click', () => { толькоFD = !толькоFD; показ = ПОКАЗ; нарисовать(); });
+      const нj = место.querySelector('[data-nj]'); if (нj) нj.addEventListener('click', () => { толькоНетJ = !толькоНетJ; показ = ПОКАЗ; нарисовать(); });
       const m = место.querySelector('[data-more]'); if (m) m.addEventListener('click', () => { показ += ПОКАЗ; нарисовать(); });
     };
     нарисовать();
