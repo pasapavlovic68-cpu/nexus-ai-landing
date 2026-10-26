@@ -19,21 +19,21 @@
   --ez:cubic-bezier(.22,.8,.24,1);
   --bg:#12100E;--tx:#F4EFEA;--tx1:#E1D9D2;--tx2:#B9AFA6;--tx3:#857B73;--or:#E26612;--or2:#F2853A;--gold:#F6B46A;
   --ln:rgba(255,236,220,.09);--ln2:rgba(255,236,220,.16);--card:rgba(255,240,228,.035);--card2:rgba(255,240,228,.06);
-  --glow:rgba(226,102,18,.22);--glass:rgba(20,17,15,.88);--hov:rgba(255,255,255,.06);
+  --glow:rgba(226,102,18,.22);--glass:rgba(20,17,15,.97);--hov:rgba(255,255,255,.06);
   --ok:#3ECF8E;--warn:#F6B46A;--bad:#F0607A;--blue:#7FB5FF;color-scheme:dark;
 }
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
   --bg:#F2EDE7;--tx:#1B1714;--tx1:#3A322C;--tx2:#5E554E;--tx3:#8A8078;--or:#C9560D;--or2:#C9560D;--gold:#A54A0C;
-  --ln:rgba(52,36,24,.11);--ln2:rgba(52,36,24,.2);--card:#FFFFFF;--card2:#F7F2EC;--glow:rgba(201,86,13,.14);--glass:rgba(250,247,243,.9);--hov:rgba(52,36,24,.06);
+  --ln:rgba(52,36,24,.11);--ln2:rgba(52,36,24,.2);--card:#FFFFFF;--card2:#F7F2EC;--glow:rgba(201,86,13,.14);--glass:rgba(250,247,243,.97);--hov:rgba(52,36,24,.06);
   --ok:#1E8E5A;--warn:#A86A10;--bad:#C2284A;--blue:#2F6FD6;color-scheme:light}}
 :root[data-theme="light"]{
   --bg:#F2EDE7;--tx:#1B1714;--tx1:#3A322C;--tx2:#5E554E;--tx3:#8A8078;--or:#C9560D;--or2:#C9560D;--gold:#A54A0C;
-  --ln:rgba(52,36,24,.11);--ln2:rgba(52,36,24,.2);--card:#FFFFFF;--card2:#F7F2EC;--glow:rgba(201,86,13,.14);--glass:rgba(250,247,243,.9);--hov:rgba(52,36,24,.06);
+  --ln:rgba(52,36,24,.11);--ln2:rgba(52,36,24,.2);--card:#FFFFFF;--card2:#F7F2EC;--glow:rgba(201,86,13,.14);--glass:rgba(250,247,243,.97);--hov:rgba(52,36,24,.06);
   --ok:#1E8E5A;--warn:#A86A10;--bad:#C2284A;--blue:#2F6FD6;color-scheme:light}
 :root[data-theme="dark"]{
   --bg:#12100E;--tx:#F4EFEA;--tx1:#E1D9D2;--tx2:#B9AFA6;--tx3:#857B73;--or:#E26612;--or2:#F2853A;--gold:#F6B46A;
   --ln:rgba(255,236,220,.09);--ln2:rgba(255,236,220,.16);--card:rgba(255,240,228,.035);--card2:rgba(255,240,228,.06);
-  --glow:rgba(226,102,18,.22);--glass:rgba(20,17,15,.88);--hov:rgba(255,255,255,.06);--ok:#3ECF8E;--warn:#F6B46A;--bad:#F0607A;--blue:#7FB5FF;color-scheme:dark}
+  --glow:rgba(226,102,18,.22);--glass:rgba(20,17,15,.97);--hov:rgba(255,255,255,.06);--ok:#3ECF8E;--warn:#F6B46A;--bad:#F0607A;--blue:#7FB5FF;color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-padding-top:110px}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--ff);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -138,6 +138,8 @@ a.row:hover{transform:translateY(-1px)}
 .row.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent)}
 /* шапка таблицы «По сотрудникам» на «Расхождениях» — без прилипания (прилипшая ложилась под меню острым прямоугольником и
    срезала заголовок над собой), с отступом от заголовка */
+.rz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 6px}.rz-top .tb-seg{flex-wrap:wrap}
+.lnk svg{width:15px;height:15px;flex:none}
 .rows.rz-rows{margin-top:12px}.rows.rz-rows>.row.hd{position:static;margin:0;box-shadow:none;background:transparent;border-radius:0}
 .rz-leg{display:grid;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}.rz-leg p{margin:0;font-size:13.5px;color:var(--tx2)}.rz-leg b{color:var(--tx);font-weight:500}
 @media (max-width:760px){.rz-leg{grid-template-columns:1fr}}

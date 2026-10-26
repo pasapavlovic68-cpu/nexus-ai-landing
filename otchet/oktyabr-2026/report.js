@@ -476,7 +476,7 @@
     rashozhdeniya() {
       setTimeout(рРисовать, 0);
       return `<section class="view"><div class="head-blk"><div class="kicker">Проверка внесения · ${period()}</div><h2>Расхождения <span class="serif">ПП и Jarvis</span></h2>
-        <p class="lead">Сколько депозитов пришло по партнёрке и сколько из них есть в Jarvis. Ниже — по сотрудникам и каждый депозит, которого в Jarvis нет, с кнопками в Jarvis и в чат Chatterfy.</p></div>
+        <p class="lead">Сколько депозитов пришло по партнёрке и сколько из них есть в Jarvis. Кнопки ниже переключают: сводка, по сотрудникам и каждый депозит, которого в Jarvis нет, — с переходом в Jarvis и в чат Chatterfy.</p></div>
         <div id="rz-app"></div></section>`;
     },
     sverka() {
@@ -498,7 +498,10 @@
   let RZ = null, rzLoad = null, rzErr = '';
   const данныеР = () => rzLoad || (rzLoad = fetch('../oktyabr-2026-rashozhdeniya/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then((j) => (RZ = j), (e) => { rzErr = String(e.message || e); rzLoad = null; throw e; }));
-  const рф = { ст: 'нет', кто: -1, q: '', показ: 60 };
+  const рф = { раздел: 'свод', ст: 'нет', кто: -1, q: '', показ: 60 };
+  // иконки кнопок вместо системных эмодзи (26.10, владелец): записи в Jarvis — лист со строками, чат — облачко
+  const ИК_J = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="17" rx="3"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/></svg>';
+  const ИК_C = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8 8 0 0 1-11.7 7.1L4 19.8l1.2-4.3a8 8 0 1 1 15.3-3.9z"/><path d="M8.6 11.8h.01M12.2 11.8h.01M15.8 11.8h.01"/></svg>';
   const РСТ = { 'нет': ['нет в Jarvis', 'rz-bad'], 'др': ['на другом', 'rz-wr'], 'незн': ['не проверено', ''] };
   const рЯчейки = (o, f) => ['pp', 'j', 'нет', 'др', 'незн'].map((k) => `<div class="r ${k === 'нет' ? 'rz-bad' : k === 'др' ? 'rz-wr' : ''}">${f(o[k])}</div>`).join('');
   function рРисовать() {
@@ -521,41 +524,45 @@
       const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
       return `<div class="pl"><div class="id">${esc(t)}<small>${esc(RZ.e[ei])} · ${esc(RZ.bn[bi])}</small></div>
         <div class="v">${usd2(сумма)}<small>${esc(вид)}${дубль ? ' · возможный дубль' : ''}</small></div><div class="v">${esc(когда)}<small>МСК</small></div>
-        <div class="v ${РСТ[ст][1]}">${esc(РСТ[ст][0])}<small>${ст === 'др' && наКого ? 'внесено: ' + esc(наКого) : ст === 'незн' ? (безКарт ? 'станция не проверяла' : 'Jarvis не ответил') : 'в Jarvis'}</small></div>
-        <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">📋 Jarvis</a><a class="lnk${чат ? '' : ' off'}" ${чат ? `href="${чат}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}>💬 Chatterfy</a></div></div>`;
+        <div class="v ${РСТ[ст][1]}">${esc(РСТ[ст][0])}<small>${ст === 'др' && наКого ? 'в Jarvis: ' + esc(наКого) : ст === 'незн' ? (безКарт ? 'ещё не проверяли' : 'Jarvis не ответил') : 'в Jarvis'}</small></div>
+        <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">${ИК_J}Jarvis</a>${чат ? `<a class="lnk" href="${чат}" target="_blank" rel="noopener">${ИК_C}Chatterfy</a>` : `<span class="lnk off" aria-disabled="true">${ИК_C}${ch ? 'бот не найден' : 'чат не найден'}</span>`}</div></div>`;
     };
     const кто = рф.кто >= 0 ? RZ.e[рф.кто] : '';
-    box.innerHTML = `<div class="tiles">${плитка('', 'pp', 'Депозитов в ПП')}${плитка('ok', 'j', 'Есть в Jarvis')}${плитка('rz-bad', 'нет', 'Нет в Jarvis')}${плитка('rz-wr', 'др', 'На другом сотруднике')}${плитка('', 'незн', 'Не проверено')}
+    const всего = (ст) => RZ.ev.filter((x) => x[7] === ст).length;
+    const верх = `<div class="rz-top"><div class="tb-seg">${[['свод', 'Сводка'], ['сотр', 'По сотрудникам <b>' + ru(RZ['сотр'].length) + '</b>'], ['деп', 'Депозиты не в Jarvis <b>' + ru(всего('нет')) + '</b>']]
+      .map(([v, t]) => `<button type="button" class="${рф.раздел === v ? 'on' : ''}" data-rz-r="${v}">${t}</button>`).join('')}</div>
+      <span class="pill">обновлено ${esc(String(RZ.upd).slice(0, 16).replace('T', ' '))} UTC</span></div>`;
+    const свод = `<div class="tiles">${плитка('', 'pp', 'Депозитов в ПП')}${плитка('ok', 'j', 'Есть в Jarvis')}${плитка('rz-bad', 'нет', 'Нет в Jarvis')}${плитка('rz-wr', 'др', 'На другом сотруднике')}${плитка('', 'незн', 'Не проверено')}
         <div class="tile bl"><b>${pp ? ru(pp.dep) : '—'}</b><span>Партнёрка напрямую (API)</span><small>${pp ? usd2(pp.dep_sum) + (pp.dep === сум('pp')[0] ? ' · совпадает с ПП' : ' · с ПП расходится на ' + ru(Math.abs(pp.dep - сум('pp')[0])) + ' шт и ' + usd2(Math.abs(pp.dep_sum - сум('pp')[1])) + ': часть постбэков партнёрка не прислала, часть прислала дважды') : 'не ответила при обновлении'}</small></div></div>
-      <div class="card rz-leg">
-        <p><b>ПП</b> — все депозиты, о которых партнёрка прислала постбэк, по её дням. С API партнёрки (плитка «Партнёрка напрямую») совпадает почти целиком; небольшая разница — постбэки, которые партнёрка не прислала или прислала дважды.</p>
-        <p><b class="rz-bad">Нет в Jarvis</b> — депозит есть в партнёрке, а в Jarvis его нет ни у кого. Сотрудник его не внёс — это и есть потеря.</p>
-        <p><b class="rz-wr">На другом</b> — депозит в Jarvis есть, но записан на другого сотрудника (видно, на кого). Зарплата уйдёт не тому.</p>
-        <p><b>Не проверено</b> — станция ещё не сверила этот депозит с Jarvis или не смогла (Jarvis не ответил). Это не потеря, а «не знаем».</p>
-        <p><b>Сотрудник не определён</b> — система не нашла, чей это игрок: чата с ним не нашлось или на чате нет тега сотрудника. Такие депозиты никто не вносит — их надо разобрать вручную.</p>
-        <p><b>Как проверять</b> — кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата), бывают ложные «нет» — смотрите глазами.</p>
-      </div>
       <div class="card"><div class="check rz-cmp"><div class="h">Показатель</div><div class="h r">ПП</div><div class="h r">Есть в Jarvis</div><div class="h r">Нет в Jarvis</div><div class="h r">На другом</div><div class="h r">Не проверено</div>
         <div>Первые депозиты</div>${рЯчейки(И.FD, (v) => ru(v[0]))}<div>Первые депозиты, $</div>${рЯчейки(И.FD, (v) => usd2(v[1]))}
         <div>Повторные депозиты</div>${рЯчейки(И.RD, (v) => ru(v[0]))}<div>Повторные депозиты, $</div>${рЯчейки(И.RD, (v) => usd2(v[1]))}</div></div>
-      <h3 class="sub">По сотрудникам</h3>
-      <div class="rows rz-rows"><div class="row hd"><div>Сотрудник</div><div class="v">В ПП</div><div class="v">Есть</div><div class="v">Нет, шт</div><div class="v">Нет</div><div class="v">На другом</div><div class="v">Не проверено</div></div>
-        ${RZ['сотр'].map((r) => `<button type="button" class="row${рф.кто === r[0] ? ' on' : ''}" data-rz-e="${r[0]}"><div class="nm">${esc(RZ.e[r[0]])}<small>депозитов в ПП: ${ru(r[1][0])}</small></div>
-          <div class="v" data-l="В ПП">${usd2(r[1][1])}</div><div class="v" data-l="Есть">${usd2(r[2][1])}</div><div class="v rz-bad" data-l="Нет, шт">${ru(r[3][0])}</div><div class="v rz-bad" data-l="Нет">${usd2(r[3][1])}</div><div class="v rz-wr" data-l="На другом">${usd2(r[4][1])}</div><div class="v" data-l="Не проверено">${usd2(r[5][1])}</div></button>`).join('')}</div>
-      <h3 class="sub">Депозиты, которых нет в Jarvis${кто ? ' · ' + esc(кто) : ''}</h3>
-      <div class="bar"><span class="conv">${чип('нет', 'нет в Jarvis')}${чип('др', 'на другом')}${чип('незн', 'не проверено')}${чип('все', 'все')}${кто ? `<button type="button" class="pill on" data-rz-e="-1">✕ ${esc(кто)}</button>` : ''}</span>${поиск('#rz-x', 'ID, сотрудник или бот')}</div>
+      <div class="card rz-leg">
+        <p><b>ПП</b> — все депозиты, о которых партнёрка прислала постбэк, по её дням. С API партнёрки (плитка «Партнёрка напрямую») совпадает почти целиком; небольшая разница — постбэки, которые партнёрка не прислала или прислала дважды.</p>
+        <p><b class="rz-bad">Нет в Jarvis</b> — депозит есть в партнёрке, а в Jarvis его нет ни у одного сотрудника: его не внесли. Сверка повторяется каждые сутки — если депозит внесут позже, он сам перейдёт в «есть».</p>
+        <p><b class="rz-wr">На другом</b> — в Chatterfy игрок закреплён за одним сотрудником (тег на чате), а в Jarvis этот депозит записан на другого. В списке видно оба имени: кто у нас и кто в Jarvis.</p>
+        <p><b>Не проверено</b> — станция ещё не сверила этот депозит с Jarvis или Jarvis не ответил. С 26.10 такие депозиты перепроверяются каждые сутки (раньше проверка шла только 3 дня и бросала), поэтому это число будет уменьшаться.</p>
+        <p><b>Сотрудник не определён</b> — система не нашла, чей это игрок: чата с ним не нашлось или на чате нет тега сотрудника. Такие депозиты никто не вносит — их надо разобрать вручную.</p>
+        <p><b>Как проверять</b> — кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата), бывают ошибки — смотрите глазами.</p>
+      </div>`;
+    const сотрудники = `<div class="rows rz-rows"><div class="row hd"><div>Сотрудник</div><div class="v">В ПП</div><div class="v">Есть</div><div class="v">Нет, шт</div><div class="v">Нет</div><div class="v">На другом</div><div class="v">Не проверено</div></div>
+        ${RZ['сотр'].map((r) => `<button type="button" class="row" data-rz-e="${r[0]}"><div class="nm">${esc(RZ.e[r[0]])}<small>депозитов в ПП: ${ru(r[1][0])} · нажмите — его депозиты</small></div>
+          <div class="v" data-l="В ПП">${usd2(r[1][1])}</div><div class="v" data-l="Есть">${usd2(r[2][1])}</div><div class="v rz-bad" data-l="Нет, шт">${ru(r[3][0])}</div><div class="v rz-bad" data-l="Нет">${usd2(r[3][1])}</div><div class="v rz-wr" data-l="На другом">${usd2(r[4][1])}</div><div class="v" data-l="Не проверено">${usd2(r[5][1])}</div></button>`).join('')}</div>`;
+    const депозиты = `<div class="bar"><span class="conv">${чип('нет', 'нет в Jarvis')}${чип('др', 'на другом')}${чип('незн', 'не проверено')}${чип('все', 'все')}${кто ? `<button type="button" class="pill on" data-rz-e="-1">✕ ${esc(кто)}</button>` : ''}</span>${поиск('#rz-x', 'ID, сотрудник или бот')}</div>
       <div class="rows">${ev.slice(0, рф.показ).map(строка).join('') || '<p class="lead">Таких депозитов нет.</p>'}</div>
-      ${ev.length > рф.показ ? `<button type="button" class="btn more" data-rz-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, ev.length - рф.показ))} из ${ru(ev.length - рф.показ)}</button>` : ''}
-      <p class="note">Период ${esc(дм(RZ['от']))}–${esc(дм(RZ['до']))} по дням партнёрки. Обновляется каждый час, последнее — ${esc(String(RZ.upd).slice(0, 16).replace('T', ' '))} UTC.</p>`;
+      ${ev.length > рф.показ ? `<button type="button" class="btn more" data-rz-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, ev.length - рф.показ))} из ${ru(ev.length - рф.показ)}</button>` : ''}`;
+    box.innerHTML = верх + (рф.раздел === 'сотр' ? сотрудники : рф.раздел === 'деп' ? депозиты : свод)
+      + `<p class="note">Период ${esc(дм(RZ['от']))}–${esc(дм(RZ['до']))} по дням партнёрки. Обновляется каждый час.</p>`;
     const inp = box.querySelector('.sx input'); if (inp) { inp.value = рф.q; if (рф.q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(рф.q.length, рф.q.length); }
       inp.addEventListener('input', () => { рф.q = inp.value.trim().toLowerCase(); рф.показ = ПОКАЗ; рРисовать(); }); }
   }
   document.addEventListener('click', (e) => {
     if (вид !== 'rashozhdeniya' || !RZ) return;
-    const el = e.target.closest && e.target.closest('#rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more]'); if (!el) return;
+    const el = e.target.closest && e.target.closest('#rz-app [data-rz-r], #rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more]'); if (!el) return;
     const d = el.dataset;
+    if (d.rzR) { рф.раздел = d.rzR; рф.показ = ПОКАЗ; рРисовать(); scrollTo({ top: Math.min(scrollY, $('#rz-app').offsetTop - 110), behavior: 'smooth' }); return; }
     if (d.rzSt) рф.ст = d.rzSt;
-    else if (d.rzE !== undefined) { const n = Number(d.rzE); рф.кто = (n === рф.кто || n < 0) ? -1 : n; }
+    else if (d.rzE !== undefined) { const n = Number(d.rzE); рф.кто = (n === рф.кто || n < 0) ? -1 : n; if (рф.кто >= 0) { рф.раздел = 'деп'; рф.ст = 'все'; } }
     else if (d.rzMore) { рф.показ += ПОКАЗ; рРисовать(); return; }
     рф.показ = ПОКАЗ; рРисовать();
   });
