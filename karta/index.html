@@ -140,11 +140,11 @@ a.card{cursor:pointer}
 #bz>.card::after{border-radius:inherit}
 #bz>.card.is-open{z-index:6}
 .more{position:relative;justify-self:start}
-.more-btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--ln2);background:transparent;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;
+.more-btn,.srv-btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--ln2);background:transparent;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;
   transition:background-color .25s var(--ez),border-color .25s var(--ez),color .2s,box-shadow .25s var(--ez)}
-.more-btn:hover,.more-btn[aria-expanded="true"]{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
-.more-btn svg{width:14px;height:14px;transition:transform .3s var(--ez)}
-.more-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.more-btn:hover,.more-btn[aria-expanded="true"],.srv-btn:hover,.srv-btn[aria-expanded="true"]{color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 12%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--or) 10%,transparent)}
+.more-btn svg,.srv-btn svg{width:14px;height:14px;transition:transform .3s var(--ez)}
+.more-btn[aria-expanded="true"] svg,.srv-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
 .more-pop{position:absolute;left:0;top:calc(100% + 8px);width:min(340px,calc(100vw - 48px));z-index:7;padding:16px 18px;border-radius:16px;border:1px solid var(--ln2);background:var(--glass);
   -webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);box-shadow:0 18px 50px -12px rgba(0,0,0,.45);
   opacity:0;transform:translateY(-6px) scale(.98);transform-origin:20px 0;visibility:hidden;transition:opacity .25s ease-out,transform .3s var(--ez),visibility 0s .3s}
@@ -511,7 +511,7 @@ main.pg-in{animation:vtIn .5s var(--ez) both}
         d.append(el('dt', null, k), dd); dl.append(d);
       }
       const det = el('div', 'srv-det'); det.append(dl);
-      const btn = el('button', 'more-btn'); btn.type = 'button'; btn.dataset.srv = ''; btn.setAttribute('aria-expanded', 'false'); btn.style.justifySelf = 'start';
+      const btn = el('button', 'srv-btn'); btn.type = 'button'; btn.dataset.srv = '';   // свой класс: .more-btn закрывает общий обработчик «Подробнее» у баз btn.setAttribute('aria-expanded', 'false'); btn.style.justifySelf = 'start';
       btn.innerHTML = 'Подробнее <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
       c.append(btn, det); $('#srv').append(c);
     }
