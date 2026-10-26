@@ -20,8 +20,8 @@
  {
   "service": "Cloudflare, тариф Workers Paid",
   "last_month": 5,
-  "after": 0,
-  "note": "уходим с Cloudflare полностью (решение 23.10)"
+  "after": 5,
+  "note": "пока на Cloudflare приложение Камиля (ему нужен платный тариф), Omnix и сайты Тони; после их переноса — 0"
  },
  {
   "service": "Cloudflare, перерасход базы склада",
@@ -33,7 +33,7 @@
   "service": "Railway (3 проекта)",
   "last_month": null,
   "after": 0,
-  "note": "сайт ОКК переехал, Railway ОКК выключен 25.10; пустые miniapp и po-backend удалены 25.10; суммы — в вашем кабинете"
+  "note": "ОКК удалён 26.10, miniapp и po-backend удалены 25.10; остались «Окошко» и «Учёт трейдеров» (пока не трогаем); суммы — в вашем кабинете"
  },
  {
   "service": "Supabase (2 проекта)",
@@ -45,6 +45,6 @@
   "service": "Vercel",
   "last_month": 0,
   "after": 0,
-  "note": "бесплатный тариф"
+  "note": "бесплатный тариф; VOLTBET и Tide удалены 26.10"
  }
 ]

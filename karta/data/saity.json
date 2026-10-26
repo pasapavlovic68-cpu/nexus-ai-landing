@@ -74,18 +74,18 @@
  {
   "id": "kangs",
   "name": "Сайт юриста KANGS",
-  "url": "https://kangs-concept.fxc55bg8rd.workers.dev/",
-  "group": "temp",
+  "url": "https://kangs.nexusnova.app/",
+  "group": "domain",
   "access": "всем",
-  "what": "Концепт сайта юридической фирмы. Образец стиля для наших сайтов."
+  "what": "Концепт сайта юридической фирмы. Образец стиля для наших сайтов. С 26.10 на нашем сервере."
  },
  {
   "id": "g63",
   "name": "Конкурс «Гонка за G 63»",
-  "url": "https://mercedes-g63.fxc55bg8rd.workers.dev/",
-  "group": "temp",
+  "url": "https://g63.nexusnova.app/",
+  "group": "domain",
   "access": "всем",
-  "what": "Конкурс для лидов: гонка за G 63 Brabus 900. Старый адрес конкурса BMW удалён 25.10."
+  "what": "Конкурс для лидов: гонка за G 63 Brabus 900. С 26.10 на нашем сервере; старая ссылка на Cloudflare переводит сюда — по ней ещё заходят участники."
  },
  {
   "id": "tony",
@@ -106,10 +106,10 @@
  {
   "id": "verdikt",
   "name": "Вердикт",
-  "url": "https://verdikt.fxc55bg8rd.workers.dev/",
-  "group": "temp",
+  "url": "https://verdikt.nexusnova.app/",
+  "group": "domain",
   "access": "всем",
-  "what": "Отзывы о трейдерах."
+  "what": "Отзывы о трейдерах. С 26.10 на нашем сервере."
  },
  {
   "id": "zhurnal",
@@ -157,7 +157,7 @@
   "url": "https://voltbet.nexusnova.app/",
   "group": "temp",
   "access": "всем",
-  "what": "Демо: казино и рынок событий в Telegram. С 26.10 на нашем сервере (раньше Vercel)."
+  "what": "Демо: казино и рынок событий в Telegram. С 26.10 на нашем сервере; не используется (слово владельца), копия с Vercel удалена."
  },
  {
   "id": "tide",
@@ -165,6 +165,6 @@
   "url": "https://tide.nexusnova.app/",
   "group": "temp",
   "access": "всем",
-  "what": "Демо: приложение учёта денег. С 26.10 на нашем сервере (раньше Vercel)."
+  "what": "Демо: приложение учёта денег. С 26.10 на нашем сервере; не используется (слово владельца), копия с Vercel удалена."
  }
 ]
