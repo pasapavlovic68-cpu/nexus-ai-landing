@@ -1,0 +1,21 @@
+{
+  "name": "Nexus · Статистика",
+  "short_name": "Статистика",
+  "start_url": "/stats/",
+  "scope": "/stats/",
+  "display": "standalone",
+  "background_color": "#12100E",
+  "theme_color": "#12100E",
+  "icons": [
+    {
+      "src": "/assets/stats/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/stats/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Nexus · Базы",
+  "short_name": "Базы",
+  "start_url": "/karta/bazy/",
+  "scope": "/karta/bazy/",
+  "display": "standalone",
+  "background_color": "#12100E",
+  "theme_color": "#12100E",
+  "icons": [
+    {
+      "src": "/assets/bazy/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/bazy/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
