@@ -150,7 +150,26 @@ a.row:hover{transform:translateY(-1px)}
 .row.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent)}
 /* шапка таблицы «По сотрудникам» на «Расхождениях» — без прилипания (прилипшая ложилась под меню острым прямоугольником и
    срезала заголовок над собой), с отступом от заголовка */
-#rz-app{display:grid;gap:22px}.rz-ctl .rz-sbros{margin-left:auto}/* фильтры «Расхождений» — та же панель, что на вкладке «Таблица» (.tb-ctl/.tb-r/.tb-dd) *//* блоки вкладки — с тем же зазором, что у .view на других вкладках (26.10, «слиплось») */
+#rz-app{display:grid;gap:22px}.rz-ctl .rz-sbros{margin-left:auto}
+/* календарь периода «Расхождений» — значения как у .cal-* (календарь «Когорты»), свои классы: у того свои общие щелчки */
+.tb-pop.rz-calp{gap:12px;padding:16px;border-radius:22px}
+.rz-ps{display:flex;gap:6px;flex-wrap:wrap}
+.rz-p{padding:6px 10px;border-radius:12px;border:1px solid var(--ln2);background:var(--card);font-size:12.5px;color:var(--tx1);cursor:pointer;transition:background-color .25s var(--ez),border-color .25s var(--ez),color .2s}
+.rz-p:hover{border-color:color-mix(in srgb,var(--or2) 60%,transparent);background:color-mix(in srgb,var(--or) 10%,transparent);color:var(--tx)}
+.rz-p.on{border-color:color-mix(in srgb,var(--or2) 70%,transparent);background:color-mix(in srgb,var(--or) 16%,transparent);color:var(--tx)}
+.rz-mh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rz-m{font-family:var(--fm);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--or2)}
+.rz-nav{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;border:1px solid var(--ln2);background:transparent;color:var(--tx2);cursor:pointer;transition:background-color .2s,border-color .2s,color .2s}
+.rz-nav svg{width:15px;height:15px}.rz-nav.rz-nx svg{transform:scaleX(-1)}
+.rz-nav:hover:not(:disabled){color:var(--tx);border-color:color-mix(in srgb,var(--or2) 60%,transparent)}.rz-nav:disabled{opacity:.3;cursor:default}
+.rz-g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.rz-wd{font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);text-align:center;padding-bottom:2px}
+.rz-d{height:36px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--tx1);font:500 13.5px var(--ff);font-variant-numeric:tabular-nums;cursor:pointer;transition:background-color .2s var(--ez),border-color .2s var(--ez),color .2s}
+.rz-d:hover:not(:disabled){border-color:color-mix(in srgb,var(--or2) 60%,transparent);color:var(--tx)}
+.rz-d.in{background:color-mix(in srgb,var(--or) 13%,transparent);color:var(--tx)}
+.rz-d.edge{background:linear-gradient(145deg,var(--or2),var(--or));color:#fff}
+.rz-d:disabled{color:var(--tx3);opacity:.35;cursor:default}
+.rz-h{margin:0;font-size:12px;color:var(--tx3)}/* фильтры «Расхождений» — та же панель, что на вкладке «Таблица» (.tb-ctl/.tb-r/.tb-dd) *//* блоки вкладки — с тем же зазором, что у .view на других вкладках (26.10, «слиплось») */
 .rz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 6px}.rz-top .tb-seg{flex-wrap:wrap}
 .lnk svg{width:15px;height:15px;flex:none}
 .pl .id small.rz-pl{font-family:var(--fm);font-size:11px;color:var(--tx2)}.pl .id small.rz-pl.rz-bad{color:var(--bad)}.pl .id small+small.rz-pl{margin-top:3px}.pl .id small.rz-pl+small.rz-pl{margin-top:0}

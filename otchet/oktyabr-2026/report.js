@@ -498,30 +498,57 @@
   let RZ = null, rzLoad = null, rzErr = '';
   const данныеР = () => rzLoad || (rzLoad = fetch('../oktyabr-2026-rashozhdeniya/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then((j) => (RZ = j), (e) => { rzErr = String(e.message || e); rzLoad = null; throw e; }));
-  const рф = { раздел: 'свод', ст: 'нет', кто: -1, q: '', показ: 60, мес: '', вид: 'все', бот: -1, пп: '', ппq: '' };
-  /* ФИЛЬТРЫ (26.10, владелец: «детализировать по месяцам, сотрудникам и т.д., всё кастомное»): месяц, сотрудник, бот,
+  const рф = { раздел: 'свод', ст: 'нет', кто: -1, q: '', показ: 60, от: '', до: '', пик: '', калМ: '', вид: 'все', бот: -1, пп: '', ппq: '' };
+  /* ФИЛЬТРЫ (26.10, владелец: «детализировать по месяцам, сотрудникам и т.д., всё кастомное»): период (свой календарь:
+     первый щелчок — начало, второй — конец; быстрые кнопки — месяцы, «всё время», «7 дней»), сотрудник, бот,
      первые/повторные. Итоги и строки сотрудников пересчитываются из RZ.все — по строке на каждый депозит
      [день от RZ.от, 0 FD / 1 RD, сотрудник, состояние (номер в RZ.сост), сумма, бот]. Нет RZ.все (старые данные) — без фильтров. */
   const МЕС_ИМ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
   const месИмя = (м) => МЕС_ИМ[Number(м.slice(5, 7)) - 1] + ' ' + м.slice(0, 4);
-  const рМесяцы = () => { if (!RZ['все']) return []; if (!RZ._мес) { const от = Date.parse(RZ['от'] + 'T00:00:00Z'); RZ._мес = RZ['все'].map((x) => new Date(от + x[0] * 86400e3).toISOString().slice(0, 7)); } return [...new Set(RZ._мес)].sort(); };
-  const рМес = () => { const все = рМесяцы(); if (!рф.мес || (рф.мес !== 'все' && !все.includes(рф.мес))) рф.мес = все[все.length - 1] || 'все'; return рф.мес; };
+  // день каждой строки RZ.все (ISO) — один раз; месяцы окна — для быстрых кнопок и листания календаря
+  const рДни = () => { if (!RZ._день) { const от = Date.parse(RZ['от'] + 'T00:00:00Z'); RZ._день = RZ['все'].map((x) => new Date(от + x[0] * 86400e3).toISOString().slice(0, 10)); } return RZ._день; };
+  const рМесяцы = () => { if (!RZ['все']) return []; const м = []; for (let d = RZ['от'].slice(0, 7); d <= RZ['до'].slice(0, 7); d = сдвиг(d + '-01', 32).slice(0, 7)) м.push(d); return м; };
+  const конецМес = (м) => { const d = new Date(Date.UTC(+м.slice(0, 4), +м.slice(5, 7), 0)).toISOString().slice(0, 10); return d < RZ['до'] ? d : RZ['до']; };
+  const началоМес = (м) => (м + '-01' > RZ['от'] ? м + '-01' : RZ['от']);
+  // период по умолчанию — последний месяц окна (как было: октябрь)
+  const рПериод = () => { if (!RZ['все']) return [RZ['от'], RZ['до']]; if (!рф.от || !рф.до) { const м = рМесяцы().slice(-1)[0]; рф.от = началоМес(м); рф.до = конецМес(м); } return [рф.от, рф.до]; };
+  const периодПоУмолч = () => { const м = рМесяцы().slice(-1)[0]; return рф.от === началоМес(м) && рф.до === конецМес(м); };
   // строка RZ.все (i — её номер) и строка списка ev — под текущим фильтром; без — пропустить такое поле фильтра
-  const годенВ = (x, i, без = '') => (без === 'мес' || рф.мес === 'все' || RZ._мес[i] === рф.мес) && (без === 'вид' || рф.вид === 'все' || x[1] === (рф.вид === 'FD' ? 0 : 1))
+  const годенВ = (x, i, без = '') => (без === 'пер' || (RZ._день[i] >= рф.от && RZ._день[i] <= рф.до)) && (без === 'вид' || рф.вид === 'все' || x[1] === (рф.вид === 'FD' ? 0 : 1))
     && (без === 'кто' || рф.кто < 0 || x[2] === рф.кто) && (без === 'бот' || рф.бот < 0 || x[5] === рф.бот);
-  const годенE = (x) => !RZ['все'] || ((рф.мес === 'все' || String(x[9]).slice(0, 7) === рф.мес) && (рф.вид === 'все' || x[4] === рф.вид) && (рф.бот < 0 || x[2] === рф.бот));
+  const годенE = (x) => !RZ['все'] || ((x[9] >= рф.от && x[9] <= рф.до) && (рф.вид === 'все' || x[4] === рф.вид) && (рф.бот < 0 || x[2] === рф.бот));
   const ИК_Q = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+  // календарь периода: свой (у «Когорты» — свой, на её даты и её общие щелчки), значения оформления — из .cal-*
+  function рКалендарь() {
+    const мес = рМесяцы(), м = рф.калМ && мес.includes(рф.калМ) ? рф.калМ : (рф.пик || рф.до).slice(0, 7), i = мес.indexOf(м);
+    const сдв = (new Date(м + '-01T00:00:00Z').getUTCDay() + 6) % 7, дней = new Date(Date.UTC(+м.slice(0, 4), +м.slice(5, 7), 0)).getUTCDate();
+    let кл = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((x) => `<span class="rz-wd">${x}</span>`).join('') + '<span></span>'.repeat(сдв);
+    for (let k = 1; k <= дней; k++) {
+      const d = м + '-' + String(k).padStart(2, '0'), нет = d < RZ['от'] || d > RZ['до'];
+      const вн = !рф.пик && d >= рф.от && d <= рф.до, край = рф.пик ? d === рф.пик : (d === рф.от || d === рф.до);
+      кл += `<button type="button" class="rz-d${вн ? ' in' : ''}${край ? ' edge' : ''}" data-rz-day="${d}"${нет ? ' disabled' : ''}>${k}</button>`;
+    }
+    const пр = (t, a, b) => `<button type="button" class="rz-p${!рф.пик && рф.от === a && рф.до === b ? ' on' : ''}" data-rz-pre="${a}|${b}">${t}</button>`;
+    const неделя = сдвиг(RZ['до'], -6) > RZ['от'] ? сдвиг(RZ['до'], -6) : RZ['от'];
+    const ст = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>';
+    return `<div class="rz-ps">${мес.map((x) => пр(месИмя(x).split(' ')[0], началоМес(x), конецМес(x))).join('')}${пр('Всё время', RZ['от'], RZ['до'])}${пр('7 дней', неделя, RZ['до'])}</div>
+      <div class="rz-mh"><button type="button" class="rz-nav" data-rz-mon="${мес[i - 1] || ''}"${i <= 0 ? ' disabled' : ''} aria-label="Прошлый месяц">${ст}</button><span class="rz-m">${esc(месИмя(м))}</span><button type="button" class="rz-nav rz-nx" data-rz-mon="${мес[i + 1] || ''}"${i >= мес.length - 1 ? ' disabled' : ''} aria-label="Следующий месяц">${ст}</button></div>
+      <div class="rz-g">${кл}</div><p class="rz-h">${рф.пик ? 'Выберите последний день' : 'Нажмите первый день, затем последний'}</p>`;
+  }
   function рФильтры() {
     if (!RZ['все']) return '';
-    const мес = рМес(), счёт = (без, ключ) => { const m = new Map(); RZ['все'].forEach((x, i) => { if (!годенВ(x, i, без)) return; const k = ключ(x, i); m.set(k, (m.get(k) || 0) + 1); }); return m; };
+    рПериод(); рДни();
+    const счёт = (без, ключ) => { const m = new Map(); RZ['все'].forEach((x, i) => { if (!годенВ(x, i, без)) return; const k = ключ(x, i); m.set(k, (m.get(k) || 0) + 1); }); return m; };
     const дд = (имя, ярлык, знач, тело, n, set) => `<div class="tb-dw"><button type="button" class="tb-dd${рф.пп === имя ? ' open' : ''}${set ? ' set' : ''}" data-rz-dd="${имя}"><span>${ярлык}</span><b>${esc(знач)}</b>${ШЕВ}</button>
       <div class="tb-pop${рф.пп === имя ? ' open' : ''}">${n > 8 ? `<label class="tb-q">${ИК_Q}<input type="text" placeholder="Найти" autocomplete="off" value="${esc(рф.пп === имя ? рф.ппq : '')}"></label>` : ''}<div class="tb-list">${тело}</div></div></div>`;
-    const список = (k, все, m, имя) => пункт(все, рф[k] === (k === 'мес' ? 'все' : -1), `data-rz-f="${k}" data-v="${k === 'мес' ? 'все' : -1}"`, null, ' all')
-      + [...m].sort((a, b) => (k === 'мес' ? (a[0] < b[0] ? -1 : 1) : b[1] - a[1])).map(([v, n]) => пункт(имя(v), рф[k] === v, `data-rz-f="${k}" data-v="${esc(v)}"`, n)).join('');
-    const mМ = счёт('мес', (x, i) => RZ._мес[i]), mК = счёт('кто', (x) => x[2]), mБ = счёт('бот', (x) => x[5]);
-    const изм = (мес !== рМесяцы().slice(-1)[0]) || рф.вид !== 'все' || рф.кто >= 0 || рф.бот >= 0;
+    const список = (k, все, m, имя) => пункт(все, рф[k] === -1, `data-rz-f="${k}" data-v="-1"`, null, ' all')
+      + [...m].sort((a, b) => b[1] - a[1]).map(([v, n]) => пункт(имя(v), рф[k] === v, `data-rz-f="${k}" data-v="${esc(v)}"`, n)).join('');
+    const mК = счёт('кто', (x) => x[2]), mБ = счёт('бот', (x) => x[5]);
+    const изм = !периодПоУмолч() || рф.вид !== 'все' || рф.кто >= 0 || рф.бот >= 0;
+    const подпись = рф.от === рф.до ? дм(рф.от) : дм(рф.от) + ' — ' + дм(рф.до);
     return `<div class="tb-ctl rz-ctl"><div class="tb-r">
-      ${дд('мес', 'Месяц', мес === 'все' ? 'все' : месИмя(мес), список('мес', 'Все месяцы', mМ, месИмя), mМ.size, мес !== рМесяцы().slice(-1)[0])}
+      <div class="tb-dw"><button type="button" class="tb-dd${рф.пп === 'пер' ? ' open' : ''}${периодПоУмолч() ? '' : ' set'}" data-rz-dd="пер"><span>Период</span><b>${esc(подпись)}</b>${ШЕВ}</button>
+        <div class="tb-pop rz-calp${рф.пп === 'пер' ? ' open' : ''}">${рКалендарь()}</div></div>
       ${дд('кто', 'Сотрудник', рф.кто < 0 ? 'все' : RZ.e[рф.кто], список('кто', 'Все сотрудники', mК, (v) => RZ.e[v]), mК.size, рф.кто >= 0)}
       ${дд('бот', 'Бот', рф.бот < 0 ? 'все' : RZ.bn[рф.бот], список('бот', 'Все боты', mБ, (v) => RZ.bn[v]), mБ.size, рф.бот >= 0)}
       <div class="tb-seg">${[['все', 'Все депозиты'], ['FD', 'Первые'], ['RD', 'Повторные']].map(([v, t]) => `<button type="button" class="${рф.вид === v ? 'on' : ''}" data-rz-f="вид" data-v="${v}">${t}</button>`).join('')}</div>
@@ -538,7 +565,7 @@
       данныеР().then(рРисовать, () => { const b = $('#rz-app'); if (b) b.innerHTML = '<div class="err">Расхождения не загрузились (' + esc(rzErr) + '). Это не «расхождений нет» — обновите страницу.</div>'; });
       return;
     }
-    рМес();
+    if (RZ['все']) { рПериод(); рДни(); }
     let И = RZ['итог'], СОТР = RZ['сотр'];
     if (RZ['все']) {   // итоги и строки сотрудников — под фильтр
       const пусто = () => ({ pp: [0, 0], j: [0, 0], 'нет': [0, 0], 'др': [0, 0], 'незн': [0, 0] });
@@ -557,14 +584,14 @@
     const плитка = (cls, v, подпись, низ) => `<div class="tile ${cls}"><b>${ru(v[0])}</b><span>${подпись}</span><small>${usd2(v[1])}${низ ? ' · ' + низ : ''}</small></div>`;
     const pp = RZ.pp;
     // сверка с API партнёрки — только за её месяц и без других фильтров (иначе сравнивать не с чем)
-    const ppВидна = !RZ['все'] || !RZ.ppОт || (рф.мес === RZ.ppОт.slice(0, 7) && рф.вид === 'все' && рф.кто < 0 && рф.бот < 0);
+    const ppВидна = !RZ['все'] || !RZ.ppОт || (рф.от === RZ.ppОт && рф.до === (RZ.ppДо < RZ['до'] ? RZ.ppДо : RZ['до']) && рф.вид === 'все' && рф.кто < 0 && рф.бот < 0);
     const ev = RZ.ev.filter((x) => годенE(x) && (рф.ст === 'все' || (рф.ст === 'ут' ? x[7] !== 'нет' : x[7] === рф.ст)) && (рф.кто < 0 || x[1] === рф.кто)
       && (!рф.q || (x[0] + ' ' + RZ.e[x[1]] + ' ' + RZ.bn[x[2]]).toLowerCase().includes(рф.q)));
     const мои = (x) => годенE(x) && (рф.кто < 0 || x[1] === рф.кто);
     const счёт = (ст) => RZ.ev.filter((x) => мои(x) && (ст === 'все' || (ст === 'ут' ? x[7] !== 'нет' : x[7] === ст))).length;
     const чип = (ст, текст) => `<button type="button" class="pill${рф.ст === ст ? ' on' : ''}" data-rz-st="${ст}">${рф.ст === ст ? '✓ ' : ''}${текст} <b>${ru(счёт(ст))}</b></button>`;
     const строка = (x) => {
-      const [t, ei, bi, ch, вид, когда, сумма, ст, наКого, , дубль, безКарт] = x, bid = RZ.b[bi];
+      const [t, ei, bi, ch, вид, когда, сумма, ст, наКого, день, дубль, безКарт] = x, bid = RZ.b[bi];
       const чат = bid && ch ? 'https://v2.chatterfy.ai/bots/' + encodeURIComponent(bid) + '/chats?chat=' + encodeURIComponent(ch) : '';
       const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
       const и = (RZ['игр'] || {})[t];   // по игроку за период: [в Pocket Option шт, $, в Jarvis шт, $]
@@ -572,7 +599,7 @@
       const статус = ст === 'нет' ? ['не внесено', 'rz-bad', 'в Jarvis нет ни у кого'] : ст === 'др' ? ['на другом', 'rz-wr', 'в Jarvis: ' + (наКого || '—')]
         : ['не проверено', '', дубль ? 'возможный дубль' : безКарт ? 'станция не видит' : 'проверим в течение суток'];
       return `<div class="pl"><div class="id">${esc(t)}<small>${esc(RZ.e[ei])} · ${esc(RZ.bn[bi])}</small>${поИгр}</div>
-        <div class="v">${usd2(сумма)}<small>${esc(вид)} · этот депозит</small></div><div class="v">${esc(когда)}<small>МСК</small></div>
+        <div class="v">${usd2(сумма)}<small>${esc(вид)} · этот депозит</small></div><div class="v">${esc(когда)}<small>МСК${день && дм(день) !== String(когда).slice(0, 5) ? ' · у Pocket Option ' + дм(день) : ''}</small></div>
         <div class="v ${статус[1]}">${esc(статус[0])}<small>${esc(статус[2])}</small></div>
         <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">${ИК_J}Jarvis</a>${чат ? `<a class="lnk" href="${чат}" target="_blank" rel="noopener">${ИК_C}Chatterfy</a>` : `<span class="lnk off" aria-disabled="true">${ИК_C}${ch ? 'бот не найден' : 'чат не найден'}</span>`}</div></div>`;
     };
@@ -596,8 +623,7 @@
     const депозиты = `<div class="bar"><span class="conv">${чип('нет', 'не внесено')}${чип('ут', 'уточнить')}${чип('все', 'все')}${кто ? `<button type="button" class="pill on" data-rz-e="-1">✕ ${esc(кто)}</button>` : ''}</span>${поиск('#rz-x', 'ID, сотрудник или бот')}</div>
       <div class="rows">${ev.slice(0, рф.показ).map(строка).join('') || '<p class="lead">Таких депозитов нет.</p>'}</div>
       ${ev.length > рф.показ ? `<button type="button" class="btn more" data-rz-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, ev.length - рф.показ))} из ${ru(ev.length - рф.показ)}</button>` : ''}`;
-    const мес = рф.мес, кон = (м) => { const d = new Date(Date.UTC(+м.slice(0, 4), +м.slice(5, 7), 0)).toISOString().slice(0, 10); return d < RZ['до'] ? d : RZ['до']; };
-    const пОт = !RZ['все'] || мес === 'все' ? RZ['от'] : (мес + '-01' > RZ['от'] ? мес + '-01' : RZ['от']), пДо = !RZ['все'] || мес === 'все' ? RZ['до'] : кон(мес);
+    const пОт = !RZ['все'] ? RZ['от'] : рф.от, пДо = !RZ['все'] ? RZ['до'] : рф.до;
     box.innerHTML = верх + рФильтры() + (рф.раздел === 'сотр' ? сотрудники : рф.раздел === 'деп' ? депозиты : свод)
       + `<p class="note">Период ${esc(дм(пОт))}–${esc(дм(пДо))}. Кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата) — перед разбором проверяйте глазами. Обновляется каждый час.</p>`;
     const inp = box.querySelector('.sx input'); if (inp) { inp.value = рф.q; if (рф.q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(рф.q.length, рф.q.length); }
@@ -605,14 +631,18 @@
   }
   document.addEventListener('click', (e) => {
     if (вид !== 'rashozhdeniya' || !RZ) return;
-    if (рф.пп && !(e.target.closest && e.target.closest('#rz-app .tb-dw'))) { рф.пп = ''; рф.ппq = ''; рРисовать(); }   // щелчок мимо списка — закрыть
+    if (рф.пп && !(e.target.closest && e.target.closest('#rz-app .tb-dw'))) { рф.пп = ''; рф.ппq = ''; рф.пик = ''; рф.калМ = ''; рРисовать(); }   // щелчок мимо списка — закрыть
     if (e.target.closest && e.target.closest('#rz-app .tb-q')) return;   // поиск в списке — своим обработчиком
-    const el = e.target.closest && e.target.closest('#rz-app [data-rz-r], #rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more], #rz-app [data-rz-dd], #rz-app [data-rz-f]'); if (!el) return;
+    const el = e.target.closest && e.target.closest('#rz-app [data-rz-r], #rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more], #rz-app [data-rz-dd], #rz-app [data-rz-f], #rz-app [data-rz-day], #rz-app [data-rz-pre], #rz-app [data-rz-mon]'); if (!el) return;
     const d = el.dataset;
-    if (d.rzDd) { рф.пп = рф.пп === d.rzDd ? '' : d.rzDd; рф.ппq = ''; рРисовать(); const inp = рф.пп && $('#rz-app .tb-pop.open .tb-q input'); if (inp) inp.focus(); return; }
+    // календарь периода: первый день, затем последний (можно в обратном порядке); быстрые кнопки; листание месяцев
+    if (d.rzDay) { if (!рф.пик) { рф.пик = d.rzDay; рРисовать(); return; } [рф.от, рф.до] = d.rzDay < рф.пик ? [d.rzDay, рф.пик] : [рф.пик, d.rzDay]; рф.пик = ''; рф.калМ = ''; рф.пп = ''; рф.показ = ПОКАЗ; рРисовать(); return; }
+    if (d.rzPre) { [рф.от, рф.до] = d.rzPre.split('|'); рф.пик = ''; рф.калМ = ''; рф.пп = ''; рф.показ = ПОКАЗ; рРисовать(); return; }
+    if (d.rzMon !== undefined) { if (d.rzMon) { рф.калМ = d.rzMon; рРисовать(); } return; }
+    if (d.rzDd) { рф.пп = рф.пп === d.rzDd ? '' : d.rzDd; рф.ппq = ''; рф.пик = ''; рф.калМ = ''; рРисовать(); const inp = рф.пп && $('#rz-app .tb-pop.open .tb-q input'); if (inp) inp.focus(); return; }
     if (d.rzF) {
-      if (d.rzF === 'сброс') { рф.мес = ''; рф.вид = 'все'; рф.кто = -1; рф.бот = -1; }
-      else if (d.rzF === 'мес' || d.rzF === 'вид') рф[d.rzF] = d.v;
+      if (d.rzF === 'сброс') { рф.от = ''; рф.до = ''; рф.пик = ''; рф.вид = 'все'; рф.кто = -1; рф.бот = -1; }
+      else if (d.rzF === 'вид') рф.вид = d.v;
       else рф[d.rzF] = Number(d.v);
       рф.пп = ''; рф.ппq = ''; рф.показ = ПОКАЗ; рРисовать(); return;
     }
@@ -623,6 +653,13 @@
     рф.показ = ПОКАЗ; рРисовать();
   });
 
+  // после первого дня — промежуток подсвечивается до дня под мышью («протянуть»), без перерисовки
+  document.addEventListener('mouseover', (e) => {
+    if (вид !== 'rashozhdeniya' || !рф.пик) return;
+    const t = e.target.closest && e.target.closest('#rz-app [data-rz-day]'); if (!t) return;
+    const [a, b] = t.dataset.rzDay < рф.пик ? [t.dataset.rzDay, рф.пик] : [рф.пик, t.dataset.rzDay];
+    document.querySelectorAll('#rz-app [data-rz-day]').forEach((x) => x.classList.toggle('in', x.dataset.rzDay >= a && x.dataset.rzDay <= b));
+  });
   // поиск внутри списка фильтра — без перерисовки (фокус остаётся в поле)
   document.addEventListener('input', (e) => {
     const q = e.target.closest && e.target.closest('#rz-app .tb-q'); if (!q) return;
