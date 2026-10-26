@@ -498,7 +498,35 @@
   let RZ = null, rzLoad = null, rzErr = '';
   const данныеР = () => rzLoad || (rzLoad = fetch('../oktyabr-2026-rashozhdeniya/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then((j) => (RZ = j), (e) => { rzErr = String(e.message || e); rzLoad = null; throw e; }));
-  const рф = { раздел: 'свод', ст: 'нет', кто: -1, q: '', показ: 60 };
+  const рф = { раздел: 'свод', ст: 'нет', кто: -1, q: '', показ: 60, мес: '', вид: 'все', бот: -1, пп: '', ппq: '' };
+  /* ФИЛЬТРЫ (26.10, владелец: «детализировать по месяцам, сотрудникам и т.д., всё кастомное»): месяц, сотрудник, бот,
+     первые/повторные. Итоги и строки сотрудников пересчитываются из RZ.все — по строке на каждый депозит
+     [день от RZ.от, 0 FD / 1 RD, сотрудник, состояние (номер в RZ.сост), сумма, бот]. Нет RZ.все (старые данные) — без фильтров. */
+  const МЕС_ИМ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  const месИмя = (м) => МЕС_ИМ[Number(м.slice(5, 7)) - 1] + ' ' + м.slice(0, 4);
+  const рМесяцы = () => { if (!RZ['все']) return []; if (!RZ._мес) { const от = Date.parse(RZ['от'] + 'T00:00:00Z'); RZ._мес = RZ['все'].map((x) => new Date(от + x[0] * 86400e3).toISOString().slice(0, 7)); } return [...new Set(RZ._мес)].sort(); };
+  const рМес = () => { const все = рМесяцы(); if (!рф.мес || (рф.мес !== 'все' && !все.includes(рф.мес))) рф.мес = все[все.length - 1] || 'все'; return рф.мес; };
+  // строка RZ.все (i — её номер) и строка списка ev — под текущим фильтром; без — пропустить такое поле фильтра
+  const годенВ = (x, i, без = '') => (без === 'мес' || рф.мес === 'все' || RZ._мес[i] === рф.мес) && (без === 'вид' || рф.вид === 'все' || x[1] === (рф.вид === 'FD' ? 0 : 1))
+    && (без === 'кто' || рф.кто < 0 || x[2] === рф.кто) && (без === 'бот' || рф.бот < 0 || x[5] === рф.бот);
+  const годенE = (x) => !RZ['все'] || ((рф.мес === 'все' || String(x[9]).slice(0, 7) === рф.мес) && (рф.вид === 'все' || x[4] === рф.вид) && (рф.бот < 0 || x[2] === рф.бот));
+  const ИК_Q = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+  function рФильтры() {
+    if (!RZ['все']) return '';
+    const мес = рМес(), счёт = (без, ключ) => { const m = new Map(); RZ['все'].forEach((x, i) => { if (!годенВ(x, i, без)) return; const k = ключ(x, i); m.set(k, (m.get(k) || 0) + 1); }); return m; };
+    const дд = (имя, ярлык, знач, тело, n, set) => `<div class="tb-dw"><button type="button" class="tb-dd${рф.пп === имя ? ' open' : ''}${set ? ' set' : ''}" data-rz-dd="${имя}"><span>${ярлык}</span><b>${esc(знач)}</b>${ШЕВ}</button>
+      <div class="tb-pop${рф.пп === имя ? ' open' : ''}">${n > 8 ? `<label class="tb-q">${ИК_Q}<input type="text" placeholder="Найти" autocomplete="off" value="${esc(рф.пп === имя ? рф.ппq : '')}"></label>` : ''}<div class="tb-list">${тело}</div></div></div>`;
+    const список = (k, все, m, имя) => пункт(все, рф[k] === (k === 'мес' ? 'все' : -1), `data-rz-f="${k}" data-v="${k === 'мес' ? 'все' : -1}"`, null, ' all')
+      + [...m].sort((a, b) => (k === 'мес' ? (a[0] < b[0] ? -1 : 1) : b[1] - a[1])).map(([v, n]) => пункт(имя(v), рф[k] === v, `data-rz-f="${k}" data-v="${esc(v)}"`, n)).join('');
+    const mМ = счёт('мес', (x, i) => RZ._мес[i]), mК = счёт('кто', (x) => x[2]), mБ = счёт('бот', (x) => x[5]);
+    const изм = (мес !== рМесяцы().slice(-1)[0]) || рф.вид !== 'все' || рф.кто >= 0 || рф.бот >= 0;
+    return `<div class="tb-ctl rz-ctl"><div class="tb-r">
+      ${дд('мес', 'Месяц', мес === 'все' ? 'все' : месИмя(мес), список('мес', 'Все месяцы', mМ, месИмя), mМ.size, мес !== рМесяцы().slice(-1)[0])}
+      ${дд('кто', 'Сотрудник', рф.кто < 0 ? 'все' : RZ.e[рф.кто], список('кто', 'Все сотрудники', mК, (v) => RZ.e[v]), mК.size, рф.кто >= 0)}
+      ${дд('бот', 'Бот', рф.бот < 0 ? 'все' : RZ.bn[рф.бот], список('бот', 'Все боты', mБ, (v) => RZ.bn[v]), mБ.size, рф.бот >= 0)}
+      <div class="tb-seg">${[['все', 'Все депозиты'], ['FD', 'Первые'], ['RD', 'Повторные']].map(([v, t]) => `<button type="button" class="${рф.вид === v ? 'on' : ''}" data-rz-f="вид" data-v="${v}">${t}</button>`).join('')}</div>
+      ${изм ? '<button type="button" class="btn rz-sbros" data-rz-f="сброс" data-v="1">Сбросить</button>' : ''}</div></div>`;
+  }
   // иконки кнопок вместо системных эмодзи (26.10, владелец): записи в Jarvis — лист со строками, чат — облачко
   const ИК_J = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="17" rx="3"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/></svg>';
   const ИК_C = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8 8 0 0 1-11.7 7.1L4 19.8l1.2-4.3a8 8 0 1 1 15.3-3.9z"/><path d="M8.6 11.8h.01M12.2 11.8h.01M15.8 11.8h.01"/></svg>';
@@ -510,7 +538,17 @@
       данныеР().then(рРисовать, () => { const b = $('#rz-app'); if (b) b.innerHTML = '<div class="err">Расхождения не загрузились (' + esc(rzErr) + '). Это не «расхождений нет» — обновите страницу.</div>'; });
       return;
     }
-    const И = RZ['итог'], сум = (k) => [И.FD[k][0] + И.RD[k][0], Math.round((И.FD[k][1] + И.RD[k][1]) * 100) / 100];
+    рМес();
+    let И = RZ['итог'], СОТР = RZ['сотр'];
+    if (RZ['все']) {   // итоги и строки сотрудников — под фильтр
+      const пусто = () => ({ pp: [0, 0], j: [0, 0], 'нет': [0, 0], 'др': [0, 0], 'незн': [0, 0] });
+      const доб = (o, k, v) => { o[k][0]++; o[k][1] = Math.round((o[k][1] + v) * 100) / 100; };
+      И = { FD: пусто(), RD: пусто() }; const m = new Map();
+      RZ['все'].forEach((x, i) => { if (!годенВ(x, i)) return; const вд = x[1] ? 'RD' : 'FD', st = RZ['сост'][x[3]];
+        доб(И[вд], 'pp', x[4]); доб(И[вд], st, x[4]); if (!m.has(x[2])) m.set(x[2], пусто()); const o = m.get(x[2]); доб(o, 'pp', x[4]); доб(o, st, x[4]); });
+      СОТР = [...m].map(([k, o]) => [k, o.pp, o.j, o['нет'], o['др'], o['незн']]).sort((a, b) => b[3][1] - a[3][1] || b[1][1] - a[1][1]);
+    }
+    const сум = (k) => [И.FD[k][0] + И.RD[k][0], Math.round((И.FD[k][1] + И.RD[k][1]) * 100) / 100];
     // «Уточнить» = на другом сотруднике + ещё не проверено (26.10, владелец: «много непонятного» — четыре понятных столбца)
     const сл = (a, b) => [a[0] + b[0], Math.round((a[1] + b[1]) * 100) / 100];
     const ут = (o) => сл(o['др'], o['незн']);
@@ -518,9 +556,11 @@
     const ячейка = (v, cls, л) => `<div class="v ${cls || ''}" data-l="${л}">${шт(v)}<small>${usd2(v[1])}</small></div>`;
     const плитка = (cls, v, подпись, низ) => `<div class="tile ${cls}"><b>${ru(v[0])}</b><span>${подпись}</span><small>${usd2(v[1])}${низ ? ' · ' + низ : ''}</small></div>`;
     const pp = RZ.pp;
-    const ev = RZ.ev.filter((x) => (рф.ст === 'все' || (рф.ст === 'ут' ? x[7] !== 'нет' : x[7] === рф.ст)) && (рф.кто < 0 || x[1] === рф.кто)
+    // сверка с API партнёрки — только за её месяц и без других фильтров (иначе сравнивать не с чем)
+    const ppВидна = !RZ['все'] || !RZ.ppОт || (рф.мес === RZ.ppОт.slice(0, 7) && рф.вид === 'все' && рф.кто < 0 && рф.бот < 0);
+    const ev = RZ.ev.filter((x) => годенE(x) && (рф.ст === 'все' || (рф.ст === 'ут' ? x[7] !== 'нет' : x[7] === рф.ст)) && (рф.кто < 0 || x[1] === рф.кто)
       && (!рф.q || (x[0] + ' ' + RZ.e[x[1]] + ' ' + RZ.bn[x[2]]).toLowerCase().includes(рф.q)));
-    const мои = (x) => рф.кто < 0 || x[1] === рф.кто;
+    const мои = (x) => годенE(x) && (рф.кто < 0 || x[1] === рф.кто);
     const счёт = (ст) => RZ.ev.filter((x) => мои(x) && (ст === 'все' || (ст === 'ут' ? x[7] !== 'нет' : x[7] === ст))).length;
     const чип = (ст, текст) => `<button type="button" class="pill${рф.ст === ст ? ' on' : ''}" data-rz-st="${ст}">${рф.ст === ст ? '✓ ' : ''}${текст} <b>${ru(счёт(ст))}</b></button>`;
     const строка = (x) => {
@@ -537,7 +577,7 @@
         <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">${ИК_J}Jarvis</a>${чат ? `<a class="lnk" href="${чат}" target="_blank" rel="noopener">${ИК_C}Chatterfy</a>` : `<span class="lnk off" aria-disabled="true">${ИК_C}${ch ? 'бот не найден' : 'чат не найден'}</span>`}</div></div>`;
     };
     const кто = рф.кто >= 0 ? RZ.e[рф.кто] : '';
-    const верх = `<div class="rz-top"><div class="tb-seg">${[['свод', 'Сводка'], ['сотр', 'По сотрудникам <b>' + ru(RZ['сотр'].length) + '</b>'], ['деп', 'Не внесено в Jarvis <b>' + ru(RZ.ev.filter((x) => x[7] === 'нет').length) + '</b>']]
+    const верх = `<div class="rz-top"><div class="tb-seg">${[['свод', 'Сводка'], ['сотр', 'По сотрудникам <b>' + ru(СОТР.length) + '</b>'], ['деп', 'Не внесено в Jarvis <b>' + ru(RZ.ev.filter((x) => годенE(x) && (рф.кто < 0 || x[1] === рф.кто) && x[7] === 'нет').length) + '</b>']]
       .map(([v, t]) => `<button type="button" class="${рф.раздел === v ? 'on' : ''}" data-rz-r="${v}">${t}</button>`).join('')}</div>
       <span class="pill">обновлено ${esc(String(RZ.upd).slice(0, 16).replace('T', ' '))} UTC</span></div>`;
     const уВсе = сл(сум('др'), сум('незн'));
@@ -549,28 +589,47 @@
       <div class="card"><div class="check rz-cmp"><div class="h"></div><div class="h r">Pocket Option</div><div class="h r">Jarvis</div><div class="h r">Не внесено</div><div class="h r">Уточнить</div>
         <div>Первые депозиты</div><div class="r">${шт(И.FD.pp)}<br><small>${usd2(И.FD.pp[1])}</small></div><div class="r">${шт(И.FD.j)}<br><small>${usd2(И.FD.j[1])}</small></div><div class="r rz-bad">${шт(И.FD['нет'])}<br><small>${usd2(И.FD['нет'][1])}</small></div><div class="r rz-wr">${шт(ут(И.FD))}<br><small>${usd2(ут(И.FD)[1])}</small></div>
         <div>Повторные депозиты</div><div class="r">${шт(И.RD.pp)}<br><small>${usd2(И.RD.pp[1])}</small></div><div class="r">${шт(И.RD.j)}<br><small>${usd2(И.RD.j[1])}</small></div><div class="r rz-bad">${шт(И.RD['нет'])}<br><small>${usd2(И.RD['нет'][1])}</small></div><div class="r rz-wr">${шт(ут(И.RD))}<br><small>${usd2(ут(И.RD)[1])}</small></div></div></div>
-      <p class="note">Проверка числа Pocket Option: партнёрка напрямую (API) — ${pp ? ru(pp.dep) + ' деп. · ' + usd2(pp.dep_sum) + (pp.dep === сум('pp')[0] ? ', совпадает' : ', разница ' + ru(Math.abs(pp.dep - сум('pp')[0])) + ' деп. — постбэки, которые партнёрка не прислала или прислала дважды') : 'не ответила при обновлении'}.</p>`;
+      ${!ppВидна ? (pp && RZ.ppОт ? `<p class="note">Проверка числа Pocket Option по API партнёрки — за ${esc(месИмя(RZ.ppОт).toLowerCase())} целиком: выберите этот месяц без других фильтров.</p>` : '') : `<p class="note">Проверка числа Pocket Option: партнёрка напрямую (API) — ${pp ? ru(pp.dep) + ' деп. · ' + usd2(pp.dep_sum) + (pp.dep === сум('pp')[0] ? ', совпадает' : ', разница ' + ru(Math.abs(pp.dep - сум('pp')[0])) + ' деп. — постбэки, которые партнёрка не прислала или прислала дважды') : 'не ответила при обновлении'}.</p>`}`;
     const сотрудники = `<div class="rows rz-rows"><div class="row hd"><div>Сотрудник</div><div class="v">Pocket Option</div><div class="v">Jarvis</div><div class="v">Не внесено</div><div class="v">Уточнить</div></div>
-        ${RZ['сотр'].map((r) => `<button type="button" class="row" data-rz-e="${r[0]}"><div class="nm">${esc(RZ.e[r[0]])}<small>открыть его депозиты</small></div>
+        ${СОТР.map((r) => `<button type="button" class="row" data-rz-e="${r[0]}"><div class="nm">${esc(RZ.e[r[0]])}<small>открыть его депозиты</small></div>
           ${ячейка(r[1], '', 'Pocket Option')}${ячейка(r[2], 'ok-t', 'Jarvis')}${ячейка(r[3], 'rz-bad', 'Не внесено')}${ячейка(сл(r[4], r[5]), 'rz-wr', 'Уточнить')}</button>`).join('')}</div>`;
     const депозиты = `<div class="bar"><span class="conv">${чип('нет', 'не внесено')}${чип('ут', 'уточнить')}${чип('все', 'все')}${кто ? `<button type="button" class="pill on" data-rz-e="-1">✕ ${esc(кто)}</button>` : ''}</span>${поиск('#rz-x', 'ID, сотрудник или бот')}</div>
       <div class="rows">${ev.slice(0, рф.показ).map(строка).join('') || '<p class="lead">Таких депозитов нет.</p>'}</div>
       ${ev.length > рф.показ ? `<button type="button" class="btn more" data-rz-more="1">Показать ещё ${ru(Math.min(ПОКАЗ, ev.length - рф.показ))} из ${ru(ev.length - рф.показ)}</button>` : ''}`;
-    box.innerHTML = верх + (рф.раздел === 'сотр' ? сотрудники : рф.раздел === 'деп' ? депозиты : свод)
-      + `<p class="note">Период ${esc(дм(RZ['от']))}–${esc(дм(RZ['до']))}. Кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата) — перед разбором проверяйте глазами. Обновляется каждый час.</p>`;
+    const мес = рф.мес, кон = (м) => { const d = new Date(Date.UTC(+м.slice(0, 4), +м.slice(5, 7), 0)).toISOString().slice(0, 10); return d < RZ['до'] ? d : RZ['до']; };
+    const пОт = !RZ['все'] || мес === 'все' ? RZ['от'] : (мес + '-01' > RZ['от'] ? мес + '-01' : RZ['от']), пДо = !RZ['все'] || мес === 'все' ? RZ['до'] : кон(мес);
+    box.innerHTML = верх + рФильтры() + (рф.раздел === 'сотр' ? сотрудники : рф.раздел === 'деп' ? депозиты : свод)
+      + `<p class="note">Период ${esc(дм(пОт))}–${esc(дм(пДо))}. Кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата) — перед разбором проверяйте глазами. Обновляется каждый час.</p>`;
     const inp = box.querySelector('.sx input'); if (inp) { inp.value = рф.q; if (рф.q) { inp.parentElement.classList.add('on'); inp.focus(); inp.setSelectionRange(рф.q.length, рф.q.length); }
       inp.addEventListener('input', () => { рф.q = inp.value.trim().toLowerCase(); рф.показ = ПОКАЗ; рРисовать(); }); }
   }
   document.addEventListener('click', (e) => {
     if (вид !== 'rashozhdeniya' || !RZ) return;
-    const el = e.target.closest && e.target.closest('#rz-app [data-rz-r], #rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more]'); if (!el) return;
+    if (рф.пп && !(e.target.closest && e.target.closest('#rz-app .tb-dw'))) { рф.пп = ''; рф.ппq = ''; рРисовать(); }   // щелчок мимо списка — закрыть
+    if (e.target.closest && e.target.closest('#rz-app .tb-q')) return;   // поиск в списке — своим обработчиком
+    const el = e.target.closest && e.target.closest('#rz-app [data-rz-r], #rz-app [data-rz-st], #rz-app [data-rz-e], #rz-app [data-rz-more], #rz-app [data-rz-dd], #rz-app [data-rz-f]'); if (!el) return;
     const d = el.dataset;
+    if (d.rzDd) { рф.пп = рф.пп === d.rzDd ? '' : d.rzDd; рф.ппq = ''; рРисовать(); const inp = рф.пп && $('#rz-app .tb-pop.open .tb-q input'); if (inp) inp.focus(); return; }
+    if (d.rzF) {
+      if (d.rzF === 'сброс') { рф.мес = ''; рф.вид = 'все'; рф.кто = -1; рф.бот = -1; }
+      else if (d.rzF === 'мес' || d.rzF === 'вид') рф[d.rzF] = d.v;
+      else рф[d.rzF] = Number(d.v);
+      рф.пп = ''; рф.ппq = ''; рф.показ = ПОКАЗ; рРисовать(); return;
+    }
     if (d.rzR) { рф.раздел = d.rzR; рф.показ = ПОКАЗ; рРисовать(); scrollTo({ top: Math.min(scrollY, $('#rz-app').offsetTop - 110), behavior: 'smooth' }); return; }
     if (d.rzSt) рф.ст = d.rzSt;
     else if (d.rzE !== undefined) { const n = Number(d.rzE); рф.кто = (n === рф.кто || n < 0) ? -1 : n; if (рф.кто >= 0) { рф.раздел = 'деп'; рф.ст = 'все'; } }
     else if (d.rzMore) { рф.показ += ПОКАЗ; рРисовать(); return; }
     рф.показ = ПОКАЗ; рРисовать();
   });
+
+  // поиск внутри списка фильтра — без перерисовки (фокус остаётся в поле)
+  document.addEventListener('input', (e) => {
+    const q = e.target.closest && e.target.closest('#rz-app .tb-q'); if (!q) return;
+    рф.ппq = e.target.value; const t = рф.ппq.trim().toLowerCase();
+    q.closest('.tb-pop').querySelectorAll('.tb-it:not(.all)').forEach((x) => { x.hidden = t && !x.textContent.toLowerCase().includes(t); });
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && вид === 'rashozhdeniya' && рф.пп) { рф.пп = ''; рф.ппq = ''; рРисовать(); } });
 
   /* ── игроки (грузятся при первом открытии панели) ── */
   const игроки = () => pLoad || (pLoad = fetch('../oktyabr-2026-players/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((j) => (P = j)));

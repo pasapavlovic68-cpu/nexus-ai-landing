@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Отчёт за октябрь 2026 · Nexus</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<!-- свой значок отчёта (оранжевая N, как в шапке) — на вкладке и в доке, чтобы не путать с другими сайтами (26.10) -->
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/otchet/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/assets/otchet/favicon-64.png">
+<link rel="apple-touch-icon" href="/assets/otchet/apple-touch-icon.png">
+<link rel="manifest" href="/assets/otchet/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Отчёт">
+<meta name="application-name" content="Отчёт">
+<meta name="theme-color" content="#12100E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -143,7 +150,7 @@ a.row:hover{transform:translateY(-1px)}
 .row.on{border-color:color-mix(in srgb,var(--or2) 60%,transparent)}
 /* шапка таблицы «По сотрудникам» на «Расхождениях» — без прилипания (прилипшая ложилась под меню острым прямоугольником и
    срезала заголовок над собой), с отступом от заголовка */
-#rz-app{display:grid;gap:22px}/* блоки вкладки — с тем же зазором, что у .view на других вкладках (26.10, «слиплось») */
+#rz-app{display:grid;gap:22px}.rz-ctl .rz-sbros{margin-left:auto}/* фильтры «Расхождений» — та же панель, что на вкладке «Таблица» (.tb-ctl/.tb-r/.tb-dd) *//* блоки вкладки — с тем же зазором, что у .view на других вкладках (26.10, «слиплось») */
 .rz-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 6px}.rz-top .tb-seg{flex-wrap:wrap}
 .lnk svg{width:15px;height:15px;flex:none}
 .pl .id small.rz-pl{font-family:var(--fm);font-size:11px;color:var(--tx2)}.pl .id small.rz-pl.rz-bad{color:var(--bad)}.pl .id small+small.rz-pl{margin-top:3px}.pl .id small.rz-pl+small.rz-pl{margin-top:0}
