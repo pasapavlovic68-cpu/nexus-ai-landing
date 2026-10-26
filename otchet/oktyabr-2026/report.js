@@ -522,7 +522,9 @@
       const [t, ei, bi, ch, вид, когда, сумма, ст, наКого, , дубль, безКарт] = x, bid = RZ.b[bi];
       const чат = bid && ch ? 'https://v2.chatterfy.ai/bots/' + encodeURIComponent(bid) + '/chats?chat=' + encodeURIComponent(ch) : '';
       const jarvis = 'https://jarvisfinerp.top/binone/actions/mop-stats/?partner_network_player_id=' + encodeURIComponent(t) + '&show_errors=all&is_api=all';
-      return `<div class="pl"><div class="id">${esc(t)}<small>${esc(RZ.e[ei])} · ${esc(RZ.bn[bi])}</small></div>
+      const и = (RZ['игр'] || {})[t];   // по игроку за период: [в Pocket Option шт, $, в Jarvis шт, $] (26.10, владелец)
+      const поИгр = и ? `<small class="rz-pl">Pocket Option: ${ru(и[0])} деп · ${usd2(и[1])}</small><small class="rz-pl${и[2] < и[0] ? ' rz-bad' : ''}">в Jarvis: ${ru(и[2])} деп · ${usd2(и[3])}</small>` : '';
+      return `<div class="pl"><div class="id">${esc(t)}<small>${esc(RZ.e[ei])} · ${esc(RZ.bn[bi])}</small>${поИгр}</div>
         <div class="v">${usd2(сумма)}<small>${esc(вид)}${дубль ? ' · возможный дубль' : ''}</small></div><div class="v">${esc(когда)}<small>МСК</small></div>
         <div class="v ${РСТ[ст][1]}">${esc(РСТ[ст][0])}<small>${ст === 'др' && наКого ? 'в Jarvis: ' + esc(наКого) : ст === 'незн' ? (безКарт ? 'ещё не проверяли' : 'Jarvis не ответил') : 'в Jarvis'}</small></div>
         <div class="bt"><a class="lnk" href="${jarvis}" target="_blank" rel="noopener">${ИК_J}Jarvis</a>${чат ? `<a class="lnk" href="${чат}" target="_blank" rel="noopener">${ИК_C}Chatterfy</a>` : `<span class="lnk off" aria-disabled="true">${ИК_C}${ch ? 'бот не найден' : 'чат не найден'}</span>`}</div></div>`;
@@ -543,6 +545,7 @@
         <p><b class="rz-wr">На другом</b> — в Chatterfy игрок закреплён за одним сотрудником (тег на чате), а в Jarvis этот депозит записан на другого. В списке видно оба имени: кто у нас и кто в Jarvis.</p>
         <p><b>Не проверено</b> — станция ещё не сверила этот депозит с Jarvis или Jarvis не ответил. С 26.10 такие депозиты перепроверяются каждые сутки (раньше проверка шла только 3 дня и бросала), поэтому это число будет уменьшаться.</p>
         <p><b>Сотрудник не определён</b> — система не нашла, чей это игрок: чата с ним не нашлось или на чате нет тега сотрудника. Такие депозиты никто не вносит — их надо разобрать вручную.</p>
+        <p><b>Под номером игрока</b> — сколько у него депозитов за период в Pocket Option и сколько из них нашлось в Jarvis (у любого сотрудника).</p>
         <p><b>Как проверять</b> — кнопка «Jarvis» открывает записи игрока, «Chatterfy» — его чат. Сверка автоматическая (игрок + сумма + дата), бывают ошибки — смотрите глазами.</p>
       </div>`;
     const сотрудники = `<div class="rows rz-rows"><div class="row hd"><div>Сотрудник</div><div class="v">В ПП</div><div class="v">Есть</div><div class="v">Нет, шт</div><div class="v">Нет</div><div class="v">На другом</div><div class="v">Не проверено</div></div>
